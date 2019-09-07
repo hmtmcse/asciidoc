@@ -1,0 +1,5 @@
+= Bismillah
+Doc Writer <doc.writer@example.org>  2014-09-09
+
+
+include::topics/bismillah.adoc[]
