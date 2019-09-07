@@ -1,0 +1,56 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:2.3.0"
+        classpath "org.kordamp.gradle:livereload-gradle-plugin:0.2.1"
+    }
+}
+
+apply plugin: "org.asciidoctor.convert"
+apply plugin: "org.kordamp.gradle.livereload"
+apply plugin: "java"
+
+
+
+group 'com.hmtmcse'
+version '1.0.0'
+
+
+
+repositories {
+    mavenCentral()
+}
+
+asciidoctorj {
+    version = '1.5.5'
+}
+
+
+asciidoctor {
+    def source = project.sourceSets.main.java.srcDirs[0]
+    def build = file('build.gradle')
+    
+    inputs.dir source
+    inputs.dir source
+
+    attributes \
+        'build-gradle': file('build.gradle'),
+    'sourcedir': source,
+    'endpoint-url': 'http://example.org',
+    'source-highlighter': 'coderay',
+    'imagesdir': 'images',
+    'toc': 'left',
+    'icons': 'font',
+    'setanchors': '',
+    'idprefix': '',
+    'idseparator': '-',
+    'docinfo1': ''
+}
+
+liveReload {
+    docRoot asciidoctor.outputDir.canonicalPath
+}
