@@ -23,9 +23,12 @@ asciidoctorj {
 
 asciidoctor {
     sourceDir = file('asciidoc')
-    println(sourceDir)
     outputDir = file('docs')
+    resources {
+        from(sourceDir) {
+            include 'images/**'
+        }
+    }
     attributes 'toc': 'left',
     'source-highlighter': 'coderay'
-    
 }
