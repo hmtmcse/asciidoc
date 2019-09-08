@@ -1,5 +1,6 @@
 buildscript {
     repositories {
+        mavenLocal()
         jcenter()
     }
 
@@ -16,14 +17,14 @@ repositories {
 apply plugin: 'org.asciidoctor.convert'
 
 asciidoctorj {
-    version = '1.5.4'
+    version = '2.1.0'
 }
 
 asciidoctor {
     sourceDir = file('docs')
     println(sourceDir)
-    sources {
-        include 'bismillah.adoc'
-    }
+//    sources {
+//        include 'bismillah.adoc'
+//    }
     outputDir = file('build/docs')
 }

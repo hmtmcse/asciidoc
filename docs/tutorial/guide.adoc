@@ -1,0 +1,472 @@
+= Heading
+
+```asciidoc
+= h1
+== h2
+=== h3
+==== h4
+===== h5
+```
+
+= h1
+== h2
+=== h3
+==== h4
+===== h5
+
+= Specising
+
+```asciidoc
+{nbsp} +
+{sp} +
+{empty} +
+{zwsp} +
+{blank} +
+```
+
+{blank} +
+
+= Typography
+
+{blank} +
+
+=== Quoted text
+
+```asciidoc
+I can't believe it, we *won*!
+```
+I can't believe it, we *won*!
+
+{blank} +
+
+=== Bold, italic, and monospace formatting syntax
+
+```asciidoc
+bold *constrained* & **un**constrained
+
+italic _constrained_ & __un__constrained
+
+bold italic *_constrained_* & **__un__**constrained
+
+monospace `constrained` & ``un``constrained
+
+monospace bold `*constrained*` & ``**un**``constrained
+
+monospace italic `_constrained_` & ``__un__``constrained
+
+monospace bold italic `*_constrained_*` & ``**__un__**``constrained
+```
+
+bold *constrained* & **un**constrained
+
+italic _constrained_ & __un__constrained
+
+bold italic *_constrained_* & **__un__**constrained
+
+monospace `constrained` & ``un``constrained
+
+monospace bold `*constrained*` & ``**un**``constrained
+
+monospace italic `_constrained_` & ``__un__``constrained
+
+monospace bold italic `*_constrained_*` & ``**__un__**``constrained
+
+
+
+{blank} +
+
+=== Replacements
+
+. Copyright > +++  (C) +++ > (C)
+. Registered > +++  (R) +++ > (R)
+. Trademark > +++  (TM) +++ > (TM)
+. Em dash > +++  -- +++ > --
+. Ellipsis > +++  ... +++ > ...
+. Single right arrow > +++  -> +++ > ->
+. Double right arrow > +++  => +++ > =>
+. Single left arrow > +++  <- +++ > <-
+. Double left arrow > +++  <= +++ > <=
+
+
+
+{blank} +
+
+=== xxxxxxxx
+
+```asciidoc
+```
+
+
+{blank} +
+
+=== xxxxxxxx
+
+```asciidoc
+```
+
+{blank} +
+
+=== xxxxxxxx
+
+```asciidoc
+```
+
+
+
+
+{empty} +
+
+= Wrapped text and hard line breaks
+
+
+=== Line breaks preserved using a space followed by the plus sign (+)
+
+```asciidoc
+Rubies are red, +
+Topazes are blue.
+```
+Rubies are red, +
+Topazes are blue.
+
+
+
+
+
+=== Line breaks preserved using the hardbreaks option
+
+```asciidoc
+[%hardbreaks]
+Ruby is red.
+Java is black.
+```
+
+[%hardbreaks]
+Ruby is red.
+Java is black.
+
+{empty} +
+
+= List
+
+. Unordered
+. Ordered
+. Description
+
+
+=== Lists of things
+
+.1st Way
+```asciidoc
+* Edgar Allen Poe
+* Sheri S. Tepper
+* Bill Bryson
+```
+
+* Edgar Allen Poe
+* Sheri S. Tepper
+* Bill Bryson
+
+.2nd Way
+```asciidoc
+- Edgar Allen Poe
+- Sheri S. Tepper
+- Bill Bryson
+```
+
+- Edgar Allen Poe
+- Sheri S. Tepper
+- Bill Bryson
+
+.3rd Way Nested
+```asciidoc
+* level 1
+** level 2
+*** level 3
+**** level 4
+***** level 5
+* level 1
+```
+* level 1
+** level 2
+*** level 3
+**** level 4
+***** level 5
+* level 1
+
+
+=== Ordering the things
+
+.Basic Way
+```asciidoc
+. Protons
+. Electrons
+. Neutrons
+```
+. Protons
+. Electrons
+. Neutrons
+
+
+.The step will Started from 4
+```asciidoc
+[start=4]
+. Step four
+. Step five
+. Step six
+```
+[start=4]
+. Step four
+. Step five
+. Step six
+
+
+.Step can be reversed order
+
+
+```asciidoc
+[%reversed]
+. Protons
+. Electrons
+. Neutrons
+```
+
+[%reversed]
+. Protons
+. Electrons
+. Neutrons
+
+
+.A nested ordered list
+
+```asciidoc
+. Step 1
+. Step 2
+.. Step 2a
+.. Step 2b
+. Step 3
+```
+
+. Step 1
+. Step 2
+.. Step 2a
+.. Step 2b
+. Step 3
+
+{empty} +
+
+=== Description lists
+
+.1st Way
+```asciidoc
+CPU:: The brain of the computer.
+Hard drive:: Permanent storage for operating system and/or user files.
+RAM:: Temporarily stores information the CPU uses during operation.
+Keyboard:: Used to enter text or control items on the screen.
+Mouse:: Used to point to and select items on your computer screen.
+Monitor:: Displays information in visual form using text and graphics.
+```
+
+CPU:: The brain of the computer.
+Hard drive:: Permanent storage for operating system and/or user files.
+RAM:: Temporarily stores information the CPU uses during operation.
+Keyboard:: Used to enter text or control items on the screen.
+Mouse:: Used to point to and select items on your computer screen.
+Monitor:: Displays information in visual form using text and graphics.
+
+.Horizontal Way
+```asciidoc
+[horizontal]
+CPU:: The brain of the computer.
+Hard drive:: Permanent storage for operating system and/or user files.
+RAM:: Temporarily stores information the CPU uses during operation.
+```
+[horizontal]
+CPU:: The brain of the computer.
+Hard drive:: Permanent storage for operating system and/or user files.
+RAM:: Temporarily stores information the CPU uses during operation.
+
+.Another Way
+```asciidoc
+Dairy::
+* Milk
+* Eggs
+Bakery::
+* Bread
+Produce::
+* Bananas
+```
+
+Dairy::
+* Milk
+* Eggs
+Bakery::
+* Bread
+Produce::
+* Bananas
+
+=== A hybrid list
+
+```asciidoc
+Operating Systems::
+  Linux:::
+    . Fedora
+      * Desktop
+    . Ubuntu
+      * Desktop
+      * Server
+  BSD:::
+    . FreeBSD
+    . NetBSD
+
+Cloud Providers::
+  PaaS:::
+    . OpenShift
+    . CloudBees
+  IaaS:::
+    . Amazon EC2
+    . Rackspace
+```
+
+Operating Systems::
+  Linux:::
+    . Fedora
+      * Desktop
+    . Ubuntu
+      * Desktop
+      * Server
+  BSD:::
+    . FreeBSD
+    . NetBSD
+
+Cloud Providers::
+  PaaS:::
+    . OpenShift
+    . CloudBees
+  IaaS:::
+    . Amazon EC2
+    . Rackspace
+
+{empty} +
+
+=== A list with complex content
+
+```
+* The header in AsciiDoc must start with a document title.
++
+----
+= Document Title
+----
++
+Keep in mind that the header is optional.
+
+* Optional Author and Revision information immediately follows the header title.
++
+----
+= Document Title
+Doc Writer <doc.writer@asciidoc.org>
+v1.0, 2013-01-01
+----
+```
+
+* The header in AsciiDoc must start with a document title.
++
+----
+= Document Title
+----
++
+Keep in mind that the header is optional.
+
+* Optional Author and Revision information immediately follows the header title.
++
+----
+= Document Title
+Doc Writer <doc.writer@asciidoc.org>
+v1.0, 2013-01-01
+----
+
+
+{blank} +
+
+= Links and images
+
+
+=== xxxxxxxx
+
+```asciidoc
+```
+
+
+
+
+
+
+
+
+{empty} +
+
+= Admonitions
+
+. NOTE
+. TIP
+. IMPORTANT
+. CAUTION
+. WARNING
+
+{blank} +
+
+=== NOTE
+
+```asciidoc
+WARNING: Wolpertingers are known to nest in server racks.   
+Enter at your own risk.
+```
+WARNING: Wolpertingers are known to nest in server racks.   
+Enter at your own risk.
+
+
+{blank} +
+
+=== TIP
+
+```asciidoc
+TIP: This is Example text for describe something.
+```
+TIP: This is Example text for describe something.
+
+{blank} +
+
+=== IMPORTANT
+
+```asciidoc
+IMPORTANT: This is Example text for describe something.
+```
+IMPORTANT: This is Example text for describe something.
+
+
+{blank} +
+
+=== CAUTION
+
+```asciidoc
+CAUTION: This is Example text for describe something.
+```
+CAUTION: This is Example text for describe something.
+
+
+{blank} +
+
+=== WARNING
+
+```asciidoc
+WARNING: This is Example text for describe something.
+```
+WARNING: This is Example text for describe something.
+
+
+
+{blank} +
+
+=== xxxxxxxx
+
+```asciidoc
+```
