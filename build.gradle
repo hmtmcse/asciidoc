@@ -2,10 +2,11 @@ buildscript {
     repositories {
         mavenLocal()
         jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 
     dependencies {
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2'
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:2.3.0"
     }
 }
 
@@ -21,10 +22,9 @@ asciidoctorj {
 }
 
 asciidoctor {
-    sourceDir = file('docs')
+    sourceDir = file('asciidoc')
     println(sourceDir)
-    outputDir = file('build/docs')
-
+    outputDir = file('docs')
     attributes 'toc': 'left',
     'source-highlighter': 'coderay'
     
