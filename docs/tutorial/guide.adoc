@@ -166,6 +166,8 @@ Java is black.
 * Sheri S. Tepper
 * Bill Bryson
 
+{blank} +
+
 .2nd Way
 ```asciidoc
 - Edgar Allen Poe
@@ -176,6 +178,8 @@ Java is black.
 - Edgar Allen Poe
 - Sheri S. Tepper
 - Bill Bryson
+
+{blank} +
 
 .3rd Way Nested
 ```asciidoc
@@ -206,6 +210,7 @@ Java is black.
 . Electrons
 . Neutrons
 
+{blank} +
 
 .The step will Started from 4
 ```asciidoc
@@ -219,6 +224,7 @@ Java is black.
 . Step five
 . Step six
 
+{blank} +
 
 .Step can be reversed order
 
@@ -235,6 +241,7 @@ Java is black.
 . Electrons
 . Neutrons
 
+{blank} +
 
 .A nested ordered list
 
@@ -273,6 +280,8 @@ Keyboard:: Used to enter text or control items on the screen.
 Mouse:: Used to point to and select items on your computer screen.
 Monitor:: Displays information in visual form using text and graphics.
 
+{blank} +
+
 .Horizontal Way
 ```asciidoc
 [horizontal]
@@ -284,6 +293,8 @@ RAM:: Temporarily stores information the CPU uses during operation.
 CPU:: The brain of the computer.
 Hard drive:: Permanent storage for operating system and/or user files.
 RAM:: Temporarily stores information the CPU uses during operation.
+
+{blank} +
 
 .Another Way
 ```asciidoc
@@ -303,6 +314,8 @@ Bakery::
 * Bread
 Produce::
 * Bananas
+
+{blank} +
 
 === A hybrid list
 
@@ -390,14 +403,289 @@ v1.0, 2013-01-01
 = Links and images
 
 
-=== xxxxxxxx
+=== Anatomy of a Link macro
 
 ```asciidoc
+link:url[optional link text, optional target attribute, optional role attribute]
+
+link:http://www.hmtmcse.com[HMTMCSE]
+
+link:http://www.hmtmcse.com[HMTMCSE in New Window, window=_blank]
+
 ```
 
+. link:http://www.hmtmcse.com[HMTMCSE]
+. link:http://www.hmtmcse.com[HMTMCSE in New Window, window=_blank]
+
+
+{blank} +
+
+=== Anatomy of a Images macro
+
+```asciidoc
+image::url[optional link text, optional target attribute, optional role attribute]
+
+image::https://avatars2.githubusercontent.com/u/1875791?s=460&v=4[HMTMCSE, 300, 300]
+image::https://avatars2.githubusercontent.com/u/1875791?s=460&v=4[HMTMCSE]
+image:https://avatars2.githubusercontent.com/u/1875791?s=460&v=4[HMTMCSE, 100, 100, title="Touhid Mia"]
+```
+
+image::https://avatars2.githubusercontent.com/u/1875791?s=460&v=4[HMTMCSE, 300, 300]
+image::https://avatars2.githubusercontent.com/u/1875791?s=460&v=4[HMTMCSE]
+image:https://avatars2.githubusercontent.com/u/1875791?s=460&v=4[HMTMCSE, 100, 100, title="Touhid Mia"]
 
 
 
+
+{blank} +
+
+= Table
+
+
+=== Example 1
+
+```asciidoc
+[cols=2*]
+|===
+|Firefox
+|Web Browser
+
+|Ruby
+|Programming Language
+
+|TorqueBox
+|Application Server
+|===
+```
+[cols=2*]
+|===
+|Firefox
+|Web Browser
+
+|Ruby
+|Programming Language
+
+|TorqueBox
+|Application Server
+|===
+
+
+{blank} +
+
+=== Example 2
+
+```asciidoc
+[cols=2*,options=header]
+|===
+|Name
+|Group
+
+|Firefox
+|Web Browser
+
+|Ruby
+|Programming Language
+|===
+```
+
+[cols=2*,options=header]
+|===
+|Name
+|Group
+
+|Firefox
+|Web Browser
+
+|Ruby
+|Programming Language
+|===
+
+
+{blank} +
+
+=== Example 3
+
+```asciidoc
+|===
+|Name |Group |Description
+
+|Firefox
+|Web Browser
+|Mozilla Firefox is an open-source web browser.
+It's designed for standards compliance,
+performance, portability.
+
+|Ruby
+|Programming Language
+|A programmer's best friend.
+|===
+```
+
+|===
+|Name |Group |Description
+
+|Firefox
+|Web Browser
+|Mozilla Firefox is an open-source web browser.
+It's designed for standards compliance,
+performance, portability.
+
+|Ruby
+|Programming Language
+|A programmer's best friend.
+|===
+
+
+{blank} +
+
+=== Example 4
+You can set the relative widths of each column using column specifiers—a comma-separated list of relative values defined in the cols block attribute. The number of entries in the list determines the number of columns.
+```asciidoc
+[cols="2,3,5"]
+|===
+|Name |Group |Description
+
+|Firefox
+|Web Browser
+|Mozilla Firefox is an open-source web browser.
+It's designed for standards compliance,
+performance and portability.
+
+|Ruby
+|Programming Language
+|A programmer's best friend.
+|===
+```
+[cols="2,3,5"]
+|===
+|Name |Group |Description
+
+|Firefox
+|Web Browser
+|Mozilla Firefox is an open-source web browser.
+It's designed for standards compliance,
+performance and portability.
+
+|Ruby
+|Programming Language
+|A programmer's best friend.
+|===
+
+
+
+{blank} +
+
+=== Example 5
+If you want to include blocks or lists inside the contents of a column, you can put an a (for AsciiDoc) at the end of the column’s relative value.
+```asciidoc
+[cols="2,3,5a"]
+|===
+|Name |Group |Description
+
+|Firefox
+|Web Browser
+|Mozilla Firefox is an open-source web browser.
+It's designed for:
+
+* standards compliance,
+* performance and
+* portability.
+
+|Ruby
+|Programming Language
+|A programmer's best friend.
+|===
+```
+
+[cols="2,3,5a"]
+|===
+|Name |Group |Description
+
+|Firefox
+|Web Browser
+|Mozilla Firefox is an open-source web browser.
+It's designed for:
+
+* standards compliance,
+* performance and
+* portability.
+
+|Ruby
+|Programming Language
+|A programmer's best friend.
+|===
+
+[NOTE]
+====
+Alternatively, you can apply the AsciiDoc style to an individual cell by prefixing the vertical bar with an a:
+
+```asciidoc
+a|Mozilla Firefox is an open-source web browser.
+It's designed for:
+
+* standards compliance,
+* performance and
+* portability.
+```
+====
+
+
+
+
+{blank} +
+
+=== Example 6
+
+```asciidoc
+[%header,format=csv]
+|===
+Artist,Track,Genre
+Baauer,Harlem Shake,Hip Hop
+The Lumineers,Ho Hey,Folk Rock
+|===
+```
+[%header,format=csv]
+|===
+Artist,Track,Genre
+Baauer,Harlem Shake,Hip Hop
+The Lumineers,Ho Hey,Folk Rock
+|===
+
+[NOTE]
+====
+using an include::[] directive:
+
+```asciidoc
+[%header,format=csv]
+|===
+ include::tracks.csv[]
+|===
+```
+====
+
+
+{blank} +
+
+=== Example 7
+
+```asciidoc
+,===
+a,b,c
+,===
+
+:===
+a:b:c
+:===
+
+```
+
+,===
+a,b,c
+,===
+
+:===
+a:b:c
+:===
 
 
 
@@ -470,6 +758,8 @@ WARNING: This is Example text for describe something.
 
 ```asciidoc
 ```
+
+
 
 
 {blank} +
