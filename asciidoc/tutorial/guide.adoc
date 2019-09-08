@@ -732,6 +732,17 @@ WARNING: This is Example text for describe something.
 WARNING: This is Example text for describe something.
 
 
+{blank} +
+
+== Include Files
+
+```asciidoc
+include::basics.adoc[]
+include::installation.adoc[]
+include::example.adoc[]
+```
+
+
 
 {blank} +
 
