@@ -38,8 +38,16 @@ asciidoctor {
 
 asciidoctor.doLast {
     copy {
-        from 'build/docs/html5'
-        into "$projectDir"
-        include 'index.html'
+        from "${docHtml}/html5"
+        into "$docHtml"
+    }
+    delete {
+        delete "${docHtml}/html5"
+    }
+}
+
+asciidoctor.doFirst {
+    delete {
+        delete "$docHtml"
     }
 }
