@@ -89,29 +89,6 @@ monospace bold italic `*_constrained_*` & ``**__un__**``constrained
 
 
 
-{blank} +
-
-=== xxxxxxxx
-
-```asciidoc
-```
-
-
-{blank} +
-
-=== xxxxxxxx
-
-```asciidoc
-```
-
-{blank} +
-
-=== xxxxxxxx
-
-```asciidoc
-```
-
-
 
 
 {empty} +
@@ -753,13 +730,6 @@ WARNING: This is Example text for describe something.
 
 
 {blank} +
-
-=== xxxxxxxx
-
-```asciidoc
-```
-
-
 
 
 {blank} +
