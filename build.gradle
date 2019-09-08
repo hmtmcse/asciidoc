@@ -23,8 +23,9 @@ asciidoctorj {
 asciidoctor {
     sourceDir = file('docs')
     println(sourceDir)
-//    sources {
-//        include 'bismillah.adoc'
-//    }
     outputDir = file('build/docs')
+
+    attributes 'toc': 'left',
+    'source-highlighter': 'coderay'
+    
 }
