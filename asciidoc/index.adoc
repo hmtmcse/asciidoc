@@ -858,6 +858,7 @@ Integer i = 10;
 ----
 Integer i = 10;
 ----
+{blank} +
 |===
 
 
@@ -887,7 +888,36 @@ All Togather ::
 |Cell in column 3, row 2 and another bucket of content, and then a jelly roll of content
 |===
 
+{empty} +
 
+=== Cell Formatting
+
+Span ::
+. *** : To duplicate a cell in multiple, consecutive columns, prefix the `|` with the multiplication factor and the `*` operator.
+. *+* : To have a cell span multiple, consecutive columns, prefix the `|` with the span factor and the `+` operator.
+. *.* : If we want to have a cell span multiple, consecutive rows, prefix the span factor with a dot (`.`). Of course we
+can combine spanning over columns and rows. The number before the dot (`.`) is the number of columns to span and the number
+after the dot (`.`) is the number of rows to span.
+
+|===
+|Cell in column 1, row 1 |Cell in column 2, row 1 |Cell in column 3, row 1 |Cell in column 4, row 1
+
+4*|Same cell content in columns 1, 2, 3 and 4
+
+4+|Content in a single cell that spans columns 1, 2, 3 and 4
+
+|Cell in column 1, row 4
+|Cell in column 2, row 4
+|Cell in column 3, row 4
+|Cell in column 4, row 4
+
+|Cell in column 1, row 5
+2.2+| Marge column 1, 2 and Row 5, 6
+|Cell in column 4, row 5
+
+|Cell in column 1, row 6
+|Cell in column 4, row 6
+|===
 
 {empty} +
 

@@ -497,6 +497,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_example_6">Example 6</a></li>
 <li><a href="#_example_7">Example 7</a></li>
 <li><a href="#_table_column_formatting">Table Column Formatting</a></li>
+<li><a href="#_cell_formatting">Cell Formatting</a></li>
 </ul>
 </li>
 <li><a href="#_admonitions">Admonitions</a>
@@ -1929,32 +1930,36 @@ in a paragraph.</p></td>
 |Cell in column 2, row 1
 |Cell in column 3, row 1
 |Cell in column 4, row 1
-|Cell in column 5, row 1
+|
+[java]
+----
+Integer i = 10;
+----
 |===</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 100%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
 </colgroup>
 <tbody>
 <tr>
 <th class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 1</p></th>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Cell in column 2, row 1</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 3, row 1</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 4, row 1</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">[java]
-----
-Integer i = 10;
-----</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Cell in column 3, row 1</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Cell in column 4, row 1</em></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="content">
+<pre>Integer i = 10;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><br></p>
+</div></div></td>
 </tr>
 </tbody>
 </table>
@@ -1993,6 +1998,76 @@ Integer i = 10;
 <td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 2</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Cell in column 2, row 2</p></td>
 <td class="tableblock halign-center valign-bottom"><p class="tableblock">Cell in column 3, row 2 and another bucket of content, and then a jelly roll of content</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><br></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cell_formatting">Cell Formatting</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Span </dt>
+<dd>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>*</strong> : To duplicate a cell in multiple, consecutive columns, prefix the <code>|</code> with the multiplication factor and the <code>*</code> operator.</p>
+</li>
+<li>
+<p>** : To have a cell span multiple, consecutive columns, prefix the `|` with the span factor and the `` operator.</p>
+</li>
+<li>
+<p><strong>.</strong> : If we want to have a cell span multiple, consecutive rows, prefix the span factor with a dot (<code>.</code>). Of course we
+can combine spanning over columns and rows. The number before the dot (<code>.</code>) is the number of columns to span and the number
+after the dot (<code>.</code>) is the number of rows to span.</p>
+</li>
+</ol>
+</div>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Cell in column 1, row 1</th>
+<th class="tableblock halign-left valign-top">Cell in column 2, row 1</th>
+<th class="tableblock halign-left valign-top">Cell in column 3, row 1</th>
+<th class="tableblock halign-left valign-top">Cell in column 4, row 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Same cell content in columns 1, 2, 3 and 4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Same cell content in columns 1, 2, 3 and 4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Same cell content in columns 1, 2, 3 and 4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Same cell content in columns 1, 2, 3 and 4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" colspan="4"><p class="tableblock">Content in a single cell that spans columns 1, 2, 3 and 4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 2, row 4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 3, row 4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 4, row 4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 5</p></td>
+<td class="tableblock halign-left valign-top" colspan="2" rowspan="2"><p class="tableblock">Marge column 1, 2 and Row 5, 6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 4, row 5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 4, row 6</p></td>
 </tr>
 </tbody>
 </table>
@@ -2176,7 +2251,7 @@ Unresolved directive in index.adoc - include::example.adoc[]</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version unspecified<br>
-Last updated 2019-09-13 22:06:56 +0600
+Last updated 2019-09-13 23:10:21 +0600
 </div>
 </div>
 <style>
