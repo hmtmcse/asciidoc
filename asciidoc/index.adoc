@@ -899,6 +899,28 @@ Span ::
 can combine spanning over columns and rows. The number before the dot (`.`) is the number of columns to span and the number
 after the dot (`.`) is the number of rows to span.
 
+```asciidoc
+|===
+|Cell in column 1, row 1 |Cell in column 2, row 1 |Cell in column 3, row 1 |Cell in column 4, row 1
+
+4*|Same cell content in columns 1, 2, 3 and 4
+
+4+|Content in a single cell that spans columns 1, 2, 3 and 4
+
+|Cell in column 1, row 4
+|Cell in column 2, row 4
+|Cell in column 3, row 4
+|Cell in column 4, row 4
+
+|Cell in column 1, row 5
+2.2+| Marge column 1, 2 and Row 5, 6
+|Cell in column 4, row 5
+
+|Cell in column 1, row 6
+|Cell in column 4, row 6
+|===
+```
+
 |===
 |Cell in column 1, row 1 |Cell in column 2, row 1 |Cell in column 3, row 1 |Cell in column 4, row 1
 

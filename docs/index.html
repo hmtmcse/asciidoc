@@ -2029,6 +2029,29 @@ after the dot (<code>.</code>) is the number of rows to span.</p>
 </dd>
 </dl>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="asciidoc">|===
+|Cell in column 1, row 1 |Cell in column 2, row 1 |Cell in column 3, row 1 |Cell in column 4, row 1
+
+4*|Same cell content in columns 1, 2, 3 and 4
+
+4+|Content in a single cell that spans columns 1, 2, 3 and 4
+
+|Cell in column 1, row 4
+|Cell in column 2, row 4
+|Cell in column 3, row 4
+|Cell in column 4, row 4
+
+|Cell in column 1, row 5
+2.2+| Marge column 1, 2 and Row 5, 6
+|Cell in column 4, row 5
+
+|Cell in column 1, row 6
+|Cell in column 4, row 6
+|===</code></pre>
+</div>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -2251,7 +2274,7 @@ Unresolved directive in index.adoc - include::example.adoc[]</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version unspecified<br>
-Last updated 2019-09-13 23:10:21 +0600
+Last updated 2019-09-13 23:12:40 +0600
 </div>
 </div>
 <style>
