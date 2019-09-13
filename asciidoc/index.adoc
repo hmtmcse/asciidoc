@@ -959,7 +959,7 @@ after the dot (`.`) is the number of rows to span.
 NOTE: Wolpertingers are known to nest in server racks.
 Enter at your own risk.
 ```
-WARNING: Wolpertingers are known to nest in server racks.
+NOTE: Wolpertingers are known to nest in server racks.
 Enter at your own risk.
 
 
