@@ -763,13 +763,129 @@ Align ::
 |Cell in column 3, row 2
 |===
 
+NOTE: The content in the examples above is only centered on the horizontal. It can also be aligned
+vertically when the alignment operator is prefixed with a dot (`.`).
 
 
 
 Width ::
 
+The width component sets the width of a column. Its value can be a proportional integer (the default is 1) or a
+percentage (1 to 99). We do not need to include the percent sign (%).
+
+```asciidoc
+[cols="1,2,6"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+|===
+```
+
+[cols="1,2,6"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+|===
+
+
 Style ::
 
+[cols="1,2,100"]
+|===
+|Style Name |Value |Description
+
+| AsciiDoc
+| a
+| Supports block-level elements (paragraphs, delimited blocks, and block macros). This style effectively creates a nested,
+standalone AsciiDoc document. Implicit attributes such as doctitle from the parent document will be shadowed. Custom attributes are inherited.
+
+| Emphasis
+| e
+| Text is italicized
+
+| Header
+| h
+| Header styles are applied to the column
+
+| Literal
+| l
+| Column content is treated as if it were inside a literal block
+
+| Monospaced
+| m
+| Text is rendered in monospaced font
+
+| None (default style)
+| d
+| Text is handled like a normal paragraph. Supports all markup (i.e., inline formatting, inline macros) that is permitted
+in a paragraph.
+
+| Strong
+| s
+| Text is bolded
+
+| Verse
+| v
+| Column content is treated as if it were inside a verse block
+
+|===
+
+```asciidoc
+[cols="h,m,s,e,a"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+|Cell in column 4, row 1
+|
+[java]
+----
+Integer i = 10;
+----
+|===
+```
+
+[cols="h,m,s,e,a"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+|Cell in column 4, row 1
+|
+[java]
+----
+Integer i = 10;
+----
+|===
+
+
+All Togather ::
+
+```asciidoc
+[cols=".<2,.^5,^.>3"]
+|===
+|Cell in column 1, row 1 with lots and lots and lots and lots of content
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2 and another bucket of content, and then a jelly roll of content
+|===
+```
+
+[cols=".<2,.^5,^.>3"]
+|===
+|Cell in column 1, row 1 with lots and lots and lots and lots of content
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2 and another bucket of content, and then a jelly roll of content
+|===
 
 
 
