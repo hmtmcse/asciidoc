@@ -610,6 +610,42 @@ It's designed for:
 ```
 ====
 
+{blank} +
+
+=== Example `code at table cell`
+
+```asciidoc
+[cols="2,2,5"]
+|===
+|Blocks |Phases |Description
+
+|given:
+|Setup
+a| The given block is where you do any setup work for the feature that you are describing. It may not be preceded by other blocks, and may not be repeated.
+----
+given:
+def stack = new Stack()
+def elem = "push me"
+----
+|===
+```
+
+[cols="2,2,5"]
+|===
+|Blocks |Phases |Description
+
+|given:
+|Setup
+a| The given block is where you do any setup work for the feature that you are describing. It may not be preceded by other blocks, and may not be repeated.
+----
+given:
+def stack = new Stack()
+def elem = "push me"
+----
+
+{blank} +
+
+|===
 
 
 

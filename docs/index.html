@@ -493,6 +493,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_example_3">Example 3</a></li>
 <li><a href="#_example_4">Example 4</a></li>
 <li><a href="#_example_5">Example 5</a></li>
+<li><a href="#_example_code_at_table_cell">Example <code>code at table cell</code></a></li>
 <li><a href="#_example_6">Example 6</a></li>
 <li><a href="#_example_7">Example 7</a></li>
 </ul>
@@ -1553,6 +1554,62 @@ It's designed for:
 </div>
 </div>
 <div class="sect2">
+<h3 id="_example_code_at_table_cell">Example <code>code at table cell</code></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="asciidoc">[cols=&quot;2,2,5&quot;]
+|===
+|Blocks |Phases |Description
+
+|given:
+|Setup
+a| The given block is where you do any setup work for the feature that you are describing. It may not be preceded by other blocks, and may not be repeated.
+----
+given:
+def stack = new Stack()
+def elem = &quot;push me&quot;
+----
+|===</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 22.2222%;">
+<col style="width: 55.5556%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Blocks</th>
+<th class="tableblock halign-left valign-top">Phases</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">given:</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Setup</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The given block is where you do any setup work for the feature that you are describing. It may not be preceded by other blocks, and may not be repeated.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>given:
+def stack = new Stack()
+def elem = "push me"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><br></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><br></p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_example_6">Example 6</h3>
 <div class="listingblock">
 <div class="content">
@@ -1834,7 +1891,7 @@ Unresolved directive in index.adoc - include::example.adoc[]</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version unspecified<br>
-Last updated 2019-09-08 23:30:21 +0600
+Last updated 2019-09-13 10:41:05 +0600
 </div>
 </div>
 <style>
