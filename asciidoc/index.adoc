@@ -705,6 +705,72 @@ a:b:c
 :===
 
 
+{blank} +
+
+=== Table Column Formatting
+To apply a specifier to a column, we must set the *cols* attribute and assign it a value. A column specifier can contain
+any of the following components:
+
+
+
+Multiplier ::
+The multiplier operator (***) is used when you want a specifier to apply to more than one consecutive column. If used,
+the multiplier must always be placed at the beginning of the specifier.
+
+```asciidoc
+[cols="3*"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+|===
+```
+
+[cols="3*"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+|===
+
+Align ::
+. Left *<*
+. Right *>*
+. Center *^*
+
+```asciidoc
+[cols="<,^,>"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 2, row 1
+
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2
+|===
+```
+
+[cols="<,^,>"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2
+|===
+
+
+
+
+Width ::
+
+Style ::
+
+
 
 
 {empty} +

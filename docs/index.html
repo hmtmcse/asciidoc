@@ -496,6 +496,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_example_code_at_table_cell">Example <code>code at table cell</code></a></li>
 <li><a href="#_example_6">Example 6</a></li>
 <li><a href="#_example_7">Example 7</a></li>
+<li><a href="#_table_column_formatting">Table Column Formatting</a></li>
 </ul>
 </li>
 <li><a href="#_admonitions">Admonitions</a>
@@ -1718,6 +1719,109 @@ a:b:c
 <p><br></p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_table_column_formatting">Table Column Formatting</h3>
+<div class="paragraph">
+<p>To apply a specifier to a column, we must set the <strong>cols</strong> attribute and assign it a value. A column specifier can contain
+any of the following components:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Multiplier </dt>
+<dd>
+<p>The multiplier operator (<strong>*</strong>) is used when you want a specifier to apply to more than one consecutive column. If used,
+the multiplier must always be placed at the beginning of the specifier.</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="asciidoc">[cols=&quot;3*&quot;]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+|===</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 2, row 1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 3, row 1</p></td>
+</tr>
+</tbody>
+</table>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Align </dt>
+<dd>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Left <strong>&lt;</strong></p>
+</li>
+<li>
+<p>Right <strong>&gt;</strong></p>
+</li>
+<li>
+<p>Center <strong>^</strong></p>
+</li>
+</ol>
+</div>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="asciidoc">[cols=&quot;&lt;,^,&gt;&quot;]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 2, row 1
+
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2
+|===</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 1</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Cell in column 2, row 1</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">Cell in column 3, row 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 2</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Cell in column 2, row 2</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">Cell in column 3, row 2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Width </dt>
+<dt class="hdlist1">Style </dt>
+<dd>
+<p><br></p>
+</dd>
+</dl>
+</div>
+</div>
 <h1 id="_admonitions" class="sect0">Admonitions</h1>
 <div class="olist arabic">
 <ol class="arabic">
@@ -1894,7 +1998,7 @@ Unresolved directive in index.adoc - include::example.adoc[]</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version unspecified<br>
-Last updated 2019-09-13 16:23:29 +0600
+Last updated 2019-09-13 20:53:54 +0600
 </div>
 </div>
 <style>
