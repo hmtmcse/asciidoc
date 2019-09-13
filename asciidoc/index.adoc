@@ -939,6 +939,11 @@ after the dot (`.`) is the number of rows to span.
 
 |Cell in column 1, row 6
 |Cell in column 4, row 6
+
+|Cell in column 1, row 7
+|Cell in column 2, row 7
+|Cell in column 3, row 7
+|Cell in column 4, row 7
 |===
 
 {empty} +
