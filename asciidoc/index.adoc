@@ -1029,3 +1029,4 @@ WARNING: This is Example text for describe something.
 . https://asciidoctor.org/docs/asciidoc-writers-guide/
 . https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 . https://asciidoctor.org/docs/user-manual/
+. https://asciidoctor.org/docs/extensions/
