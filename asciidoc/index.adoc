@@ -1030,3 +1030,6 @@ WARNING: This is Example text for describe something.
 . https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 . https://asciidoctor.org/docs/user-manual/
 . https://asciidoctor.org/docs/extensions/
+. https://asciidoctor.cn/docs/asciidoctorj/
+. https://www.baeldung.com/asciidoctor
+. https://asciidoctor.github.io/asciidoctor-gradle-plugin/development-3.x/user-guide/

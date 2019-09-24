@@ -53,3 +53,7 @@ asciidoctor.doFirst {
         delete "$docHtml"
     }
 }
+
+dependencies {
+    compile 'org.asciidoctor:asciidoctorj:2.1.0'
+}
