@@ -31,4 +31,8 @@ class AdocConverter {
         }
     }
 
+    public static AdocConverter instance(){
+        return new AdocConverter()
+    }
+
 }
