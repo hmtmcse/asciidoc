@@ -10,14 +10,25 @@ buildscript {
     }
 }
 
+
+
+
 repositories {
     mavenLocal()
     jcenter()
+    maven { url "https://dl.bintray.com/hmtmcse/maven/" }
+    maven { url "http://central.maven.org/maven2/" }
 }
 
 apply plugin: 'org.asciidoctor.convert'
+apply plugin:'java'
 
 version '1.0.0'
+
+dependencies {
+    compile group: 'org.asciidoctor', name: 'asciidoctorj', version: '2.1.0'
+}
+
 
 asciidoctorj {
     version = '2.1.0'
@@ -54,6 +65,3 @@ asciidoctor.doFirst {
     }
 }
 
-dependencies {
-    compile 'org.asciidoctor:asciidoctorj:2.1.0'
-}
