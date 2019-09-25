@@ -28,6 +28,7 @@ version '1.0.0'
 
 dependencies {
     compile group: 'org.asciidoctor', name: 'asciidoctorj', version: '2.1.0'
+    compile 'org.codehaus.groovy:groovy:2.5.6'
     compile project(':java-text-and-file-util')
 }
 
