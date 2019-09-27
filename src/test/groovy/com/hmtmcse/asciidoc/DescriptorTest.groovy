@@ -75,7 +75,7 @@ class DescriptorTest extends Specification {
 
         expect:
         YmlReader ymlReader = new YmlReader()
-        String yml = ymlReader.klassToString(descriptor)
+        String yml = ymlReader.klassToStringSkipNull(descriptor)
         print(yml)
         yml != null
     }
