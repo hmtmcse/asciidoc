@@ -8,6 +8,12 @@ public class Seo {
     public List<String> scripts;
     public List<Tags> tags;
 
+    public Seo() {}
+
+    public Seo(String title) {
+        this.title = title;
+    }
+
     public Seo addScript(String script) {
         if (scripts == null) {
             scripts = new ArrayList<>();

@@ -7,6 +7,11 @@ public class Tags {
     public String placedIn = TextToWebConst.HEAD;
     public List<Tag> tag;
 
+
+    public Tags(String placedIn) {
+        this.placedIn = placedIn;
+    }
+
     public Tags addTag(String name, String content) {
         if (tag == null) {
             tag = new ArrayList<>();
@@ -14,4 +19,13 @@ public class Tags {
         tag.add(new Tag(name, content));
         return this;
     }
+
+    public Tags addTag(Tag _tag) {
+        if (tag == null) {
+            tag = new ArrayList<>();
+        }
+        tag.add(_tag);
+        return this;
+    }
+
 }

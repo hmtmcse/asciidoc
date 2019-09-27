@@ -26,4 +26,28 @@ public class Topic {
         this.url = url;
     }
 
+    public Topic setThumb(String thumb) {
+        this.thumb = thumb;
+        return this;
+    }
+
+    public Topic setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public Topic setVideoLink(String videoLink) {
+        this.videoLink = videoLink;
+        return this;
+    }
+
+    public Topic setSummery(String summery) {
+        this.summery = summery;
+        return this;
+    }
+
+    public Topic setIcon(String icon) {
+        this.icon = icon;
+        return this;
+    }
 }
