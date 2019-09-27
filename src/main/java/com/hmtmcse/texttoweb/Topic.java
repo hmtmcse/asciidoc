@@ -17,4 +17,13 @@ public class Topic {
     public String parentId;
     public Seo seo;
     public List<Topic> childs;
+
+
+    public Topic() {}
+
+    public Topic(String name, String url) {
+        this.name = name;
+        this.url = url;
+    }
+
 }
