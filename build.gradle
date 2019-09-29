@@ -31,6 +31,7 @@ dependencies {
     compile 'org.codehaus.groovy:groovy:2.5.6'
     compile project(':java-text-and-file-util')
     compile project(':java-shell-util')
+    compile project(':java-common')
 }
 
 

@@ -6,7 +6,7 @@ class TextToWebMain {
 
 
     public static void main(String[] args) {
-        TextToWebMenu.init(args)
+        TextToWebMenu.bismillah(args)
     }
 
 }

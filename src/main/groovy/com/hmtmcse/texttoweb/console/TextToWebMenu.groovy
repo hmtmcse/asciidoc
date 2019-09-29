@@ -6,36 +6,33 @@ import com.hmtmcse.shellutil.console.menu.CommandProcessor
 import com.hmtmcse.shellutil.console.menu.OptionDefinition
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.shellutil.print.ConsolePrinter
+import com.hmtmcse.texttoweb.TextToWebConst
+import com.hmtmcse.texttoweb.processor.GenerateProcessor
 
 class TextToWebMenu {
 
-    public static OptionDefinition generate(){
+
+    public static OptionDefinition generate() {
         OptionDefinition optionDefinition = new OptionDefinition(new CommandAction() {
             @Override
             public void process(OptionValues optionValues) throws ShellUtilException {
-                ConsolePrinter.printLine("I am in Action Processor");
-                ConsolePrinter.successPrint("Branch: " + optionValues.valueAsString("branch"));
-                ConsolePrinter.successPrint("Type: " + optionValues.valueAsString("type"));
+                GenerateProcessor generateProcessor = new GenerateProcessor()
+                generateProcessor.process(optionValues)
             }
-        });
-        optionDefinition.setCommandDescription("Generate Descriptor and others");
-
-        optionDefinition.addOption("descriptor", "d");
+        })
+        optionDefinition.setCommandDescription("Generate Descriptor and others")
+        optionDefinition.addOption(TextToWebConst.DESCRIPTOR, "d")
         optionDefinition.setDescription("" +
                 "Please use below Listed descriptor generator type:\n" +
-                "1. landing \n" +
-                "2. topics \n" +
-                "3. outline \n" +
-                "3. chapter \n"
+                "1. ${TextToWebConst.LANDING} \n" +
+                "2. ${TextToWebConst.TOPICS} \n" +
+                "3. ${TextToWebConst.OUTLINE} \n" +
+                "3. ${TextToWebConst.DETAILS} \n"
         )
-
-        optionDefinition.addOption("type", "t");
-        optionDefinition.setDescription("Build Type: optimize / fresh").setDefaultValue("optimize");
-
-        return optionDefinition;
+        return optionDefinition
     }
 
-    public static OptionDefinition export(){
+    public static OptionDefinition export() {
         OptionDefinition optionDefinition = new OptionDefinition(new CommandAction() {
             @Override
             public void process(OptionValues optionValues) throws ShellUtilException {
@@ -54,7 +51,7 @@ class TextToWebMenu {
     }
 
 
-    public static void init(String[] args) {
+    public static void bismillah(String[] args) {
         CommandProcessor commandProcessor = new CommandProcessor()
         commandProcessor.addCommand("generate", generate())
         commandProcessor.addCommand("export", export())
