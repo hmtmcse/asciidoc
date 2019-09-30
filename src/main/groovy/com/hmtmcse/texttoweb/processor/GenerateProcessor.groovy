@@ -10,14 +10,12 @@ class GenerateProcessor implements CommandProcessor {
 
     private Config config
 
-    public GenerateProcessor(){
-        config = ConfigLoader.getConfig()
-    }
 
     @Override
     void process(OptionValues optionValues) {
         String command = optionValues.valueAsString(TextToWebConst.DESCRIPTOR)
-        switch (command){
+        config = ConfigLoader.getConfig(optionValues)
+        switch (command) {
             case TextToWebConst.LANDING:
                 landing()
                 break
@@ -35,12 +33,12 @@ class GenerateProcessor implements CommandProcessor {
         }
     }
 
-    void landing(){}
+    void landing() {}
 
-    void topics(){}
+    void topics() {}
 
-    void outline(){}
+    void outline() {}
 
-    void details(){}
+    void details() {}
 
 }

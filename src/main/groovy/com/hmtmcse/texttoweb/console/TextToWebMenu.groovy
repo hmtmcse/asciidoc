@@ -11,6 +11,13 @@ import com.hmtmcse.texttoweb.processor.GenerateProcessor
 
 class TextToWebMenu {
 
+    public static commonInput(OptionDefinition optionDefinition){
+        optionDefinition.addOption(TextToWebConst.SOURCE, "s")
+        optionDefinition.setDescription("Please Specify the .adoc source root directory")
+        optionDefinition.addOption(TextToWebConst.OUT, "o")
+        optionDefinition.setDescription("Please Specify the html export directory")
+        return optionDefinition
+    }
 
     public static OptionDefinition generate() {
         OptionDefinition optionDefinition = new OptionDefinition(new CommandAction() {
@@ -21,15 +28,15 @@ class TextToWebMenu {
             }
         })
         optionDefinition.setCommandDescription("Generate Descriptor and others")
-        optionDefinition.addOption(TextToWebConst.DESCRIPTOR, "d")
-        optionDefinition.setDescription("" +
+        optionDefinition.addOption(TextToWebConst.DESCRIPTOR, "t")
+        optionDefinition.required().setDescription("" +
                 "Please use below Listed descriptor generator type:\n" +
                 "1. ${TextToWebConst.LANDING} \n" +
                 "2. ${TextToWebConst.TOPICS} \n" +
                 "3. ${TextToWebConst.OUTLINE} \n" +
                 "3. ${TextToWebConst.DETAILS} \n"
         )
-        return optionDefinition
+        return commonInput(optionDefinition)
     }
 
     public static OptionDefinition export() {

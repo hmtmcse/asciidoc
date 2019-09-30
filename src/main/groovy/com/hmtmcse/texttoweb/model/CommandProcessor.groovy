@@ -2,6 +2,23 @@ package com.hmtmcse.texttoweb.model
 
 import com.hmtmcse.shellutil.console.menu.OptionValues
 
-interface CommandProcessor {
-    void process(OptionValues optionValues)
+trait CommandProcessor {
+
+    abstract void process(OptionValues optionValues)
+
+    Boolean exportToFile(){
+
+    }
+
+    Boolean exportToJsonFile(){
+
+    }
+
+    Boolean exportToYmlFile(){
+
+    }
+
+    Boolean exportToHtmlFile(){
+
+    }
 }

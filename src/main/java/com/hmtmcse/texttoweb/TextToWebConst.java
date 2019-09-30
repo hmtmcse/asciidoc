@@ -18,5 +18,7 @@ public class TextToWebConst {
     public static final String LIST_BLOCK = "LIST_BLOCK";
 
     public static final String DESCRIPTOR = "descriptor";
+    public static final String SOURCE = "source";
+    public static final String OUT = "out";
 
 }

@@ -18,7 +18,7 @@ class TextToWebMenuTest extends Specification{
 
     def "check generate menu with descriptor landing"() {
         expect: "generate command landing"
-        String[] command = ["generate", "-d", "landing"];
+        String[] command = ["generate", "-t", "landing"]
         TextToWebMenu.bismillah(command)
     }
 
