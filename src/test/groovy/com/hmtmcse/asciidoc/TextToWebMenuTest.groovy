@@ -18,6 +18,12 @@ class TextToWebMenuTest extends Specification{
 
     def "check generate menu with descriptor landing"() {
         expect: "generate command landing"
+        String[] command = ["generate", "-t"]
+        TextToWebMenu.bismillah(command)
+    }
+
+    def "generate json and yml descriptor for landing"() {
+        expect: "generate -t landing"
         String[] command = ["generate", "-t", "landing"]
         TextToWebMenu.bismillah(command)
     }

@@ -35,6 +35,16 @@ dependencies {
 }
 
 
+jar{
+    manifest {
+        attributes (
+                'Implementation-Title': 'HMTM AsciiDoctor Text To Web',
+                'Implementation-Version': version,
+                'Main-Class': 'com.hmtmcse.texttoweb.console.TextToWebMain'
+        )
+    }
+}
+
 asciidoctorj {
     version = '2.1.0'
 }

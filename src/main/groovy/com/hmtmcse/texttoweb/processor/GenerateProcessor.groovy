@@ -5,6 +5,7 @@ import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.TextToWebConst
 import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.model.CommandProcessor
+import com.hmtmcse.texttoweb.sample.DescriptorSample
 
 class GenerateProcessor implements CommandProcessor {
 
@@ -33,7 +34,9 @@ class GenerateProcessor implements CommandProcessor {
         }
     }
 
-    void landing() {}
+    void landing() {
+        exportToJsonNdYmlFile(config.source, DescriptorSample.landingDescriptor)
+    }
 
     void topics() {}
 

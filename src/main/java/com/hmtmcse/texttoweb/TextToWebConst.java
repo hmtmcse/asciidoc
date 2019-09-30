@@ -21,4 +21,9 @@ public class TextToWebConst {
     public static final String SOURCE = "source";
     public static final String OUT = "out";
 
+    public static final String JSON = "json";
+    public static final String YML = "yml";
+    public static final String HTML = "html";
+    public static final String BACK = "back";
+
 }
