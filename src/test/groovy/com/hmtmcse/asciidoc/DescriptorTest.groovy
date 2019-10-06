@@ -1,5 +1,6 @@
 package com.hmtmcse.asciidoc
 
+import com.hmtmcse.jtfutil.parser.JsonReadWrite
 import com.hmtmcse.jtfutil.parser.YmlReader
 import com.hmtmcse.texttoweb.Block
 import com.hmtmcse.texttoweb.Descriptor
@@ -14,7 +15,7 @@ import spock.lang.Specification
 
 class DescriptorTest extends Specification {
 
-    def "Create Landing Page YML Descriptor"() {
+    def "Check Landing Page YML Descriptor"() {
 
         given:
         Descriptor descriptor = new Descriptor()
@@ -22,7 +23,7 @@ class DescriptorTest extends Specification {
         descriptor.defaultTitle = "..:: HMTMCSE ::.."
 
 
-        descriptor.findReplace = [
+        descriptor.staticMap = [
                 "FACEBOOK_PAGE"      : "https://www.facebook.com/hmtmcsecom",
                 "GITHUB_PAGE"        : "https://github.com/hmtmcse-com",
                 "YOUTUBE_PAGE"       : "https://www.youtube.com/hmtmcse",
@@ -42,28 +43,29 @@ class DescriptorTest extends Specification {
                         .setIcon("fas fa-file fa-2x")
                         .setSummery("সাইটের সব বাংলা টিউটোরিয়াল  দেখতে এই লিংক এ ক্লিক করুন, YouTube থেকে দেখতে পাবেন।")
         )
-        descriptor.addBlock("thumbBlock", thumbBlock)
+        descriptor.addBlock(TextToWebConst.SQUIRE_BLOCK, thumbBlock)
 
         Block listBlock = new Block("List Block", "#")
-        Block popularTutorials = new Block("Popular Tutorials", "#")
+
+        Topic popularTutorials = new Topic("Popular Tutorials", "#")
         popularTutorials.addChild(new Topic("Java Basic", "#"))
         popularTutorials.addChild(new Topic("Java Advanced", "#"))
         popularTutorials.addChild(new Topic("Java Certifications", "#"))
-        listBlock.addBlock("popularTutorials", popularTutorials)
+        listBlock.addChild(popularTutorials)
 
-        Block upcomingTutorials = new Block("Upcoming Tutorials", "#")
+        Topic upcomingTutorials = new Topic("Upcoming Tutorials", "#")
         upcomingTutorials.addChild(new Topic("Python Basic", "#"))
         upcomingTutorials.addChild(new Topic("React JS", "#"))
         upcomingTutorials.addChild(new Topic("PHP Laravel", "#"))
-        listBlock.addBlock("upcomingTutorials", upcomingTutorials)
+        listBlock.addChild(upcomingTutorials)
 
-        Block recentUploadedTutorial = new Block("Recent Uploaded Tutorial", "#")
+        Topic recentUploadedTutorial = new Topic("Recent Uploaded Tutorial", "#")
         recentUploadedTutorial.addChild(new Topic("Java Basic", "#"))
         recentUploadedTutorial.addChild(new Topic("Java Advanced", "#"))
         recentUploadedTutorial.addChild(new Topic("Java Certifications", "#"))
-        listBlock.addBlock("recentUploadedTutorial", recentUploadedTutorial)
+        listBlock.addChild(recentUploadedTutorial)
 
-        descriptor.addBlock("listBlock", listBlock)
+        descriptor.addBlock(TextToWebConst.LIST_BLOCK, listBlock)
 
         Settings settings = new Settings()
         Seo defaultSeo = new Seo("..:: HMTMCSE ::..")
@@ -77,6 +79,57 @@ class DescriptorTest extends Specification {
         YmlReader ymlReader = new YmlReader()
         String yml = ymlReader.klassToStringSkipNull(descriptor)
         print(yml)
+
+        JsonReadWrite jsonReadWrite = new JsonReadWrite()
+        String json = jsonReadWrite.objectAsJsonStringPretty(descriptor)
+        print(json)
+        yml != null
+    }
+
+
+    def "Check Details Page YML Descriptor"() {
+
+        given:
+        Descriptor descriptor = new Descriptor()
+        descriptor.layout = new Layout(TextToWebConst.LANDING)
+        descriptor.defaultTitle = "..:: HMTMCSE ::.."
+
+        descriptor.staticMap = [
+                "FACEBOOK_PAGE"      : "https://www.facebook.com/hmtmcsecom",
+                "GITHUB_PAGE"        : "https://github.com/hmtmcse-com",
+                "YOUTUBE_PAGE"       : "https://www.youtube.com/hmtmcse",
+                "PRIVACY"            : "/static-page/privacy",
+                "TERMS_AND_CONDITION": "/static-page/terms-and-condition",
+                "ABOUT"              : "/static-page/about",
+        ]
+
+
+
+
+        Settings settings = new Settings()
+        Seo defaultSeo = new Seo("..:: HMTMCSE ::..")
+        Tags head = new Tags(TextToWebConst.HEAD)
+        head.addTag(new Tag().canonical("#"))
+        defaultSeo.addTags(head)
+        settings.defaultSeo = defaultSeo
+        descriptor.settings = settings
+
+        descriptor.addTopic(new Topic("Bismillah", "/java/bismillah").setSeo(new Seo("Bismillah")))
+        descriptor.addTopic(
+                new Topic("Environment Setup", "/java/environment-Setup")
+                        .addChild("JDK Setup", "/java/environment-Setup/jdk-setup")
+                        .addChild("IDE Setup", "/java/environment-Setup/ide-setup")
+        )
+        descriptor.addTopic(new Topic("Input Output", "/java/input-output"))
+
+        expect:
+        YmlReader ymlReader = new YmlReader()
+        String yml = ymlReader.klassToStringSkipNull(descriptor)
+        print(yml)
+
+        JsonReadWrite jsonReadWrite = new JsonReadWrite();
+        String json = jsonReadWrite.objectAsJsonStringPretty(descriptor)
+        print(json)
         yml != null
     }
 

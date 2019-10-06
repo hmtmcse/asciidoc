@@ -6,7 +6,7 @@ import java.util.Map;
 public class Tag {
     public String name;
     public String content;
-    public Map<String, String> attrs = new LinkedHashMap<>();
+    public Map<String, String> attrs;
 
     public Tag() {}
 
@@ -26,15 +26,15 @@ public class Tag {
 
     public Tag description(String content){
         this.name = "meta";
-        this.attrs.put("name", "description");
-        this.attrs.put("content", content);
+        addAttrs("name", "description");
+        addAttrs("content", content);
         return this;
     }
 
     public Tag canonical(String href){
         this.name = "meta";
-        this.attrs.put("href", href);
-        this.attrs.put("rel", "canonical");
+        addAttrs("rel", "canonical");
+        addAttrs("href", href);
         return this;
     }
 }

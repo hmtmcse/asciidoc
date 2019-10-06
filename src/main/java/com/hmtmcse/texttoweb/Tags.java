@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Tags {
-    public String placedIn = TextToWebConst.HEAD;
+    public String placedIn;
     public List<Tag> tag;
 
 

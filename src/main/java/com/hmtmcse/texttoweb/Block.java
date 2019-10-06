@@ -9,6 +9,7 @@ public class Block {
     public String title;
     public String name;
     public String url;
+    public String target;
     public String id;
     public String thumb;
     public String image;

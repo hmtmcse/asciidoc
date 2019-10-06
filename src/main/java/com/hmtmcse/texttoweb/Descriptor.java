@@ -12,7 +12,7 @@ public class Descriptor {
     public List<Topic> topics = null;
     public Settings settings;
     public Map<String, Block> blocks = null;
-    public Map<String, String> findReplace;
+    public Map<String, String> staticMap;
 
     public Descriptor addTopic(Topic topic) {
         if (topics == null) {
@@ -31,11 +31,10 @@ public class Descriptor {
     }
 
     public Descriptor findReplace(String key, String value) {
-        if (findReplace == null) {
-            findReplace = new LinkedHashMap<>();
-            ;
+        if (staticMap == null) {
+            staticMap = new LinkedHashMap<>();
         }
-        findReplace.put(key, value);
+        staticMap.put(key, value);
         return this;
     }
 

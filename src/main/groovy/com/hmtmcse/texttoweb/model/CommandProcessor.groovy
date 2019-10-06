@@ -27,6 +27,14 @@ trait CommandProcessor {
         return false
     }
 
+    public String jsonDescriptorFileName(){
+        return "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.JSON}"
+    }
+
+    public String ymlDescriptorFileName(){
+        return "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.YML}"
+    }
+
     Boolean backupFile(String newFile, String oldFile = null) {
         if (JavaNio.isExist(newFile)) {
             backupFile(newFile + ".${TextToWebConst.BACK}", newFile)
@@ -42,7 +50,7 @@ trait CommandProcessor {
         JsonReadWrite jsonReadWrite = new JsonReadWrite()
         try {
             String json = jsonReadWrite.objectAsJsonStringPretty(descriptor)
-            return exportToFile(json, "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.JSON}", path)
+            return exportToFile(json, jsonDescriptorFileName(), path)
         } catch (Exception e) {
             return false
         }
@@ -55,6 +63,27 @@ trait CommandProcessor {
             return exportToFile(content, "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.YML}", path)
         } catch (Exception e) {
             return false
+        }
+    }
+
+
+    Descriptor loadJsonFromFile(String path) {
+        JsonReadWrite jsonReadWrite = new JsonReadWrite()
+        try {
+            String pathWithName = JavaNio.concatPathString(path, jsonDescriptorFileName())
+            return jsonReadWrite.readJsonFileAsKlass(pathWithName, Descriptor.class)
+        } catch (Exception e) {
+            return null
+        }
+    }
+
+    Descriptor loadYmlFromFile(String path) {
+        YmlReader ymlReader = new YmlReader()
+        try {
+            String pathWithName = JavaNio.concatPathString(path, ymlDescriptorFileName())
+            return ymlReader.ymlAsKlass(pathWithName, Descriptor.class)
+        } catch (Exception e) {
+            return null
         }
     }
 

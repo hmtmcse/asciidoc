@@ -1,0 +1,79 @@
+== Twig PHP Template engine Cheat sheet
+
+{blank} +
+
+Print / Echo ::
+
+```twig
+{{ some_variable_from_php_code }}
+```
+
+Variables ::
+
+Use a dot (.) to access attributes of a variable (methods or properties of a PHP object, or items of a PHP array):
+
+```twig
+{{ object.property }}
+
+{# equivalent to the non-working foo.data-foo #}
+{{ attribute(foo, 'data-foo') }}
+```
+
+. The attribute function is also useful when the attribute contains special characters (like - that would be interpreted as the minus operator):
+
+Setting Variables ::
+
+```twig
+{% set foo = 'foo' %}
+{% set foo = [1, 2] %}
+{% set foo = {'foo': 'bar'} %}
+```
+
+Variables ::
+
+```twig
+
+```
+
+Variables ::
+
+```twig
+
+```
+
+Variables ::
+
+```twig
+
+```
+
+Variables ::
+
+```twig
+
+```
+
+Variables ::
+
+```twig
+
+```
+
+Variables ::
+
+```twig
+
+```
+
+Variables ::
+
+```twig
+
+```
+
+Variables ::
+
+```twig
+
+```
+

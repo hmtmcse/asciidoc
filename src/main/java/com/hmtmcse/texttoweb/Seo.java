@@ -22,6 +22,11 @@ public class Seo {
         return this;
     }
 
+    public Seo setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
     public Seo addTags(Tags tag) {
         if (tags == null) {
             tags = new ArrayList<>();
