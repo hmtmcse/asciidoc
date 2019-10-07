@@ -1,0 +1,9 @@
+
+
+. Scan Directory
+.. Convert adoc to html
+.. Generate Descriptor and Outline
+.. Marge Descriptor and Outline
+.. Read HTML and create search index
+.. Site Map
+.. Change Detection

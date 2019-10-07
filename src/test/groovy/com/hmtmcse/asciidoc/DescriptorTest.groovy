@@ -5,6 +5,7 @@ import com.hmtmcse.jtfutil.parser.YmlReader
 import com.hmtmcse.texttoweb.Block
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.Layout
+import com.hmtmcse.texttoweb.Outline
 import com.hmtmcse.texttoweb.Seo
 import com.hmtmcse.texttoweb.Settings
 import com.hmtmcse.texttoweb.Tag
@@ -129,6 +130,55 @@ class DescriptorTest extends Specification {
 
         JsonReadWrite jsonReadWrite = new JsonReadWrite();
         String json = jsonReadWrite.objectAsJsonStringPretty(descriptor)
+        print(json)
+        yml != null
+    }
+
+    def "Check Outline Page YML Descriptor"() {
+
+        given:
+        Outline outline = new Outline()
+        outline.layout = new Layout(TextToWebConst.OUTLINE)
+        outline.defaultTitle = "..:: Outline ::.."
+
+        Topic popularTutorials = new Topic("Java Basic", "#")
+        popularTutorials.addChild(new Topic("Overview", "#"))
+        popularTutorials.addChild(new Topic("Main Method", "#"))
+        popularTutorials.addChild(new Topic("Input Out", "#"))
+        outline.addTopic(popularTutorials)
+
+        Topic upcomingTutorials = new Topic("Java Class", "#")
+        upcomingTutorials.addChild(new Topic("Properties", "#"))
+        upcomingTutorials.addChild(new Topic("Method", "#"))
+        upcomingTutorials.addChild(new Topic("Method Overloading", "#"))
+        outline.addTopic(upcomingTutorials)
+
+        Topic recentUploadedTutorial = new Topic("Java Advance", "#")
+        recentUploadedTutorial.addChild(new Topic("Generics", "#"))
+        recentUploadedTutorial.addChild(new Topic("Collections", "#"))
+        recentUploadedTutorial.addChild(new Topic("Thread", "#"))
+        outline.addTopic(recentUploadedTutorial)
+
+        Settings settings = new Settings()
+        Seo defaultSeo = new Seo("..:: Outline ::..")
+        Tags head = new Tags(TextToWebConst.HEAD)
+        head.addTag(new Tag().canonical("#"))
+        defaultSeo.addTags(head)
+        settings.defaultSeo = defaultSeo
+        outline.settings = settings
+
+        outline.addRelatedTopic(new Topic("Spring Boot", "#"))
+        outline.addRelatedTopic(new Topic("Groovy", "#"))
+        outline.addRelatedTopic(new Topic("Grails 4", "#"))
+        outline.addRelatedTopic(new Topic("Java FX", "#"))
+
+        expect:
+        YmlReader ymlReader = new YmlReader()
+        String yml = ymlReader.klassToStringSkipNull(outline)
+        print(yml)
+
+        JsonReadWrite jsonReadWrite = new JsonReadWrite()
+        String json = jsonReadWrite.objectAsJsonStringPretty(outline)
         print(json)
         yml != null
     }
