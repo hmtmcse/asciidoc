@@ -10,3 +10,24 @@
 
 
 Java Grails
+
+
+== Convention
+. File and directory name
+.. Should be meaning full, recommended topic based named.
+.. Should not contain space only *(-)* hyphen allowed. Alphabet A-z and number allowed.
+.. Path should be unique
+
+
+
+{blank} +
+
+. Scan Directory
+.. if Descriptor exist
+.. not exist Descriptor
+. Create Descriptor
+.. Topics
+.. Outline
+.. URL : full path of the directory and file name without extension (This must be strict)
+.. Name : File name will be the name. find replace - to space and first letter will be Capital
+. Search
