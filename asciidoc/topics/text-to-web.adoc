@@ -1,5 +1,4 @@
 
-
 . Scan Directory
 .. Convert adoc to html
 .. Generate Descriptor and Outline
@@ -17,6 +16,11 @@ Java Grails
 .. Should be meaning full, recommended topic based named.
 .. Should not contain space only *(-)* hyphen allowed. Alphabet A-z and number allowed.
 .. Path should be unique
+. Document Writing
+.. Start with H1
+... Then H2
+.... H3
+..... H4
 
 
 {blank} +
@@ -34,16 +38,21 @@ Java Grails
 {blank} +
 
 . Scan Directory
-.. if Descriptor exist
-...
-.. not exist Descriptor
 . *Create Descriptor* : Read Full Source base, and create list. Loop throw the full list then
 .. If Root Directory: *IF* descriptor.yml exist *THEN* Don't touch anything *ELSE* create descriptor.yml with sample data.
-.. *Topics*: Second Level directory consider as Topics, *LOOP* the whole directories and create Descriptor with Name, and URL.
+
+. *Topics*: Second Level directory consider as Topics, *LOOP* the whole directories and create Descriptor with Name, and URL.
 *IF* descriptor.yml available *THEN* read the descriptor.yml and cross check with newly created descriptor and loaded descriptor considering url is unique. _IF_
-new item found then add in bottom with the '- New' postfix, _IF_ Deleted then just add the mark - Deleted *ELSE* Write the new descriptor with topic layout.
-.. Topics
-.. Outline
-.. URL : full path of the directory and file name without extension (This must be strict)
-.. Name : File name will be the name. find replace - to space and first letter will be Capital
-. Search
+new item found then add in bottom with the '- New' postfix, _IF_ Deleted then just add the mark - Deleted *ELSE* Write the new descriptor with topic layout. *Automatic Modification not allowed.!*
+
+. *Outline*: In topic directory There will be 2 files, *descriptor.yml* other one is *outline.yml*. descriptor will create like as topics, for outline scan the directory, all
+subdirectories will be Topic headline inside of subdirectories files are content of that head line, scan directories all files will placed under *Bismillah* heading. not allowed
+update for outline also add and deleted will be like as descriptor creation.
+
+. URL : full path of the directory and file name without extension (This must be strict)
+. Name : File name will be the name. find replace - to space and first letter will be Capital
+
+. Search: Search feature only work after export operation done,
+.. List whole directory and then read all html file pick the h1, h2 and h3 tag and save them to database
+... will store, h1, h2, h3 text as searchable, 100 character until new paragraph will be for summery, path will
+for url with hX Id link.
