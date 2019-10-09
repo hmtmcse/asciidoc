@@ -26,6 +26,7 @@ Java Grails
 .. Topics (Java, PHP) (descriptor.yml)
 ... Topic (Spring Boot, Laravel) (descriptor.yml, outline.yml)
 .... Details (Tutorial Details)
+..... bismillah.adoc (Allowed .adoc files or directory)
 
 
 
@@ -34,8 +35,13 @@ Java Grails
 
 . Scan Directory
 .. if Descriptor exist
+...
 .. not exist Descriptor
-. Create Descriptor
+. *Create Descriptor* : Read Full Source base, and create list. Loop throw the full list then
+.. If Root Directory: *IF* descriptor.yml exist *THEN* Don't touch anything *ELSE* create descriptor.yml with sample data.
+.. *Topics*: Second Level directory consider as Topics, *LOOP* the whole directories and create Descriptor with Name, and URL.
+*IF* descriptor.yml available *THEN* read the descriptor.yml and cross check with newly created descriptor and loaded descriptor considering url is unique. _IF_
+new item found then add in bottom with the '- New' postfix, _IF_ Deleted then just add the mark - Deleted *ELSE* Write the new descriptor with topic layout.
 .. Topics
 .. Outline
 .. URL : full path of the directory and file name without extension (This must be strict)
