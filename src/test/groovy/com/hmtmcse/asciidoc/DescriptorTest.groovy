@@ -79,10 +79,12 @@ class DescriptorTest extends Specification {
         expect:
         YmlReader ymlReader = new YmlReader()
         String yml = ymlReader.klassToStringSkipNull(descriptor)
+        print("\n\n")
         print(yml)
 
         JsonReadWrite jsonReadWrite = new JsonReadWrite()
         String json = jsonReadWrite.objectAsJsonStringPretty(descriptor)
+        print("\n\n")
         print(json)
         yml != null
     }
@@ -175,6 +177,7 @@ class DescriptorTest extends Specification {
         expect:
         YmlReader ymlReader = new YmlReader()
         String yml = ymlReader.klassToStringSkipNull(outline)
+        print("\n\n")
         print(yml)
 
         JsonReadWrite jsonReadWrite = new JsonReadWrite()

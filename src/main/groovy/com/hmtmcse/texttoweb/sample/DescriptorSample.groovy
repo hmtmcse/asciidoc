@@ -18,7 +18,7 @@ class DescriptorSample {
         descriptor.layout = new Layout(TextToWebConst.LANDING)
         descriptor.defaultTitle = "..:: HMTMCSE ::.."
 
-        descriptor.findReplace = [
+        descriptor.blocks = [
                 "FACEBOOK_PAGE"      : "https://www.facebook.com/hmtmcsecom",
                 "GITHUB_PAGE"        : "https://github.com/hmtmcse-com",
                 "YOUTUBE_PAGE"       : "https://www.youtube.com/hmtmcse",
