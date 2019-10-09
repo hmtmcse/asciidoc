@@ -19,6 +19,16 @@ Java Grails
 .. Path should be unique
 
 
+{blank} +
+
+== Directory Structure
+. Root (descriptor.yml)
+.. Topics (Java, PHP) (descriptor.yml)
+... Topic (Spring Boot, Laravel) (descriptor.yml, outline.yml)
+.... Details (Tutorial Details)
+
+
+
 
 {blank} +
 
