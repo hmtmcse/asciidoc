@@ -56,3 +56,7 @@ update for outline also add and deleted will be like as descriptor creation.
 .. List whole directory and then read all html file pick the h1, h2 and h3 tag and save them to database
 ... will store, h1, h2, h3 text as searchable, 100 character until new paragraph will be for summery, path will
 for url with hX Id link.
+
+
+. Site Map
+.. Read All Descriptor and create and create Site Map according this. will start from root directory descriptor.yml
