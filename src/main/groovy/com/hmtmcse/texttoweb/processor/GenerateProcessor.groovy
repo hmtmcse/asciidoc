@@ -43,13 +43,22 @@ class GenerateProcessor implements CommandProcessor {
 
 
 
-    private String getRelativePath(String absolutePath){
+    public String getRelativePath(String absolutePath){
         if (absolutePath){
-           return absolutePath.replace(config.source, "")
+            return absolutePath.replace(config.source, "")
         }
         return absolutePath
     }
 
+    public String getURL(String absolutePath) {
+        String path = getRelativePath(absolutePath)
+        if (path) {
+            path = removeAdocExtension(path)
+            path = pathToURL(path)
+            path = config.urlStartWith + path
+        }
+        return path
+    }
 
 
     private void prepareProjectData(List<FileInfo> list) {
@@ -83,7 +92,8 @@ class GenerateProcessor implements CommandProcessor {
 
     void topicsRootProcess(List<FileInfo> list){
         list.each { FileInfo topicsDir ->
-            println("Topics: ${makeHumReadable(topicsDir.name)} ${topicsDir.name}")
+            println("\nTopics: ${makeHumReadableWithoutExt(topicsDir.name)} ${topicsDir.name}")
+            println("URL: ${getURL(topicsDir.absolutePath)}")
             if (topicsDir.isDirectory && topicsDir.subDirectories) {
                 topicRootProcess(topicsDir.subDirectories)
             }
@@ -93,6 +103,7 @@ class GenerateProcessor implements CommandProcessor {
     void topicRootProcess(List<FileInfo> list){
         list.each { FileInfo topicDir ->
             println("  Topic: ${makeHumReadableWithoutExt(topicDir.name)} ${topicDir.name}")
+            println("  URL: ${getURL(topicDir.absolutePath)}\n")
             if (topicDir.isDirectory && topicDir.subDirectories) {
 //                topicRootProcess(topicsDir.subDirectories)
             }

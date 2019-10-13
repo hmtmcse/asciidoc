@@ -106,13 +106,16 @@ trait CommandProcessor {
 
     }
 
-    public static String makeHumReadableWithoutExt(String text) {
-        text = text.replace(".${TextToWebConst.ADOC}", "")
-        return makeHumReadable(text)
+    public removeAdocExtension(String text){
+        return text.replace(".${TextToWebConst.ADOC}", "")
+    }
+
+    public String makeHumReadableWithoutExt(String text) {
+        return makeHumReadable(removeAdocExtension(text))
     }
 
 
-    public static String makeHumReadable(String text) {
+    public String makeHumReadable(String text) {
         String underscoreToSpace = text.replaceAll("(_+)([A-Za-z0-9_])", {
             Object[] it -> " " + it[2]?.trim()
         })
@@ -129,5 +132,20 @@ trait CommandProcessor {
             return hyphenToSpace.trim().toLowerCase().capitalize()
         }
         return text
+    }
+
+
+    public String pathToURL(String path){
+        if (path){
+            path = path.replace(File.separator, "/")
+            if (path.startsWith("/")){
+                path = path.substring(1)
+            }
+
+            if (path.endsWith("/")){
+                path = path.substring(0, path.length() - 1)
+            }
+        }
+        return path
     }
 }
