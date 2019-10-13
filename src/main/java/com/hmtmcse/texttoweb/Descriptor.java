@@ -38,4 +38,18 @@ public class Descriptor {
         return this;
     }
 
+    public Descriptor addTopic(String name, String url, String summer) {
+        Topic topic = new Topic(name, url).setSummery(summer);
+        addTopic(topic);
+        return this;
+    }
+
+    public Descriptor addTopicDummySummery(String name, String url) {
+        Topic topic = new Topic(name, url).setSummery(
+                "This section will describe about " + name + ". For More details please click on it."
+        );
+        addTopic(topic);
+        return this;
+    }
+
 }

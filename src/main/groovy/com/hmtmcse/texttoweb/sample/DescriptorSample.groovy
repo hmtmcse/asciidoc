@@ -18,7 +18,7 @@ class DescriptorSample {
         descriptor.layout = new Layout(TextToWebConst.LANDING)
         descriptor.defaultTitle = "..:: HMTMCSE ::.."
 
-        descriptor.blocks = [
+        descriptor.staticMap = [
                 "FACEBOOK_PAGE"      : "https://www.facebook.com/hmtmcsecom",
                 "GITHUB_PAGE"        : "https://github.com/hmtmcse-com",
                 "YOUTUBE_PAGE"       : "https://www.youtube.com/hmtmcse",
@@ -69,6 +69,20 @@ class DescriptorSample {
         settings.defaultSeo = defaultSeo
         descriptor.settings = settings
 
+        return descriptor
+    }
+
+    public static Descriptor getTopicsDescriptor(String title){
+        Descriptor descriptor = new Descriptor()
+        descriptor.layout = new Layout(TextToWebConst.TOPICS)
+        descriptor.defaultTitle = title
+        return descriptor
+    }
+
+    public static Descriptor getOutlineDescriptor(String title){
+        Descriptor descriptor = new Descriptor()
+        descriptor.layout = new Layout(TextToWebConst.OUTLINE)
+        descriptor.defaultTitle = title
         return descriptor
     }
 

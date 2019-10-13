@@ -2,12 +2,15 @@ package com.hmtmcse.texttoweb.processor
 
 import com.hmtmcse.jtfutil.io.FileInfo
 import com.hmtmcse.jtfutil.io.FileUtil
+import com.hmtmcse.jtfutil.io.JavaNio
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.TextToWebConst
 import com.hmtmcse.texttoweb.common.ConfigLoader
+import com.hmtmcse.texttoweb.data.PathData
 import com.hmtmcse.texttoweb.data.ProjectData
 import com.hmtmcse.texttoweb.model.CommandProcessor
+import com.hmtmcse.texttoweb.sample.DescriptorSample
 
 class GenerateProcessor implements CommandProcessor {
 
@@ -20,9 +23,6 @@ class GenerateProcessor implements CommandProcessor {
         config = ConfigLoader.getConfig(optionValues)
         switch (command) {
             case TextToWebConst.LANDING:
-                FileUtil.listAll("W:\\all-in-one\\all-plugins\\asciidoc\\example\\root").each { FileInfo fileInfo ->
-                    println(fileInfo.name)
-                }
                 landing()
                 break
             case TextToWebConst.TOPICS:
@@ -40,58 +40,64 @@ class GenerateProcessor implements CommandProcessor {
     }
 
 
-    public static String makeHumReadable(String text) {
-        String underscoreToSpace = text.replaceAll("(_+)([A-Za-z0-9_])", {
-            Object[] it -> " " + it[2]?.trim()
-        })
 
-        String camelCaseToSpace =  underscoreToSpace.replaceAll("(\\s*[A-Z])", {
-            Object[] it -> " " + it[0]?.trim()
-        })
 
-        String hyphenToSpace = camelCaseToSpace.replaceAll("\\s*[\\-_]*\\s*", {
-            Object[] it -> it[0].equals("")?"":" "
-        })
 
-        if (hyphenToSpace){
-            return hyphenToSpace.trim().toLowerCase().capitalize()
+    private String getRelativePath(String absolutePath){
+        if (absolutePath){
+           return absolutePath.replace(config.source, "")
         }
-        return text
+        return absolutePath
     }
 
 
-    private ProjectData prepareProjectData(List<FileInfo> list) {
-        ProjectData projectData = null
+
+    private void prepareProjectData(List<FileInfo> list) {
+        PathData pathData = null
         if (list) {
-            String descriptor = "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.YML}"
-            projectData = new ProjectData()
             list.each { FileInfo rootDir ->
                 if (rootDir.isDirectory && rootDir.subDirectories) {
-                    rootDir.subDirectories.each { FileInfo topicsDir ->
-                        if (topicsDir.subDirectories) {
-                            topicsDir.subDirectories.each { FileInfo topicDir ->
-
-                            }
-                        }
-                    }
-                } else if (rootDir.isFile && rootDir.name && rootDir.name.equals(descriptor)) {
-                    projectData.descriptor = ""
+                    topicsRootProcess(rootDir.subDirectories)
                 }
             }
+            if (!pathData) {
+                pathData = new PathData(config.source, getRelativePath(config.source))
+            }
+            projectRootProcess(pathData)
         }
-        return projectData
     }
+
 
     void manipulateDescriptor(){
         List<FileInfo> list = FileUtil.listAll(config.source)
+        prepareProjectData(list)
     }
 
-    void rootDescriptor(List<FileInfo> list){
 
+    void projectRootProcess(PathData pathData){
+        String path = JavaNio.concatPath(pathData.absolutePath, ymlDescriptorFileName())
+        if (!JavaNio.isExist(path)){
+            exportToYmlFile(pathData.absolutePath, DescriptorSample.landingDescriptor)
+        }
     }
 
-    void topicsDescriptor(List<FileInfo> list){
+    void topicsRootProcess(List<FileInfo> list){
+        list.each { FileInfo topicsDir ->
+            println("Topics: ${makeHumReadable(topicsDir.name)} ${topicsDir.name}")
+            if (topicsDir.isDirectory && topicsDir.subDirectories) {
+                topicRootProcess(topicsDir.subDirectories)
+            }
+        }
+    }
 
+    void topicRootProcess(List<FileInfo> list){
+        list.each { FileInfo topicDir ->
+            println("  Topic: ${makeHumReadableWithoutExt(topicDir.name)} ${topicDir.name}")
+            if (topicDir.isDirectory && topicDir.subDirectories) {
+//                topicRootProcess(topicsDir.subDirectories)
+            }
+
+        }
     }
 
     void outlineDescriptor(List<FileInfo> list){
@@ -111,7 +117,7 @@ class GenerateProcessor implements CommandProcessor {
     }
 
     void landing() {
-
+        manipulateDescriptor()
 
 //        exportToJsonNdYmlFile(config.source, DescriptorSample.landingDescriptor)
     }

@@ -1,0 +1,72 @@
+layout:
+  type: landing
+defaultTitle: '..:: HMTMCSE ::..'
+settings:
+  defaultSeo:
+    title: '..:: HMTMCSE ::..'
+    tags:
+    - placedIn: head
+      tag:
+      - name: meta
+        attrs:
+          rel: canonical
+          href: '#'
+  fbComments: false
+  linkedInShare: false
+  fbShare: false
+blocks:
+  SQUIRE_BLOCK:
+    title: Squire Block
+    url: '#'
+    childs:
+    - name: Video Tutorial
+      url: '#'
+      icon: fas fa-desktop fa-2x
+      summery: Please Follow this link for see all video tutorial from YouTube. Here
+        your will get lots of tutorial.
+    - name: বাংলা টিউটোরিয়াল
+      url: '#'
+      icon: fas fa-file fa-2x
+      summery: সাইটের সব বাংলা টিউটোরিয়াল  দেখতে এই লিংক এ ক্লিক করুন, YouTube থেকে
+        দেখতে পাবেন।
+  LIST_BLOCK:
+    title: List Block
+    url: '#'
+    blocks:
+      popularTutorials:
+        title: Popular Tutorials
+        url: '#'
+        childs:
+        - name: Java Basic
+          url: '#'
+        - name: Java Advanced
+          url: '#'
+        - name: Java Certifications
+          url: '#'
+      upcomingTutorials:
+        title: Upcoming Tutorials
+        url: '#'
+        childs:
+        - name: Python Basic
+          url: '#'
+        - name: React JS
+          url: '#'
+        - name: PHP Laravel
+          url: '#'
+      recentUploadedTutorial:
+        title: Recent Uploaded Tutorial
+        url: '#'
+        childs:
+        - name: Java Basic
+          url: '#'
+        - name: Java Advanced
+          url: '#'
+        - name: Java Certifications
+          url: '#'
+staticMap:
+  FACEBOOK_PAGE: https://www.facebook.com/hmtmcsecom
+  GITHUB_PAGE: https://github.com/hmtmcse-com
+  YOUTUBE_PAGE: https://www.youtube.com/hmtmcse
+  PRIVACY: /static-page/privacy
+  TERMS_AND_CONDITION: /static-page/terms-and-condition
+  ABOUT: /static-page/about

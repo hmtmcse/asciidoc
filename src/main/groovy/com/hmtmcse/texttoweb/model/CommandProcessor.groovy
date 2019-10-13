@@ -31,6 +31,14 @@ trait CommandProcessor {
         return "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.JSON}"
     }
 
+    public String ymltOutlineFileName(){
+        return "${TextToWebConst.OUTLINE}.${TextToWebConst.YML}"
+    }
+
+    public String jsonOutlineFileName(){
+        return "${TextToWebConst.OUTLINE}.${TextToWebConst.JSON}"
+    }
+
     public String ymlDescriptorFileName(){
         return "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.YML}"
     }
@@ -96,5 +104,30 @@ trait CommandProcessor {
 
     Boolean exportToHtmlFile() {
 
+    }
+
+    public static String makeHumReadableWithoutExt(String text) {
+        text = text.replace(".${TextToWebConst.ADOC}", "")
+        return makeHumReadable(text)
+    }
+
+
+    public static String makeHumReadable(String text) {
+        String underscoreToSpace = text.replaceAll("(_+)([A-Za-z0-9_])", {
+            Object[] it -> " " + it[2]?.trim()
+        })
+
+        String camelCaseToSpace =  underscoreToSpace.replaceAll("(\\s*[A-Z])", {
+            Object[] it -> " " + it[0]?.trim()
+        })
+
+        String hyphenToSpace = camelCaseToSpace.replaceAll("\\s*[\\-_]*\\s*", {
+            Object[] it -> it[0].equals("")?"":" "
+        })
+
+        if (hyphenToSpace){
+            return hyphenToSpace.trim().toLowerCase().capitalize()
+        }
+        return text
     }
 }
