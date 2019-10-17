@@ -5,10 +5,11 @@ import com.hmtmcse.jtfutil.io.FileUtil
 import com.hmtmcse.jtfutil.io.JavaNio
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Config
+import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
+import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.data.PathData
-import com.hmtmcse.texttoweb.data.ProjectData
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
 
@@ -66,7 +67,7 @@ class GenerateProcessor implements CommandProcessor {
         if (list) {
             list.each { FileInfo rootDir ->
                 if (rootDir.isDirectory && rootDir.subDirectories) {
-                    topicsRootProcess(rootDir.subDirectories)
+                    topicsRootProcess(rootDir)
                 }
             }
             if (!pathData) {
@@ -90,20 +91,46 @@ class GenerateProcessor implements CommandProcessor {
         }
     }
 
-    void topicsRootProcess(List<FileInfo> list){
-        list.each { FileInfo topicsDir ->
-            println("\nTopics: ${makeHumReadableWithoutExt(topicsDir.name)} ${topicsDir.name}")
-            println("URL: ${getURL(topicsDir.absolutePath)}")
+
+
+    void topicsRootProcess(FileInfo rootDir) {
+        if (!rootDir) {
+            return
+        }
+        Map<String, Topic> topicMap = [:]
+        Descriptor descriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(rootDir.name))
+        Topic topic
+        String url, humReadableName
+        rootDir.subDirectories.each { FileInfo topicsDir ->
+            url = getURL(topicsDir.absolutePath)
+            humReadableName = makeHumReadableWithoutExt(topicsDir.name)
+            println("\nTopics: ${humReadableName} ${topicsDir.name}")
+            println("URL: ${url}")
+
+            topic = descriptor.topic(makeHumReadableWithoutExt(topicsDir.name), url, "For more details about ${humReadableName} click here. It will bring you to details of this Topic.")
+            topicMap.put(url, topic)
+            descriptor.addTopic(topic)
+
             if (topicsDir.isDirectory && topicsDir.subDirectories) {
-                topicRootProcess(topicsDir.subDirectories)
+                topicRootProcess(topicsDir)
             }
         }
     }
 
-    void topicRootProcess(List<FileInfo> list){
-        list.each { FileInfo topicDir ->
-            println("  Topic: ${makeHumReadableWithoutExt(topicDir.name)} ${topicDir.name}")
-            println("  URL: ${getURL(topicDir.absolutePath)}\n")
+    void topicRootProcess(FileInfo topicsDir){
+
+        Map<String, Topic> topicMap = [:]
+        Descriptor descriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(topicsDir.name))
+        Topic topic
+        String url, humReadableName
+
+        topicsDir.subDirectories.each { FileInfo topicDir ->
+
+            url = getURL(topicsDir.absolutePath)
+            humReadableName = makeHumReadableWithoutExt(topicsDir.name)
+
+            println("  Topic: ${humReadableName} ${topicDir.name}")
+            println("  URL: ${url}\n")
             if (topicDir.isDirectory && topicDir.subDirectories) {
 //                topicRootProcess(topicsDir.subDirectories)
             }

@@ -44,6 +44,10 @@ public class Descriptor {
         return this;
     }
 
+    public Topic topic(String name, String url, String summer) {
+        return new Topic(name, url).setSummery(summer);
+    }
+
     public Descriptor addTopicDummySummery(String name, String url) {
         Topic topic = new Topic(name, url).setSummery(
                 "This section will describe about " + name + ". For More details please click on it."
