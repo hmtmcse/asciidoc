@@ -86,4 +86,11 @@ class DescriptorSample {
         return descriptor
     }
 
+    public static Descriptor getDetailsDescriptor(String title){
+        Descriptor descriptor = new Descriptor()
+        descriptor.layout = new Layout(TextToWebConst.DETAILS)
+        descriptor.defaultTitle = title
+        return descriptor
+    }
+
 }

@@ -32,6 +32,15 @@ Java Grails
 .... Details (Tutorial Details)
 ..... bismillah.adoc (Allowed .adoc files or directory)
 
+. root
+.. java (descriptor.yml)
+... grails (descriptor.yml, outline.yml)
+... java-basic
+... java-advanced
+.. php
+... php-basic
+... laravel
+
 
 
 

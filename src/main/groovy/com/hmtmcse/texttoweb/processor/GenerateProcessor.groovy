@@ -9,6 +9,7 @@ import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
 import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
+import com.hmtmcse.texttoweb.data.OutlineAndDescriptor
 import com.hmtmcse.texttoweb.data.PathData
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
@@ -92,6 +93,10 @@ class GenerateProcessor implements CommandProcessor {
     }
 
 
+    Descriptor margeDescriptor(Map<String, Topic> topicMap, Descriptor descriptor){
+
+        return descriptor
+    }
 
     void topicsRootProcess(FileInfo rootDir) {
         if (!rootDir) {
@@ -101,28 +106,37 @@ class GenerateProcessor implements CommandProcessor {
         Descriptor descriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(rootDir.name))
         Topic topic
         String url, humReadableName
+
+        // JAVA ....
         rootDir.subDirectories.each { FileInfo topicsDir ->
             url = getURL(topicsDir.absolutePath)
             humReadableName = makeHumReadableWithoutExt(topicsDir.name)
-            println("\nTopics: ${humReadableName} ${topicsDir.name}")
-            println("URL: ${url}")
+//            println("\nTopics: ${humReadableName} ${topicsDir.name}")
+//            println("URL: ${url}")
 
             topic = descriptor.topic(makeHumReadableWithoutExt(topicsDir.name), url, "For more details about ${humReadableName} click here. It will bring you to details of this Topic.")
             topicMap.put(url, topic)
             descriptor.addTopic(topic)
 
+            // Grails
             if (topicsDir.isDirectory && topicsDir.subDirectories) {
                 topicRootProcess(topicsDir)
             }
         }
+        println(exportToYmlText(descriptor))
     }
 
-    void topicRootProcess(FileInfo topicsDir){
+    // Grails Details and outline
+    void topicRootProcess(FileInfo topicsDir) {
 
-        Map<String, Topic> topicMap = [:]
-        Descriptor descriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(topicsDir.name))
-        Topic topic
-        String url, humReadableName
+        Map<String, Topic> outlineTopicMap = [:]
+        Map<String, Topic> detailsTopicMap = [:]
+        Descriptor outlineDescriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(topicsDir.name))
+        Descriptor detailsDescriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(topicsDir.name))
+        Topic outlineTopic, detailsTopic
+        String outlineURL, outlineHumReadableName, detailsURL, detailsHumReadableName, url, humReadableName
+
+        OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name))
 
         topicsDir.subDirectories.each { FileInfo topicDir ->
 
@@ -138,7 +152,7 @@ class GenerateProcessor implements CommandProcessor {
         }
     }
 
-    void outlineDescriptor(List<FileInfo> list){
+    OutlineAndDescriptor outlineAndDescriptor(List<FileInfo> list, OutlineAndDescriptor outlineAndDescriptor){
 
     }
 

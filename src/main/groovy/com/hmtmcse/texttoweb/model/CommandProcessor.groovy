@@ -54,6 +54,9 @@ trait CommandProcessor {
         return true
     }
 
+
+
+
     Boolean exportToJsonFile(String path, Descriptor descriptor) {
         JsonReadWrite jsonReadWrite = new JsonReadWrite()
         try {
@@ -64,10 +67,19 @@ trait CommandProcessor {
         }
     }
 
+    String exportToYmlText(Descriptor descriptor) {
+        YmlReader ymlReader = new YmlReader()
+        try {
+            return ymlReader.klassToStringSkipNull(descriptor)
+        } catch (Exception e) {
+            return null
+        }
+    }
+
     Boolean exportToYmlFile(String path, Descriptor descriptor) {
         YmlReader ymlReader = new YmlReader()
         try {
-            String content = ymlReader.klassToStringSkipNull(descriptor)
+            String content = exportToYmlText(descriptor)
             return exportToFile(content, "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.YML}", path)
         } catch (Exception e) {
             return false
