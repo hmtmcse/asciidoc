@@ -93,9 +93,25 @@ class GenerateProcessor implements CommandProcessor {
     }
 
 
-    Descriptor margeDescriptor(Map<String, Topic> topicMap, Descriptor descriptor){
+    Descriptor margeDescriptorTopics(Map<String, Topic> topicMap, Descriptor descriptor){
 
         return descriptor
+    }
+
+
+    Descriptor margeDescriptorTopics(String descriptorFile, Map<String, Topic> topicMap, Descriptor newDescriptor) {
+        if (!JavaNio.isExist(descriptorFile)) {
+            return newDescriptor
+        }
+
+        Descriptor currentDescriptor = null
+        try {
+            currentDescriptor = loadYmlFromFile(descriptorFile)
+        } catch (Exception e) {
+            return newDescriptor
+        }
+
+        return margeDescriptorTopics(topicMap, currentDescriptor)
     }
 
     void topicsRootProcess(FileInfo rootDir) {
@@ -128,32 +144,30 @@ class GenerateProcessor implements CommandProcessor {
 
     // Grails Details and outline
     void topicRootProcess(FileInfo topicsDir) {
-
-        Map<String, Topic> outlineTopicMap = [:]
-        Map<String, Topic> detailsTopicMap = [:]
-        Descriptor outlineDescriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(topicsDir.name))
-        Descriptor detailsDescriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(topicsDir.name))
-        Topic outlineTopic, detailsTopic
-        String outlineURL, outlineHumReadableName, detailsURL, detailsHumReadableName, url, humReadableName
-
         OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name))
+        outlineAndDescriptor = outlineAndDescriptorPrepare(topicsDir.subDirectories, outlineAndDescriptor)
 
-        topicsDir.subDirectories.each { FileInfo topicDir ->
 
-            url = getURL(topicsDir.absolutePath)
-            humReadableName = makeHumReadableWithoutExt(topicsDir.name)
+        println(exportToYmlText(outlineAndDescriptor.outlineDescriptor))
+        println(exportToYmlText(outlineAndDescriptor.detailsDescriptor))
+        println("Yes")
 
-            println("  Topic: ${humReadableName} ${topicDir.name}")
-            println("  URL: ${url}\n")
-            if (topicDir.isDirectory && topicDir.subDirectories) {
-//                topicRootProcess(topicsDir.subDirectories)
-            }
-
-        }
     }
 
-    OutlineAndDescriptor outlineAndDescriptor(List<FileInfo> list, OutlineAndDescriptor outlineAndDescriptor){
-
+    OutlineAndDescriptor outlineAndDescriptorPrepare(List<FileInfo> list, OutlineAndDescriptor outlineAndDescriptor, Map index = [outline: 0, details: null]){
+        String url, humReadableName
+        list.each { FileInfo topicDir ->
+            url = getURL(topicDir.absolutePath)
+            humReadableName = makeHumReadableWithoutExt(topicDir.name)
+            if (topicDir.isDirectory && topicDir.subDirectories) {
+                outlineAndDescriptor.addTopicParent(humReadableName)
+                outlineAndDescriptorPrepare(topicDir.subDirectories, outlineAndDescriptor, [outline: outlineAndDescriptor.outlineLastIndex(), details: outlineAndDescriptor.detailsLastIndex()])
+            }else{
+                outlineAndDescriptor.addToOutlineByIndex(index.outline, new Topic(humReadableName, url))
+                outlineAndDescriptor.addToDetailsByIndex(index.details, new Topic(humReadableName, url))
+            }
+        }
+        return outlineAndDescriptor
     }
 
     void searchIndex(List<FileInfo> list){

@@ -12,15 +12,47 @@ class OutlineAndDescriptor {
     public Descriptor detailsDescriptor
 
     public OutlineAndDescriptor(String name) {
-        outlineDescriptor = DescriptorSample.getTopicsDescriptor(name)
+        outlineDescriptor = DescriptorSample.getOutlineDescriptor(name)
         outlineDescriptor.addTopic(new Topic("Bismillah", "#"))
-        detailsDescriptor = DescriptorSample.getTopicsDescriptor(name)
+        detailsDescriptor = DescriptorSample.getDetailsDescriptor(name)
     }
 
+    public addTopicParent(String name) {
+        outlineDescriptor.addTopic(new Topic(name, "#"))
+        detailsDescriptor.addTopic(new Topic(name, "#"))
+    }
 
-    public OutlineAndDescriptor addToOutlineBismillah(Topic topic){
-        outlineDescriptor.topics.first().addChild(topic)
+    public OutlineAndDescriptor addToOutlineByIndex(Integer index, Topic topic){
+        outlineDescriptor.topics.get(index).addChild(topic)
         outlineTopicMap.put(topic.url, topic)
-        return this;
+        return this
     }
+
+
+    public OutlineAndDescriptor addToDetailsByIndex(Integer index, Topic topic){
+        if (index){
+            detailsDescriptor.topics.get(index).addChild(topic)
+        }else{
+            detailsDescriptor.addTopic(topic)
+        }
+        detailsTopicMap.put(topic.url, topic)
+        return this
+    }
+
+    public Integer outlineLastIndex(){
+        if (outlineDescriptor.topics.size()){
+            return outlineDescriptor.topics.size() - 1
+        }else{
+            return 0
+        }
+    }
+
+    public Integer detailsLastIndex(){
+        if (detailsDescriptor.topics.size()){
+            return detailsDescriptor.topics.size() - 1
+        }else{
+            return 0
+        }
+    }
+
 }
