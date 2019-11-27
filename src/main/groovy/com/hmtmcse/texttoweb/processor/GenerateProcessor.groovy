@@ -93,13 +93,42 @@ class GenerateProcessor implements CommandProcessor {
     }
 
 
-    Descriptor margeDescriptorTopics(Map<String, Topic> topicMap, Descriptor descriptor){
 
-        return descriptor
+    // Add Remove
+    Descriptor margeDescriptorTopics(Descriptor newDescriptor, Descriptor oldDescriptor){
+
+        Map<String, Topic> oldTopicMap = [:]
+        oldDescriptor.topics.each { Topic topic ->
+            oldTopicMap.put(topic.url, topic)
+        }
+
+        Map<String, Topic> newTopicMap = [:]
+        newDescriptor.topics.each { Topic newTopic ->
+            if (oldTopicMap.get(newTopic.url)){
+                oldTopicMap.remove(newTopic.url)
+            }else{
+                newTopicMap.put(newTopic.url, newTopic)
+            }
+        }
+
+        oldDescriptor.topics.each { Topic topic ->
+            if (oldTopicMap.get(topic.url)){
+                oldTopicMap.get(topic.url).name = oldTopicMap.get(topic.url).name + " - Deleted"
+            }
+        }
+
+
+        newTopicMap.each { String key, Topic newTopic ->
+            newTopic.name = newTopic.name + " - Added"
+            oldDescriptor.topics.add(newTopic)
+        }
+
+
+        return oldDescriptor
     }
 
 
-    Descriptor margeDescriptorTopics(String descriptorFile, Map<String, Topic> topicMap, Descriptor newDescriptor) {
+    Descriptor margeDescriptorTopics(String descriptorFile, Descriptor newDescriptor) {
         if (!JavaNio.isExist(descriptorFile)) {
             return newDescriptor
         }
@@ -107,12 +136,15 @@ class GenerateProcessor implements CommandProcessor {
         Descriptor currentDescriptor = null
         try {
             currentDescriptor = loadYmlFromFile(descriptorFile)
+            if (!currentDescriptor) {
+                return newDescriptor
+            }
         } catch (Exception e) {
             return newDescriptor
         }
-
-        return margeDescriptorTopics(topicMap, currentDescriptor)
+        return margeDescriptorTopics(newDescriptor, currentDescriptor)
     }
+
 
     void topicsRootProcess(FileInfo rootDir) {
         if (!rootDir) {
@@ -121,11 +153,14 @@ class GenerateProcessor implements CommandProcessor {
         Map<String, Topic> topicMap = [:]
         Descriptor descriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(rootDir.name))
         Topic topic
-        String url, humReadableName
+        String url, humReadableName, topicsRootPath = rootDir.absolutePath
 
         // JAVA ....
         rootDir.subDirectories.each { FileInfo topicsDir ->
-            url = getURL(topicsDir.absolutePath)
+            if (topicsDir && topicsDir.name && (topicsDir.name.equals(this.ymlDescriptorFileName()) || topicsDir.name.equals(this.jsonDescriptorFileName()) || topicsDir.name.equals(this.ymltOutlineFileName()))){
+                return
+            }
+            url = getURL(topicsRootPath) + "/" + topicsDir.name
             humReadableName = makeHumReadableWithoutExt(topicsDir.name)
 //            println("\nTopics: ${humReadableName} ${topicsDir.name}")
 //            println("URL: ${url}")
@@ -139,7 +174,11 @@ class GenerateProcessor implements CommandProcessor {
                 topicRootProcess(topicsDir)
             }
         }
-        println(exportToYmlText(descriptor))
+
+        String descriptorYml = JavaNio.concatPathString(topicsRootPath, ymlDescriptorFileName())
+        descriptor = margeDescriptorTopics(descriptorYml, descriptor)
+
+        println(exportToYmlFile(topicsRootPath, descriptor))
     }
 
     // Grails Details and outline
@@ -147,11 +186,18 @@ class GenerateProcessor implements CommandProcessor {
         OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name))
         outlineAndDescriptor = outlineAndDescriptorPrepare(topicsDir.subDirectories, outlineAndDescriptor)
 
+        String topicsRootPath = topicsDir.absolutePath
+        String outlineDescriptorYml = JavaNio.concatPathString(topicsRootPath, ymltOutlineFileName())
+        if (outlineAndDescriptor.outlineDescriptor){
+            outlineAndDescriptor.outlineDescriptor = margeDescriptorTopics(outlineDescriptorYml, outlineAndDescriptor.outlineDescriptor)
+        }
+        exportToOutlineYmlFile(topicsRootPath, outlineAndDescriptor.outlineDescriptor)
 
-        println(exportToYmlText(outlineAndDescriptor.outlineDescriptor))
-        println(exportToYmlText(outlineAndDescriptor.detailsDescriptor))
-        println("Yes")
-
+        String descriptorYml = JavaNio.concatPathString(topicsRootPath, ymlDescriptorFileName())
+        if (outlineAndDescriptor.detailsDescriptor){
+            outlineAndDescriptor.detailsDescriptor = margeDescriptorTopics(descriptorYml, outlineAndDescriptor.detailsDescriptor)
+        }
+        exportToYmlFile(topicsRootPath, outlineAndDescriptor.detailsDescriptor)
     }
 
     OutlineAndDescriptor outlineAndDescriptorPrepare(List<FileInfo> list, OutlineAndDescriptor outlineAndDescriptor, Map index = [outline: 0, details: null]){

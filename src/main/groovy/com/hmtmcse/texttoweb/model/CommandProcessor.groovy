@@ -76,11 +76,21 @@ trait CommandProcessor {
         }
     }
 
+    Boolean exportToOutlineYmlFile(String path, Descriptor descriptor) {
+        YmlReader ymlReader = new YmlReader()
+        try {
+            String content = exportToYmlText(descriptor)
+            return exportToFile(content, ymltOutlineFileName(), path)
+        } catch (Exception e) {
+            return false
+        }
+    }
+
     Boolean exportToYmlFile(String path, Descriptor descriptor) {
         YmlReader ymlReader = new YmlReader()
         try {
             String content = exportToYmlText(descriptor)
-            return exportToFile(content, "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.YML}", path)
+            return exportToFile(content, ymlDescriptorFileName(), path)
         } catch (Exception e) {
             return false
         }
@@ -100,8 +110,7 @@ trait CommandProcessor {
     Descriptor loadYmlFromFile(String path) {
         YmlReader ymlReader = new YmlReader()
         try {
-            String pathWithName = JavaNio.concatPathString(path, ymlDescriptorFileName())
-            return ymlReader.ymlAsKlass(pathWithName, Descriptor.class)
+            return ymlReader.ymlAsKlass(path, Descriptor.class)
         } catch (Exception e) {
             return null
         }
