@@ -99,6 +99,7 @@ class GenerateProcessor implements CommandProcessor {
 
         Map<String, Topic> oldTopicMap = [:]
         oldDescriptor.topics.each { Topic topic ->
+            println("topic.url ${topic.url} ${topic.name}")
             oldTopicMap.put(topic.url, topic)
         }
 
@@ -146,6 +147,17 @@ class GenerateProcessor implements CommandProcessor {
     }
 
 
+    Boolean isSkipFile(FileInfo topicsDir){
+        if (topicsDir && topicsDir.name &&
+                (topicsDir.name.equals(this.ymlDescriptorFileName()) ||
+                        topicsDir.name.equals(this.jsonDescriptorFileName()) ||
+                        topicsDir.name.equals(this.jsonOutlineFileName()) ||
+                        topicsDir.name.equals(this.ymltOutlineFileName()))){
+            return true
+        }
+        return false
+    }
+
     void topicsRootProcess(FileInfo rootDir) {
         if (!rootDir) {
             return
@@ -157,7 +169,7 @@ class GenerateProcessor implements CommandProcessor {
 
         // JAVA ....
         rootDir.subDirectories.each { FileInfo topicsDir ->
-            if (topicsDir && topicsDir.name && (topicsDir.name.equals(this.ymlDescriptorFileName()) || topicsDir.name.equals(this.jsonDescriptorFileName()) || topicsDir.name.equals(this.ymltOutlineFileName()))){
+            if (isSkipFile(topicsDir)){
                 return
             }
             url = getURL(topicsRootPath) + "/" + topicsDir.name
@@ -203,6 +215,9 @@ class GenerateProcessor implements CommandProcessor {
     OutlineAndDescriptor outlineAndDescriptorPrepare(List<FileInfo> list, OutlineAndDescriptor outlineAndDescriptor, Map index = [outline: 0, details: null]){
         String url, humReadableName
         list.each { FileInfo topicDir ->
+            if (isSkipFile(topicDir)){
+                return
+            }
             url = getURL(topicDir.absolutePath)
             humReadableName = makeHumReadableWithoutExt(topicDir.name)
             if (topicDir.isDirectory && topicDir.subDirectories) {
