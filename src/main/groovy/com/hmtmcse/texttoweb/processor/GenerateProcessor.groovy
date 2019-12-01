@@ -42,11 +42,8 @@ class GenerateProcessor implements CommandProcessor {
     }
 
 
-
-
-
-    public String getRelativePath(String absolutePath){
-        if (absolutePath){
+    public String getRelativePath(String absolutePath) {
+        if (absolutePath) {
             return absolutePath.replace(config.source, "")
         }
         return absolutePath
@@ -79,53 +76,72 @@ class GenerateProcessor implements CommandProcessor {
     }
 
 
-    void manipulateDescriptor(){
+    void manipulateDescriptor() {
         List<FileInfo> list = FileUtil.listAll(config.source)
         prepareProjectData(list)
     }
 
 
-    void projectRootProcess(PathData pathData){
+    void projectRootProcess(PathData pathData) {
         String path = JavaNio.concatPath(pathData.absolutePath, ymlDescriptorFileName())
-        if (!JavaNio.isExist(path)){
+        if (!JavaNio.isExist(path)) {
             exportToYmlFile(pathData.absolutePath, DescriptorSample.landingDescriptor)
         }
     }
 
 
+    List<Topic> margeTopicDescriptor(Map currentTopicMap, List<Topic> previousTopic) {
+        previousTopic.eachWithIndex { Topic topic, Integer index ->
+            if (topic.childs && currentTopicMap.get(topic.tracker)) {
+                Map topicMap = currentTopicMap.get(topic.tracker).topicMap
+                topic.childs = margeTopicDescriptor(topicMap, topic.childs)
+                currentTopicMap.remove(topic.tracker)
+            } else if (currentTopicMap.get(topic.url)) {
+                currentTopicMap.remove(topic.url)
+            } else {
+                if (topic.childs) {
+                    previousTopic.get(index).name += " - Deleted With Child"
+                } else {
+                    previousTopic.get(index).name += " - Deleted"
+                }
+            }
+        }
+
+        Topic temp
+        currentTopicMap.each { key, newTopic ->
+            if (newTopic instanceof Topic) {
+                newTopic.name = newTopic.name + " - Added"
+                previousTopic.add(newTopic)
+            } else if (newTopic instanceof Map) {
+                temp = newTopic.topic
+                temp.name += " - Added with Child"
+                previousTopic.add(temp)
+            }
+        }
+        return previousTopic
+    }
+
+    Map topicDescriptorListToMap(List<Topic> topics) {
+        Map topicMap = [:]
+        if (!topics) {
+            return topicMap
+        }
+        topics.each { Topic topic ->
+            if (topic.childs) {
+                topicMap.put(topic.tracker, [topic: topic, topicMap: topicDescriptorListToMap(topic.childs)])
+            } else {
+                topicMap.put(topic.url, topic)
+            }
+        }
+        return topicMap
+    }
+
 
     // Add Remove
-    Descriptor margeDescriptorTopics(Descriptor newDescriptor, Descriptor oldDescriptor){
-
-        Map<String, Topic> oldTopicMap = [:]
-        oldDescriptor.topics.each { Topic topic ->
-            println("topic.url ${topic.url} ${topic.name}")
-            oldTopicMap.put(topic.url, topic)
-        }
-
-        Map<String, Topic> newTopicMap = [:]
-        newDescriptor.topics.each { Topic newTopic ->
-            if (oldTopicMap.get(newTopic.url)){
-                oldTopicMap.remove(newTopic.url)
-            }else{
-                newTopicMap.put(newTopic.url, newTopic)
-            }
-        }
-
-        oldDescriptor.topics.each { Topic topic ->
-            if (oldTopicMap.get(topic.url)){
-                oldTopicMap.get(topic.url).name = oldTopicMap.get(topic.url).name + " - Deleted"
-            }
-        }
-
-
-        newTopicMap.each { String key, Topic newTopic ->
-            newTopic.name = newTopic.name + " - Added"
-            oldDescriptor.topics.add(newTopic)
-        }
-
-
-        return oldDescriptor
+    Descriptor margeDescriptorTopics(Descriptor currentDescriptor, Descriptor previousDescriptor) {
+        Map currentTopicMap = topicDescriptorListToMap(currentDescriptor.topics)
+        previousDescriptor.topics = margeTopicDescriptor(currentTopicMap, previousDescriptor.topics)
+        return previousDescriptor
     }
 
 
@@ -147,12 +163,12 @@ class GenerateProcessor implements CommandProcessor {
     }
 
 
-    Boolean isSkipFile(FileInfo topicsDir){
+    Boolean isSkipFile(FileInfo topicsDir) {
         if (topicsDir && topicsDir.name &&
                 (topicsDir.name.equals(this.ymlDescriptorFileName()) ||
                         topicsDir.name.equals(this.jsonDescriptorFileName()) ||
                         topicsDir.name.equals(this.jsonOutlineFileName()) ||
-                        topicsDir.name.equals(this.ymltOutlineFileName()))){
+                        topicsDir.name.equals(this.ymltOutlineFileName()))) {
             return true
         }
         return false
@@ -169,7 +185,7 @@ class GenerateProcessor implements CommandProcessor {
 
         // JAVA ....
         rootDir.subDirectories.each { FileInfo topicsDir ->
-            if (isSkipFile(topicsDir)){
+            if (isSkipFile(topicsDir)) {
                 return
             }
             url = getURL(topicsRootPath) + "/" + topicsDir.name
@@ -196,35 +212,46 @@ class GenerateProcessor implements CommandProcessor {
     // Grails Details and outline
     void topicRootProcess(FileInfo topicsDir) {
         String url = getURL(topicsDir.absolutePath)
-        OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name), "#" , "##" + url)
+        OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name), "#", "##" + url)
         outlineAndDescriptor = outlineAndDescriptorPrepare(topicsDir.subDirectories, outlineAndDescriptor)
 
         String topicsRootPath = topicsDir.absolutePath
         String outlineDescriptorYml = JavaNio.concatPathString(topicsRootPath, ymltOutlineFileName())
-        if (outlineAndDescriptor.outlineDescriptor){
+        if (outlineAndDescriptor.outlineDescriptor) {
             outlineAndDescriptor.outlineDescriptor = margeDescriptorTopics(outlineDescriptorYml, outlineAndDescriptor.outlineDescriptor)
         }
         exportToOutlineYmlFile(topicsRootPath, outlineAndDescriptor.outlineDescriptor)
 
         String descriptorYml = JavaNio.concatPathString(topicsRootPath, ymlDescriptorFileName())
-        if (outlineAndDescriptor.detailsDescriptor){
+        if (outlineAndDescriptor.detailsDescriptor) {
             outlineAndDescriptor.detailsDescriptor = margeDescriptorTopics(descriptorYml, outlineAndDescriptor.detailsDescriptor)
         }
         exportToYmlFile(topicsRootPath, outlineAndDescriptor.detailsDescriptor)
     }
 
-    OutlineAndDescriptor outlineAndDescriptorPrepare(List<FileInfo> list, OutlineAndDescriptor outlineAndDescriptor, Map index = [outline: 0, details: null]){
+    OutlineAndDescriptor outlineAndDescriptorPrepare(List<FileInfo> list, OutlineAndDescriptor outlineAndDescriptor, Map index = [outline: 0, details: null]) {
         String url, humReadableName
         list.each { FileInfo topicDir ->
-            if (isSkipFile(topicDir)){
+            if (isSkipFile(topicDir)) {
                 return
             }
             url = getURL(topicDir.absolutePath)
             humReadableName = makeHumReadableWithoutExt(topicDir.name)
             if (topicDir.isDirectory && topicDir.subDirectories) {
-                outlineAndDescriptor.addTopicParent(humReadableName, "#", "##" + url)
-                outlineAndDescriptorPrepare(topicDir.subDirectories, outlineAndDescriptor, [outline: outlineAndDescriptor.outlineLastIndex(), details: outlineAndDescriptor.detailsLastIndex()])
-            }else{
+                OutlineAndDescriptor _outlineAndDescriptor = new OutlineAndDescriptor(humReadableName, "#", "##" + url)
+                _outlineAndDescriptor = outlineAndDescriptorPrepare(topicDir.subDirectories, _outlineAndDescriptor, [outline: 0, details: null])
+
+                Topic detailsDescriptorTopic = new Topic(humReadableName, "#").setTracker("##" + url)
+                _outlineAndDescriptor.detailsDescriptor.topics.each {
+                    detailsDescriptorTopic.addChild(it)
+                }
+                outlineAndDescriptor.addToDetailsByIndex(index.details, detailsDescriptorTopic)
+
+
+                _outlineAndDescriptor.outlineDescriptor.topics.each {
+                    outlineAndDescriptor.addToOutlineByIndex(index.outline, it)
+                }
+            } else {
                 outlineAndDescriptor.addToOutlineByIndex(index.outline, new Topic(humReadableName, url))
                 outlineAndDescriptor.addToDetailsByIndex(index.details, new Topic(humReadableName, url))
             }
@@ -232,15 +259,15 @@ class GenerateProcessor implements CommandProcessor {
         return outlineAndDescriptor
     }
 
-    void searchIndex(List<FileInfo> list){
+    void searchIndex(List<FileInfo> list) {
 
     }
 
-    void siteMap(List<FileInfo> list){
+    void siteMap(List<FileInfo> list) {
 
     }
 
-    void exportProject(List<FileInfo> list){
+    void exportProject(List<FileInfo> list) {
 
     }
 
