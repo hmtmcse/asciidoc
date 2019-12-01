@@ -195,7 +195,8 @@ class GenerateProcessor implements CommandProcessor {
 
     // Grails Details and outline
     void topicRootProcess(FileInfo topicsDir) {
-        OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name))
+        String url = getURL(topicsDir.absolutePath)
+        OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name), "#" , "##" + url)
         outlineAndDescriptor = outlineAndDescriptorPrepare(topicsDir.subDirectories, outlineAndDescriptor)
 
         String topicsRootPath = topicsDir.absolutePath
@@ -221,7 +222,7 @@ class GenerateProcessor implements CommandProcessor {
             url = getURL(topicDir.absolutePath)
             humReadableName = makeHumReadableWithoutExt(topicDir.name)
             if (topicDir.isDirectory && topicDir.subDirectories) {
-                outlineAndDescriptor.addTopicParent(humReadableName)
+                outlineAndDescriptor.addTopicParent(humReadableName, "#", "##" + url)
                 outlineAndDescriptorPrepare(topicDir.subDirectories, outlineAndDescriptor, [outline: outlineAndDescriptor.outlineLastIndex(), details: outlineAndDescriptor.detailsLastIndex()])
             }else{
                 outlineAndDescriptor.addToOutlineByIndex(index.outline, new Topic(humReadableName, url))

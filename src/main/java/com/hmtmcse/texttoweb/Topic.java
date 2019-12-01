@@ -7,6 +7,7 @@ public class Topic {
     public String name;
     public String url;
     public String target;
+    public String tracker;
     public String thumb;
     public String image;
     public String id;
@@ -67,6 +68,11 @@ public class Topic {
 
     public Topic setSeo(Seo seo) {
         this.seo = seo;
+        return this;
+    }
+
+    public Topic setTracker(String tracker) {
+        this.tracker = tracker;
         return this;
     }
 }

@@ -11,15 +11,15 @@ class OutlineAndDescriptor {
     public Descriptor outlineDescriptor
     public Descriptor detailsDescriptor
 
-    public OutlineAndDescriptor(String name) {
+    public OutlineAndDescriptor(String name = "Bismillah", String url = "#", String tracker = null) {
         outlineDescriptor = DescriptorSample.getOutlineDescriptor(name)
-        outlineDescriptor.addTopic(new Topic("Bismillah", "#"))
+        outlineDescriptor.addTopic(new Topic(name, url).setTracker(tracker))
         detailsDescriptor = DescriptorSample.getDetailsDescriptor(name)
     }
 
-    public addTopicParent(String name) {
-        outlineDescriptor.addTopic(new Topic(name, "#"))
-        detailsDescriptor.addTopic(new Topic(name, "#"))
+    public addTopicParent(String name, String url = "#", String tracker = null) {
+        outlineDescriptor.addTopic(new Topic(name, url).setTracker(tracker))
+        detailsDescriptor.addTopic(new Topic(name, url).setTracker(tracker))
     }
 
     public OutlineAndDescriptor addToOutlineByIndex(Integer index, Topic topic){
