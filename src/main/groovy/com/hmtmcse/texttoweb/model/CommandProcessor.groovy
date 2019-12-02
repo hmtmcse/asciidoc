@@ -1,6 +1,6 @@
 package com.hmtmcse.texttoweb.model
 
-
+import com.hmtmcse.asciidoc.AdocConverter
 import com.hmtmcse.jtfutil.io.JavaNio
 import com.hmtmcse.jtfutil.parser.JsonReadWrite
 import com.hmtmcse.jtfutil.parser.YmlReader
@@ -55,17 +55,16 @@ trait CommandProcessor {
     }
 
 
-
-
-    Boolean exportToJsonFile(String path, Descriptor descriptor) {
+    Boolean exportToJsonFile(String path, Descriptor descriptor, String name = jsonDescriptorFileName()) {
         JsonReadWrite jsonReadWrite = new JsonReadWrite()
         try {
             String json = jsonReadWrite.objectAsJsonStringPretty(descriptor)
-            return exportToFile(json, jsonDescriptorFileName(), path)
+            return exportToFile(json, name, path)
         } catch (Exception e) {
             return false
         }
     }
+
 
     String exportToYmlText(Descriptor descriptor) {
         YmlReader ymlReader = new YmlReader()
@@ -123,8 +122,13 @@ trait CommandProcessor {
         return false
     }
 
-    Boolean exportToHtmlFile() {
-
+    Boolean exportAdocToHtmlFile(String sourceAdoc, String outPath, String name) {
+        AdocConverter adocConverter = new AdocConverter()
+        String htmlContent = ""
+        if (JavaNio.isExist(sourceAdoc)){
+            htmlContent = adocConverter.getHtmlFromFile(sourceAdoc)
+        }
+        return exportToFile(htmlContent, name, outPath)
     }
 
     public removeAdocExtension(String text){

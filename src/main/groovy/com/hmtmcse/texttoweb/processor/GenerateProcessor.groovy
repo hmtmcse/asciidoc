@@ -24,20 +24,14 @@ class GenerateProcessor implements CommandProcessor {
         String command = optionValues.valueAsString(TextToWebConst.DESCRIPTOR)
         config = ConfigLoader.getConfig(optionValues)
         switch (command) {
-            case TextToWebConst.LANDING:
-                landing()
+            case TextToWebConst.EXPORT_TO_STATIC_PHP:
+                exportToPhpStatic()
                 break
-            case TextToWebConst.TOPICS:
-                topics()
-                break
-            case TextToWebConst.OUTLINE:
-                outline()
-                break
-            case TextToWebConst.DETAILS:
-                details()
+            case TextToWebConst.GENERATE_YML:
+                manipulateDescriptor()
                 break
             default:
-                println("-------------")
+                println("Action Not Found!")
         }
     }
 
@@ -72,6 +66,43 @@ class GenerateProcessor implements CommandProcessor {
                 pathData = new PathData(config.source, getRelativePath(config.source))
             }
             projectRootProcess(pathData)
+        }
+    }
+
+    void exportToPhpStatic() {
+        List<FileInfo> list = FileUtil.listAll(config.source)
+        processExportData(list, config.out)
+    }
+
+    private void processExportData(List<FileInfo> list, String out) {
+        String destinationRelativePath, destinationPath, outName, tmpLoc
+        list.each { FileInfo fileInfo ->
+            destinationRelativePath = fileInfo.absolutePath - config.source - fileInfo.name
+            destinationPath = JavaNio.concatPath(out, destinationRelativePath)
+            if (fileInfo.subDirectories) {
+                if (!JavaNio.isExist(destinationPath)) {
+                    JavaNio.createDirectory(destinationPath)
+                }
+                processExportData(fileInfo.subDirectories, out)
+            } else {
+                if (fileInfo.name && fileInfo.name.endsWith(TextToWebConst.ADOC)) {
+                    outName = fileInfo.name.replace("." + TextToWebConst.ADOC, "." + TextToWebConst.HTML)
+                    tmpLoc = JavaNio.concatPath(destinationPath, outName)
+                    if (JavaNio.isExist(tmpLoc)) {
+                        JavaNio.remove(tmpLoc)
+                    }
+                    exportAdocToHtmlFile(fileInfo.absolutePath, destinationPath, outName)
+                } else if (fileInfo.name && fileInfo.name.endsWith(TextToWebConst.YML)) {
+                    outName = fileInfo.name.replace("." + TextToWebConst.YML, "." + TextToWebConst.JSON)
+                    tmpLoc = JavaNio.concatPath(destinationPath, outName)
+                    Descriptor descriptor = loadYmlFromFile(fileInfo.absolutePath)
+                    if (descriptor && JavaNio.isExist(tmpLoc)) {
+                        JavaNio.remove(tmpLoc)
+                    }
+                    exportToJsonFile(destinationPath, descriptor, outName)
+                }
+                println("Exporting File: ${destinationPath}/" + fileInfo.name)
+            }
         }
     }
 
@@ -190,8 +221,6 @@ class GenerateProcessor implements CommandProcessor {
             }
             url = getURL(topicsRootPath) + "/" + topicsDir.name
             humReadableName = makeHumReadableWithoutExt(topicsDir.name)
-//            println("\nTopics: ${humReadableName} ${topicsDir.name}")
-//            println("URL: ${url}")
 
             topic = descriptor.topic(makeHumReadableWithoutExt(topicsDir.name), url, "For more details about ${humReadableName} click here. It will bring you to details of this Topic.")
             topicMap.put(url, topic)
@@ -272,9 +301,7 @@ class GenerateProcessor implements CommandProcessor {
     }
 
     void landing() {
-        manipulateDescriptor()
 
-//        exportToJsonNdYmlFile(config.source, DescriptorSample.landingDescriptor)
     }
 
     void topics() {}

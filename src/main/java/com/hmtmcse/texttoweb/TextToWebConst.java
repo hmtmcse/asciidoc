@@ -14,6 +14,9 @@ public class TextToWebConst {
     public static final String DETAILS = "details";
     public static final String VIDEO_OUTLINE = "VideoOutline";
 
+    public static final String GENERATE_YML = "yml";
+    public static final String EXPORT_TO_STATIC_PHP = "php";
+
     public static final String SQUIRE_BLOCK = "SQUIRE_BLOCK";
     public static final String LIST_BLOCK = "LIST_BLOCK";
 
