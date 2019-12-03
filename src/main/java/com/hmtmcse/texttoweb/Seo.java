@@ -35,4 +35,23 @@ public class Seo {
         return this;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public List<String> getScripts() {
+        return scripts;
+    }
+
+    public void setScripts(List<String> scripts) {
+        this.scripts = scripts;
+    }
+
+    public List<Tags> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tags> tags) {
+        this.tags = tags;
+    }
 }

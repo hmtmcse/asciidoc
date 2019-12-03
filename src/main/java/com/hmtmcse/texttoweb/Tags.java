@@ -7,6 +7,7 @@ public class Tags {
     public String placedIn;
     public List<Tag> tag;
 
+    public Tags() {}
 
     public Tags(String placedIn) {
         this.placedIn = placedIn;
@@ -28,4 +29,19 @@ public class Tags {
         return this;
     }
 
+    public String getPlacedIn() {
+        return placedIn;
+    }
+
+    public void setPlacedIn(String placedIn) {
+        this.placedIn = placedIn;
+    }
+
+    public List<Tag> getTag() {
+        return tag;
+    }
+
+    public void setTag(List<Tag> tag) {
+        this.tag = tag;
+    }
 }

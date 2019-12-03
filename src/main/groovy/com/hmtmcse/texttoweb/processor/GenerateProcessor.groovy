@@ -77,6 +77,9 @@ class GenerateProcessor implements CommandProcessor {
     private void processExportData(List<FileInfo> list, String out) {
         String destinationRelativePath, destinationPath, outName, tmpLoc
         list.each { FileInfo fileInfo ->
+            if (config && config.ignore && config.ignore.contains(fileInfo.name)){
+                return
+            }
             destinationRelativePath = fileInfo.absolutePath - config.source - fileInfo.name
             destinationPath = JavaNio.concatPath(out, destinationRelativePath)
             if (fileInfo.subDirectories) {

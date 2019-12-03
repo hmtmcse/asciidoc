@@ -16,6 +16,8 @@ public class Block {
     public List<Topic> childs;
     public Map<String, Block> blocks = null;
 
+    public Block() {}
+
     public Block(String title, String url) {
         this.title = title;
         this.url = url;

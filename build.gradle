@@ -37,47 +37,16 @@ dependencies {
 
 
 jar{
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
     manifest {
         attributes (
                 'Implementation-Title': 'HMTM AsciiDoctor Text To Web',
                 'Implementation-Version': version,
-                'Main-Class': 'com.hmtmcse.texttoweb.console.TextToWebMain'
+                'Main-Class': 'com.hmtmcse.texttoweb.TextToWebMain'
         )
     }
 }
 
-asciidoctorj {
-    version = '2.1.0'
-}
-
-
-def docSource = 'asciidoc'
-def docHtml = 'docs'
-asciidoctor {
-    sourceDir = file(docSource)
-    outputDir = file(docHtml)
-    resources {
-        from(sourceDir) {
-            include 'images/**'
-        }
-    }
-    attributes 'toc': 'left',
-    'source-highlighter': 'coderay'
-}
-
-asciidoctor.doLast {
-    copy {
-        from "${docHtml}/html5"
-        into "$docHtml"
-    }
-    delete {
-        delete "${docHtml}/html5"
-    }
-}
-
-asciidoctor.doFirst {
-    delete {
-        delete "$docHtml"
-    }
-}
 

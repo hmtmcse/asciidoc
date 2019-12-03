@@ -41,7 +41,7 @@ class TextToWebMenuTest extends Specification{
     }
 
     def "generate json and yml descriptor for landing"() {
-        expect: "generate -t landing"
+        expect: "generate -t yml"
         String[] command = ["generate", "-t", "yml"]
         TextToWebMenu.bismillah(command)
     }
