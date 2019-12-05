@@ -3,6 +3,8 @@ package com.hmtmcse.asciidoc
 import com.hmtmcse.jtfutil.text.ReadWriteTextFile
 import com.hmtmcse.jtfutil.text.TextFileData
 import org.asciidoctor.Asciidoctor
+import org.asciidoctor.Attributes
+import org.asciidoctor.Options
 
 class AdocConverter {
 
@@ -18,7 +20,12 @@ class AdocConverter {
     }
 
     public String getHtmlFromText(String text){
-        return getAdoc().convert(text, aDocOptions)
+        Attributes attributes = new Attributes()
+        attributes.setSourceHighlighter("coderay")
+        Options options = new Options()
+        options.setAttributes(attributes)
+
+        return getAdoc().convert(text, options)
     }
 
 
