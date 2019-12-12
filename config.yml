@@ -1,2 +1,6 @@
-source: 'W:\all-in-one\all-plugins\asciidoc\example\root'
-out: 'temp/html'
+source: 'I:\hmtmcse_com\projects\hmtmcse_com_adoc'
+out: 'G:\touhid\all-in-one\all-plugins\asciidoc\example\out1'
+
+ignore:
+  - '.git'
+  - '.gitignore'
