@@ -1,8 +1,7 @@
 package com.hmtmcse.texttoweb.common
 
-import com.hmtmcse.common.util.TMUtil
-import com.hmtmcse.jtfutil.io.FDHelper
-import com.hmtmcse.jtfutil.parser.YmlReader
+import com.hmtmcse.fileutil.fd.FileDirectory
+import com.hmtmcse.parser4java.YamlProcessor
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.TextToWebConst
@@ -13,19 +12,22 @@ class ConfigLoader {
 
     public static Config getConfig(OptionValues optionValues) {
         String path = CONFIG_FILE
-        String pathUnderModuleDir = TMUtil.rootPath("asciidoc") + "/" + CONFIG_FILE
+        String pathUnderModuleDir = "all-plugins/asciidoc/" + CONFIG_FILE
+        String pathUnderEngineDir = "libraries/asciidoc/" + CONFIG_FILE
         Config config = new Config()
         try {
-            if (FDHelper.instance().isExist(path)) {
-                path = FDHelper.instance().getFile(path).getAbsolutePath()
-            } else if (FDHelper.instance().isExist(pathUnderModuleDir)) {
-                path = FDHelper.instance().getFile(pathUnderModuleDir).getAbsolutePath()
+            if (FileDirectory.instance().isExist(path)) {
+                path = FileDirectory.instance().getFile(path).getAbsolutePath()
+            } else if (FileDirectory.instance().isExist(pathUnderEngineDir)) {
+                path = FileDirectory.instance().getFile(pathUnderEngineDir).getAbsolutePath()
+            }else if (FileDirectory.instance().isExist(pathUnderModuleDir)) {
+                path = FileDirectory.instance().getFile(pathUnderModuleDir).getAbsolutePath()
             } else {
                 path = null
             }
             if (path) {
-                YmlReader ymlReader = new YmlReader()
-                config = ymlReader.ymlAsKlass(path, Config.class)
+                YamlProcessor yamlProcessor = new YamlProcessor()
+                config = yamlProcessor.ymlAsNestedKlass(path, Config.class)
             }
         } catch (Exception e) {
         }
