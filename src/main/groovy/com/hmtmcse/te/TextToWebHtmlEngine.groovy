@@ -95,6 +95,22 @@ class TextToWebHtmlEngine {
         }
     }
 
+    public String getPageTitle(TextToWebEngineData textToWebEngineData){
+
+    }
+
+    public void setupView(TextToWebEngineData textToWebEngineData){
+
+    }
+
+    public void getNavigation(){
+
+    }
+
+    public void getPageContent(){
+
+    }
+
     public String parse() {
 
         Config config = ConfigLoader.getConfig()
