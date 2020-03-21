@@ -40,29 +40,34 @@ class TextToWebHtmlEngine {
         return TStringUtil.findReplace(url, slash, File.separator)
     }
 
-    public TextToWebEngineData getDescriptorData(String url, String relativePath, String descriptorName) {
-        List<String> urlFragments = TStringUtil.splitAsList(url, slash)
-        urlFragments = TStringUtil.reverseList(urlFragments)
-
-        TextToWebEngineData textToWebEngineData = new TextToWebEngineData()
-        textToWebEngineData.url = url
-        textToWebEngineData.relativePath = relativePath
-
-        String descriptorFile, temp
-        GenerateProcessor generateProcessor = new GenerateProcessor()
-        if (urlFragments) {
-            for (String fragment : urlFragments) {
-                descriptorFile = FDUtil.concatPath(concatPath(relativePath), descriptorName)
-                if (fileDirectory.isDirectory(descriptorFile)) {
-                    textToWebEngineData.descriptor = generateProcessor.loadYmlFromFile(descriptorFile)
-                    return textToWebEngineData
-                }
-                temp = File.separator + fragment
-                relativePath = relativePath.substring(0, (relativePath.length() - temp.length()))
+    public TextToWebEngineData getDescriptorData(String url, String relativePath, String descriptorName) throws AsciiDocException {
+        try {
+            List<String> urlFragments = []
+            if (url && !url.equals("")) {
+                urlFragments = TStringUtil.splitAsList(url, slash)
             }
+            urlFragments = TStringUtil.reverseList(urlFragments)
+            TextToWebEngineData textToWebEngineData = new TextToWebEngineData()
+            textToWebEngineData.url = url
+            textToWebEngineData.relativePath = relativePath
+            String descriptorFile, temp
+            GenerateProcessor generateProcessor = new GenerateProcessor()
+            if (urlFragments) {
+                for (String fragment : urlFragments) {
+                    descriptorFile = FDUtil.concatPath(concatPath(relativePath), descriptorName)
+                    if (fileDirectory.isExist(descriptorFile)) {
+                        textToWebEngineData.descriptor = generateProcessor.loadYmlFromFile(descriptorFile)
+                        return textToWebEngineData
+                    }
+                    temp = File.separator + fragment
+                    relativePath = relativePath.substring(0, (relativePath.length() - temp.length()))
+                }
+            }
+            textToWebEngineData.descriptor = generateProcessor.loadYmlFromFile(concatPath(descriptorName))
+            return textToWebEngineData
+        } catch (Exception e) {
+            throw new AsciiDocException(e.getMessage())
         }
-        textToWebEngineData.descriptor = generateProcessor.loadYmlFromFile(concatPath(descriptorName))
-        return textToWebEngineData
     }
 
 
@@ -88,6 +93,8 @@ class TextToWebHtmlEngine {
             String path = concatPath(urlToPath)
             InternalResponse internalResponse = getDescriptorName(path)
             println(path)
+
+            TextToWebEngineData textToWebEngineData = getDescriptorData(trimUrl, urlToPath, internalResponse.descriptorName)
 
             return trimUrl
         } catch (Exception e) {
