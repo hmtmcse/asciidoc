@@ -10,7 +10,7 @@ class ConfigLoader {
 
     public static String CONFIG_FILE = "config.yml"
 
-    public static Config getConfig(OptionValues optionValues) {
+    public static Config getConfig(OptionValues optionValues = null) {
         String path = CONFIG_FILE
         String pathUnderModuleDir = "all-plugins/asciidoc/" + CONFIG_FILE
         String pathUnderEngineDir = "libraries/asciidoc/" + CONFIG_FILE

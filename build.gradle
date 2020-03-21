@@ -33,6 +33,7 @@ def dependencyList = [
         "java-common",
         "java-file-util",
         "parser4java",
+        "java-tm-util",
 ]
 
 

@@ -1,5 +1,6 @@
-source: '/Desktop/codes/hmtmcse_com_adoc'
+source: 'H:\\hmtmcse_com_site'
 out: '/Desktop/codes/html-out'
+template: "W:\\text-to-web-engine\\engine\\templates\\thymeleaf-java"
 
 ignore:
   - '.git'

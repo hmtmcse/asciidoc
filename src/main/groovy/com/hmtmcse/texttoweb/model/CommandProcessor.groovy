@@ -2,10 +2,10 @@ package com.hmtmcse.texttoweb.model
 
 import com.hmtmcse.asciidoc.AdocConverter
 import com.hmtmcse.jtfutil.io.JavaNio
-import com.hmtmcse.jtfutil.parser.JacksonYml
 import com.hmtmcse.jtfutil.parser.JsonReadWrite
 import com.hmtmcse.jtfutil.parser.YmlReader
 import com.hmtmcse.jtfutil.text.ReadWriteTextFile
+import com.hmtmcse.parser4java.YamlProcessor
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
@@ -77,7 +77,6 @@ trait CommandProcessor {
     }
 
     Boolean exportToOutlineYmlFile(String path, Descriptor descriptor) {
-        YmlReader ymlReader = new YmlReader()
         try {
             String content = exportToYmlText(descriptor)
             return exportToFile(content, ymltOutlineFileName(), path)
@@ -87,7 +86,6 @@ trait CommandProcessor {
     }
 
     Boolean exportToYmlFile(String path, Descriptor descriptor) {
-        YmlReader ymlReader = new YmlReader()
         try {
             String content = exportToYmlText(descriptor)
             return exportToFile(content, ymlDescriptorFileName(), path)
@@ -108,10 +106,9 @@ trait CommandProcessor {
     }
 
     Descriptor loadYmlFromFile(String path) {
-        YmlReader ymlReader = new YmlReader()
-        JacksonYml jacksonYml = new JacksonYml()
+        YamlProcessor yamlProcessor = new YamlProcessor()
         try {
-            return ymlReader.ymlAsNestedKlass(path, Descriptor.class)
+            return yamlProcessor.ymlAsNestedKlass(path, Descriptor.class)
         } catch (Exception e) {
             println(e.getMessage())
             return null
