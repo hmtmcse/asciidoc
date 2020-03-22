@@ -8,6 +8,7 @@ import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.te.data.InternalResponse
 import com.hmtmcse.te.data.TextToWebEngineData
 import com.hmtmcse.texttoweb.Config
+import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
 import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.processor.GenerateProcessor
@@ -37,6 +38,10 @@ class TextToWebHtmlEngine {
     }
 
     private String urlToPath(String url) {
+        return TStringUtil.findReplace(url, slash, "_")
+    }
+
+    private String urlToUrlKey(String url) {
         return TStringUtil.findReplace(url, slash, File.separator)
     }
 
@@ -95,6 +100,12 @@ class TextToWebHtmlEngine {
             println(path)
 
             TextToWebEngineData textToWebEngineData = getDescriptorData(trimUrl, urlToPath, internalResponse.descriptorName)
+            textToWebEngineData.urlKey = urlToUrlKey(textToWebEngineData.url)
+            textToWebEngineData.absolutePath = path
+
+            Descriptor navigationDescriptor = textToWebEngineData.descriptor
+
+            textToWebEngineData.topicNav = getNavigation(navigationDescriptor, textToWebEngineData.urlKey)
 
             return trimUrl
         } catch (Exception e) {
@@ -110,7 +121,7 @@ class TextToWebHtmlEngine {
 
     }
 
-    public void getNavigation(){
+    public void getNavigation(Descriptor navigationDescriptor, String urlKey) {
 
     }
 
