@@ -123,11 +123,29 @@ class TextToWebHtmlEngine {
     }
 
     public String getPageTitle(TextToWebEngineData textToWebEngineData) {
+        String title = defaultTitle
+        if (textToWebEngineData.topicNav.meta[textToWebEngineData.urlKey].title) {
+            title = textToWebEngineData.topicNav.meta[textToWebEngineData.urlKey].title
+        } else if (textToWebEngineData.descriptor.defaultTitle) {
+            title = textToWebEngineData.descriptor.defaultTitle
+        }
+        return title
+    }
+
+    public String getPageData(TextToWebEngineData textToWebEngineData) {
+
+    }
+
+    public String getPageContent(TextToWebEngineData textToWebEngineData) {
 
     }
 
     public void setupView(TextToWebEngineData textToWebEngineData) {
-
+        if (textToWebEngineData.descriptor && textToWebEngineData.descriptor.layout.type) {
+            textToWebEngineData.layout = "${textToWebEngineData.descriptor.layout.type}.html"
+        } else {
+            textToWebEngineData.layout = "404.html"
+        }
     }
 
     public TopicNav getNavigation(List<Topic> topics, String currentUrlKey) {
