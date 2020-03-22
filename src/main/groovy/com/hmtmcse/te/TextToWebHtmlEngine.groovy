@@ -137,7 +137,8 @@ class TextToWebHtmlEngine {
     }
 
     public String getPageContent(TextToWebEngineData textToWebEngineData) {
-
+        String content = ""
+        return content
     }
 
     public void setupView(TextToWebEngineData textToWebEngineData) {
