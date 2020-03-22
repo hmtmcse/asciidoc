@@ -10,6 +10,6 @@ class TextToWebEngineData {
     public String url;
     public String relativePath;
     public String absolutePath;
-    public List<String> topicNav = [];
+    public TopicNav topicNav;
 
 }

@@ -7,9 +7,12 @@ import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.te.data.InternalResponse
 import com.hmtmcse.te.data.TextToWebEngineData
+import com.hmtmcse.te.data.TopicNav
+import com.hmtmcse.te.data.TopicNavItem
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
+import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.processor.GenerateProcessor
 import com.hmtmcse.tmutil.TStringUtil
@@ -21,6 +24,7 @@ class TextToWebHtmlEngine {
     private TextFile textFile
     private Config config
     private String slash = "/"
+    private String defaultTitle = "..:: Bismillah ::.."
 
 
     public TextToWebHtmlEngine() {
@@ -38,11 +42,16 @@ class TextToWebHtmlEngine {
     }
 
     private String urlToPath(String url) {
-        return TStringUtil.findReplace(url, slash, "_")
+        return TStringUtil.findReplace(url, slash, File.separator)
     }
 
     private String urlToUrlKey(String url) {
-        return TStringUtil.findReplace(url, slash, File.separator)
+        return TStringUtil.findReplace(url, slash, "_")
+    }
+
+    private String trimAndUrlToUrlKey(String url) {
+        String trimUrl = TStringUtil.trimStartEndChar(url, slash)
+        return urlToUrlKey(trimUrl)
     }
 
     public TextToWebEngineData getDescriptorData(String url, String relativePath, String descriptorName) throws AsciiDocException {
@@ -93,7 +102,7 @@ class TextToWebHtmlEngine {
             if (!url) {
                 throw new AsciiDocException("Empty URL")
             }
-            String trimUrl = TStringUtil.trimStartEndChar(url, "/")
+            String trimUrl = TStringUtil.trimStartEndChar(url, slash)
             String urlToPath = urlToPath(trimUrl)
             String path = concatPath(urlToPath)
             InternalResponse internalResponse = getDescriptorName(path)
@@ -105,7 +114,7 @@ class TextToWebHtmlEngine {
 
             Descriptor navigationDescriptor = textToWebEngineData.descriptor
 
-            textToWebEngineData.topicNav = getNavigation(navigationDescriptor, textToWebEngineData.urlKey)
+            textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey)
 
             return trimUrl
         } catch (Exception e) {
@@ -113,19 +122,80 @@ class TextToWebHtmlEngine {
         }
     }
 
-    public String getPageTitle(TextToWebEngineData textToWebEngineData){
+    public String getPageTitle(TextToWebEngineData textToWebEngineData) {
 
     }
 
-    public void setupView(TextToWebEngineData textToWebEngineData){
+    public void setupView(TextToWebEngineData textToWebEngineData) {
 
     }
 
-    public void getNavigation(Descriptor navigationDescriptor, String urlKey) {
+    public TopicNav getNavigation(List<Topic> topics, String currentUrlKey) {
+        TopicNav topicNav = new TopicNav()
+        if (topics) {
+            Integer itemIndex = 1
+            Integer navIndex = 1
+            TopicNavItem topicNavItem
+            String navKey
+            for (Topic topic : topics) {
+                topicNavItem = new TopicNavItem()
+                navKey = "";
+                if (!topic) {
+                    continue
+                }
 
+                if (topic.seo && topic.seo.title) {
+                    topicNavItem.title = topic.seo.title
+                } else if (topic.name) {
+                    topicNavItem.title = topic.name
+                } else {
+                    topicNavItem.title = defaultTitle
+                }
+
+                if (topic.url && topic.url != "#") {
+                    topicNavItem.url = topic.url
+                    navKey = trimAndUrlToUrlKey(topic.url)
+                }else{
+                    topicNavItem.url = "#"
+                    navKey = "#-" + navIndex
+                    navIndex++
+                }
+
+                if (topic.name){
+                    topicNavItem.name = topic.name
+                }else{
+                    topicNavItem.name = "Nav Item " + itemIndex
+                    itemIndex++
+                }
+
+                if (topic.seo){
+                    topicNavItem.seo = topic.seo
+                }
+
+                if (topic.filePath){
+                    topicNavItem.filePath = topic.filePath
+                }
+
+                if (navKey == currentUrlKey){
+                    topicNavItem.active = "active"
+                }
+
+                topicNav.nav[navKey] = topicNavItem
+                topicNav.meta[navKey] = topicNavItem
+
+                if (topic.childs){
+                    TopicNav topicNavTemp = getNavigation(topic.childs, currentUrlKey)
+                    topicNav.nav[navKey].childs = topicNavTemp.nav
+                    topicNavTemp.meta.each { key, value ->
+                        topicNav.meta[key] = value
+                    }
+                }
+            }
+        }
+        return topicNav
     }
 
-    public void getPageContent(){
+    public void getPageContent() {
 
     }
 

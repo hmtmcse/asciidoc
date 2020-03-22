@@ -10,7 +10,7 @@ class TopicNavItem {
     public String active = ""
     public Seo seo
     public String filePath = null
-    public List<TopicNavItem> childs = []
+    public Map<String, TopicNavItem> childs = [:]
 
 
 }
