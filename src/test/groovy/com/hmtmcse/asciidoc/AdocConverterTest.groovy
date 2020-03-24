@@ -19,6 +19,7 @@ class AdocConverterTest extends Specification{
 
         expect: "Will Get Adoc to HTML"
         String html = AdocConverter.instance().getHtmlFromFile(path)
+        println(html)
         html != null && html.contains("Unit Test H2")
     }
 

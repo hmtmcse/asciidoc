@@ -48,7 +48,7 @@ dependencies {
         }
     }
     implementation group: 'org.asciidoctor', name: 'asciidoctorj', version: '2.1.0'
-    implementation 'com.github.allati.asciidoctor.monotree:asciidoctor-extension-monotree:0.0.1'
+    implementation 'org.asciidoctor:asciidoctorj:2.1.0'
     implementation 'org.codehaus.groovy:groovy:2.5.6'
     implementation 'org.codehaus.groovy:groovy-templates:2.0.0'
 }

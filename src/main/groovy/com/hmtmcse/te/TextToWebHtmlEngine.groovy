@@ -39,7 +39,6 @@ class TextToWebHtmlEngine {
             e.printStackTrace()
             content = e.getMessage()
         }
-        println(url)
         return content
     }
 
@@ -129,14 +128,15 @@ class TextToWebHtmlEngine {
             pageData.content = e.getMessage()
             pageData.title = config.errorTitle
             pageData.layout = config.page500
+            e.printStackTrace()
         }
         return renderPage(pageData)
     }
 
     public String getPageTitle(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
         String title = config.defaultTitle
-        if (textToWebEngineData.topicNav.meta[textToWebEngineData.urlKey].title) {
-            title = textToWebEngineData.topicNav.meta[textToWebEngineData.urlKey].title
+        if (textToWebEngineData.topicNav.meta && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)?.title) {
+            title = textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey).title
         } else if (textToWebEngineData.descriptor.defaultTitle) {
             title = textToWebEngineData.descriptor.defaultTitle
         }
