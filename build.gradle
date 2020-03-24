@@ -1,7 +1,10 @@
 buildscript {
     repositories {
         mavenLocal()
+        mavenCentral()
         jcenter()
+        maven { url "https://dl.bintray.com/hmtmcse/maven/" }
+        maven { url "https://repo.maven.apache.org/maven2/" }
         maven { url "https://plugins.gradle.org/m2/" }
     }
 
@@ -15,9 +18,10 @@ buildscript {
 
 repositories {
     mavenLocal()
+    mavenCentral()
     jcenter()
     maven { url "https://dl.bintray.com/hmtmcse/maven/" }
-    maven { url "http://central.maven.org/maven2/" }
+    maven { url "https://repo.maven.apache.org/maven2/" }
 }
 
 apply plugin: 'org.asciidoctor.convert'
@@ -57,7 +61,7 @@ jar{
     manifest {
         attributes (
                 'Implementation-Title': 'HMTM AsciiDoctor Text To Web',
-                'Implementation-Version': version,
+                'Implementation-Version': archiveVersion,
                 'Main-Class': 'com.hmtmcse.texttoweb.TextToWebMain'
         )
     }
