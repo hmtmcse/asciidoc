@@ -173,7 +173,7 @@ class TextToWebHtmlEngine {
                 }
 
                 if (topic.url && topic.url != "#") {
-                    topicNavItem.url = topic.url
+                    topicNavItem.url = topic.url + extension
                     navKey = trimAndUrlToUrlKey(topic.url)
                 }else{
                     topicNavItem.url = "#"
@@ -204,7 +204,7 @@ class TextToWebHtmlEngine {
                 topicNav.meta[navKey] = topicNavItem
 
                 if (topic.childs){
-                    TopicNav topicNavTemp = getNavigation(topic.childs, currentUrlKey)
+                    TopicNav topicNavTemp = getNavigation(topic.childs, currentUrlKey, extension)
                     topicNav.nav[navKey].childs = topicNavTemp.nav
                     topicNavTemp.meta.each { key, value ->
                         topicNav.meta[key] = value
