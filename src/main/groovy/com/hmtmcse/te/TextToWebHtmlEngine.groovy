@@ -6,6 +6,7 @@ import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.te.data.InternalResponse
+import com.hmtmcse.te.data.TextToWebEngineConfig
 import com.hmtmcse.te.data.TextToWebEngineData
 import com.hmtmcse.te.data.TopicNav
 import com.hmtmcse.te.data.TopicNavItem
@@ -97,7 +98,7 @@ class TextToWebHtmlEngine {
         return internalResponse
     }
 
-    String process(String url) throws AsciiDocException {
+    String process(String url, TextToWebEngineConfig config = new TextToWebEngineConfig()) throws AsciiDocException {
         try {
             if (!url) {
                 throw new AsciiDocException("Empty URL")
@@ -114,7 +115,7 @@ class TextToWebHtmlEngine {
 
             Descriptor navigationDescriptor = textToWebEngineData.descriptor
 
-            textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey)
+            textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey, config.urlExtension)
 
             return trimUrl
         } catch (Exception e) {
@@ -149,7 +150,7 @@ class TextToWebHtmlEngine {
         }
     }
 
-    public TopicNav getNavigation(List<Topic> topics, String currentUrlKey) {
+    public TopicNav getNavigation(List<Topic> topics, String currentUrlKey, String extension = "") {
         TopicNav topicNav = new TopicNav()
         if (topics) {
             Integer itemIndex = 1
