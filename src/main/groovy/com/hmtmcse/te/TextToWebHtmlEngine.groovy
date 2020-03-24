@@ -1,16 +1,12 @@
 package com.hmtmcse.te
 
+import com.hmtmcse.asciidoc.AdocConverter
 import com.hmtmcse.common.AsciiDocException
 import com.hmtmcse.fileutil.data.TextFileData
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
-import com.hmtmcse.te.data.InternalResponse
-import com.hmtmcse.te.data.TextToWebEngineConfig
-import com.hmtmcse.te.data.TextToWebEngineData
-import com.hmtmcse.te.data.TextToWebPageData
-import com.hmtmcse.te.data.TopicNav
-import com.hmtmcse.te.data.TopicNavItem
+import com.hmtmcse.te.data.*
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
@@ -124,8 +120,8 @@ class TextToWebHtmlEngine {
         }
     }
 
-    public String getPageTitle(TextToWebEngineData textToWebEngineData) {
-        String title = defaultTitle
+    public String getPageTitle(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
+        String title = config.defaultTitle
         if (textToWebEngineData.topicNav.meta[textToWebEngineData.urlKey].title) {
             title = textToWebEngineData.topicNav.meta[textToWebEngineData.urlKey].title
         } else if (textToWebEngineData.descriptor.defaultTitle) {
@@ -134,12 +130,47 @@ class TextToWebHtmlEngine {
         return title
     }
 
-    public TextToWebPageData getPageData(TextToWebEngineData textToWebEngineData) {
+    public TextToWebPageData getPageData(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
+        TextToWebPageData textToWebPageData = new TextToWebPageData()
+        textToWebPageData.title = getPageTitle(textToWebEngineData, config)
+        if (textToWebEngineData.topicNav.nav) {
+            textToWebPageData.nav = textToWebEngineData.topicNav.nav
+        }
 
+        if (textToWebEngineData.descriptor.blocks) {
+            textToWebPageData.blocks = textToWebEngineData.descriptor.blocks
+        }
+
+        if (textToWebEngineData.descriptor.topics) {
+            textToWebPageData.topics = textToWebEngineData.descriptor.topics
+        }
+
+        if (textToWebEngineData.layout) {
+            textToWebPageData.layout = textToWebEngineData.layout
+        }
+
+        textToWebPageData.content = getPageContent(textToWebEngineData, config)
+        return textToWebPageData
     }
 
-    public String getPageContent(TextToWebEngineData textToWebEngineData) {
-        String content = ""
+    public String getPageContent(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
+        String content = config.defaultContent
+        if (textToWebEngineData.urlKey && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)) {
+            TopicNavItem meta = textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)
+            String path
+            if (meta.filePath) {
+                path = concatPath(urlToPath(meta.filePath))
+            } else {
+                path = FDUtil.concatPath(textToWebEngineData.absolutePath, ".adoc")
+            }
+            if (path && fileDirectory.isExist(path)) {
+                try {
+                    AdocConverter adocConverter = new AdocConverter()
+                    content = adocConverter.getHtmlFromFile(path)
+                } catch (Exception ignore) {
+                }
+            }
+        }
         return content
     }
 
@@ -176,35 +207,35 @@ class TextToWebHtmlEngine {
                 if (topic.url && topic.url != "#") {
                     topicNavItem.url = topic.url + extension
                     navKey = trimAndUrlToUrlKey(topic.url)
-                }else{
+                } else {
                     topicNavItem.url = "#"
                     navKey = "#-" + navIndex
                     navIndex++
                 }
 
-                if (topic.name){
+                if (topic.name) {
                     topicNavItem.name = topic.name
-                }else{
+                } else {
                     topicNavItem.name = "Nav Item " + itemIndex
                     itemIndex++
                 }
 
-                if (topic.seo){
+                if (topic.seo) {
                     topicNavItem.seo = topic.seo
                 }
 
-                if (topic.filePath){
+                if (topic.filePath) {
                     topicNavItem.filePath = topic.filePath
                 }
 
-                if (navKey == currentUrlKey){
+                if (navKey == currentUrlKey) {
                     topicNavItem.active = "active"
                 }
 
                 topicNav.nav[navKey] = topicNavItem
                 topicNav.meta[navKey] = topicNavItem
 
-                if (topic.childs){
+                if (topic.childs) {
                     TopicNav topicNavTemp = getNavigation(topic.childs, currentUrlKey, extension)
                     topicNav.nav[navKey].childs = topicNavTemp.nav
                     topicNavTemp.meta.each { key, value ->
@@ -216,9 +247,7 @@ class TextToWebHtmlEngine {
         return topicNav
     }
 
-    public void getPageContent() {
 
-    }
 
     public String parse() {
 
