@@ -31,8 +31,14 @@ class TextToWebHtmlEngine {
         config = ConfigLoader.getConfig()
     }
 
-    public String getTextToWebData(String url) {
-
+    public String getContentByURL(String url, TextToWebEngineConfig config = new TextToWebEngineConfig()) {
+        String content = "Error From Text to Web Engine"
+        try {
+            content = process(url, config)
+        } catch (Exception e) {
+            content = e.getMessage()
+        }
+        return content
     }
 
     private String concatPath(String path) {
@@ -95,7 +101,7 @@ class TextToWebHtmlEngine {
         return internalResponse
     }
 
-    String process(String url, TextToWebEngineConfig config = new TextToWebEngineConfig()) throws AsciiDocException {
+    String process(String url, TextToWebEngineConfig config) throws AsciiDocException {
         TextToWebPageData pageData = new TextToWebPageData()
         try {
             if (!url) {

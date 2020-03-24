@@ -11,7 +11,7 @@ class TextToWebHtmlEngineTest extends Specification {
         TextToWebHtmlEngine textToWeb = new TextToWebHtmlEngine()
 //        println(textToWeb.process("/"))
 //        println(textToWeb.process("/app-and-lib"))
-        println(textToWeb.process("/app-and-lib/java"))
+        println(textToWeb.getContentByURL("/app-and-lib/java"))
     }
 
 }
