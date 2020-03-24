@@ -2,5 +2,6 @@ package com.hmtmcse.te.data
 
 class TextToWebEngineConfig {
 
-    String urlExtension = ""
+    public String urlExtension = ""
+    public String defaultContent  = "<h1>Coming Soon....</h1>";
 }

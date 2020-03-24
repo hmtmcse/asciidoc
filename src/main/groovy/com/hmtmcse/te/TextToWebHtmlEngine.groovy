@@ -8,6 +8,7 @@ import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.te.data.InternalResponse
 import com.hmtmcse.te.data.TextToWebEngineConfig
 import com.hmtmcse.te.data.TextToWebEngineData
+import com.hmtmcse.te.data.TextToWebPageData
 import com.hmtmcse.te.data.TopicNav
 import com.hmtmcse.te.data.TopicNavItem
 import com.hmtmcse.texttoweb.Config
@@ -133,7 +134,7 @@ class TextToWebHtmlEngine {
         return title
     }
 
-    public String getPageData(TextToWebEngineData textToWebEngineData) {
+    public TextToWebPageData getPageData(TextToWebEngineData textToWebEngineData) {
 
     }
 
