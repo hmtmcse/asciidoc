@@ -36,8 +36,10 @@ class TextToWebHtmlEngine {
         try {
             content = process(url, config)
         } catch (Exception e) {
+            e.printStackTrace()
             content = e.getMessage()
         }
+        println(url)
         return content
     }
 
@@ -69,6 +71,7 @@ class TextToWebHtmlEngine {
             textToWebEngineData.url = url
             textToWebEngineData.relativePath = relativePath
             String descriptorFile, temp
+            Integer lengthTo
             GenerateProcessor generateProcessor = new GenerateProcessor()
             if (urlFragments) {
                 for (String fragment : urlFragments) {
@@ -78,7 +81,10 @@ class TextToWebHtmlEngine {
                         return textToWebEngineData
                     }
                     temp = File.separator + fragment
-                    relativePath = relativePath.substring(0, (relativePath.length() - temp.length()))
+                    lengthTo = relativePath.length() - temp.length()
+                    if (lengthTo > 0) {
+                        relativePath = relativePath.substring(0, lengthTo)
+                    }
                 }
             }
             textToWebEngineData.descriptor = generateProcessor.loadYmlFromFile(concatPath(descriptorName))
@@ -118,6 +124,7 @@ class TextToWebHtmlEngine {
             Descriptor navigationDescriptor = textToWebEngineData.descriptor
             textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey, config.urlExtension)
             setupLayout(textToWebEngineData, config)
+            pageData = getPageData(textToWebEngineData, config)
         } catch (Exception e) {
             pageData.content = e.getMessage()
             pageData.title = config.errorTitle
@@ -181,12 +188,13 @@ class TextToWebHtmlEngine {
         return content
     }
 
-    public void setupLayout(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
+    public TextToWebEngineData setupLayout(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
         if (textToWebEngineData.descriptor && textToWebEngineData.descriptor.layout.type) {
             textToWebEngineData.layout = "${textToWebEngineData.descriptor.layout.type}.html"
         } else {
             textToWebEngineData.layout = config.page404
         }
+        return textToWebEngineData
     }
 
     public TopicNav getNavigation(List<Topic> topics, String currentUrlKey, String extension = "") {
@@ -257,7 +265,8 @@ class TextToWebHtmlEngine {
     public String renderPage(TextToWebPageData pageData) throws AsciiDocException {
         try {
             Config config = ConfigLoader.getConfig()
-            TextFileData textFileData = textFile.fileToString(FDUtil.concatPath(config.template, pageData.layout))
+            String layoutPath = FDUtil.concatPath(config.template, pageData.layout)
+            TextFileData textFileData = textFile.fileToString(layoutPath)
             def engine = new SimpleTemplateEngine()
             def template = engine.createTemplate(textFileData.text).make([page: pageData])
             return template.toString()
