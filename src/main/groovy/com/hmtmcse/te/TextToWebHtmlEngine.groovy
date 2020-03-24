@@ -96,6 +96,7 @@ class TextToWebHtmlEngine {
     }
 
     String process(String url, TextToWebEngineConfig config = new TextToWebEngineConfig()) throws AsciiDocException {
+        TextToWebPageData pageData = new TextToWebPageData()
         try {
             if (!url) {
                 throw new AsciiDocException("Empty URL")
@@ -104,20 +105,19 @@ class TextToWebHtmlEngine {
             String urlToPath = urlToPath(trimUrl)
             String path = concatPath(urlToPath)
             InternalResponse internalResponse = getDescriptorName(path)
-            println(path)
 
             TextToWebEngineData textToWebEngineData = getDescriptorData(trimUrl, urlToPath, internalResponse.descriptorName)
             textToWebEngineData.urlKey = urlToUrlKey(textToWebEngineData.url)
             textToWebEngineData.absolutePath = path
-
             Descriptor navigationDescriptor = textToWebEngineData.descriptor
-
             textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey, config.urlExtension)
-
-            return trimUrl
+            setupLayout(textToWebEngineData, config)
         } catch (Exception e) {
-            throw new AsciiDocException(e.getMessage())
+            pageData.content = e.getMessage()
+            pageData.title = config.errorTitle
+            pageData.layout = config.page500
         }
+        return renderPage(pageData)
     }
 
     public String getPageTitle(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
@@ -130,7 +130,7 @@ class TextToWebHtmlEngine {
         return title
     }
 
-    public TextToWebPageData getPageData(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
+    public TextToWebPageData getPageData(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) throws AsciiDocException {
         TextToWebPageData textToWebPageData = new TextToWebPageData()
         textToWebPageData.title = getPageTitle(textToWebEngineData, config)
         if (textToWebEngineData.topicNav.nav) {
@@ -153,7 +153,7 @@ class TextToWebHtmlEngine {
         return textToWebPageData
     }
 
-    public String getPageContent(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
+    public String getPageContent(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) throws AsciiDocException {
         String content = config.defaultContent
         if (textToWebEngineData.urlKey && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)) {
             TopicNavItem meta = textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)
@@ -168,17 +168,18 @@ class TextToWebHtmlEngine {
                     AdocConverter adocConverter = new AdocConverter()
                     content = adocConverter.getHtmlFromFile(path)
                 } catch (Exception ignore) {
+                    throw new AsciiDocException(ignore.getMessage())
                 }
             }
         }
         return content
     }
 
-    public void setupView(TextToWebEngineData textToWebEngineData) {
+    public void setupLayout(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
         if (textToWebEngineData.descriptor && textToWebEngineData.descriptor.layout.type) {
             textToWebEngineData.layout = "${textToWebEngineData.descriptor.layout.type}.html"
         } else {
-            textToWebEngineData.layout = "404.html"
+            textToWebEngineData.layout = config.page404
         }
     }
 
@@ -247,24 +248,16 @@ class TextToWebHtmlEngine {
         return topicNav
     }
 
-
-
-    public String parse() {
-
-        Config config = ConfigLoader.getConfig()
-
-        TextFileData textFileData = textFile.fileToString(FDUtil.concatPath(config.template, "landing.html"))
-
-
-        def text = "<html><head><title> Bismillah </title></head>"
-        text += 'Dear "$firstname $lastname",\nSo nice to meet you in <% print city %>.\nSee you in ${month},\n${signed}'
-        text += "</html>"
-
-        def binding = ["firstname": "Sam", "lastname": "Pullara", "city": "San Francisco", "month": "December", "signed": "Groovy-Dev"]
-
-        def engine = new SimpleTemplateEngine()
-        def template = engine.createTemplate(text).make(binding)
-        return textFileData.text
+    public String renderPage(TextToWebPageData pageData) throws AsciiDocException {
+        try {
+            Config config = ConfigLoader.getConfig()
+            TextFileData textFileData = textFile.fileToString(FDUtil.concatPath(config.template, pageData.layout))
+            def engine = new SimpleTemplateEngine()
+            def template = engine.createTemplate(textFileData.text).make([page: pageData])
+            return template.toString()
+        } catch (Exception e) {
+            throw new AsciiDocException(e.getMessage())
+        }
     }
 
 }
