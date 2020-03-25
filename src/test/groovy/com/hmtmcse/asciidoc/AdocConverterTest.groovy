@@ -4,18 +4,18 @@ import com.hmtmcse.common.util.TMUtil
 import spock.lang.Shared
 import spock.lang.Specification
 
-class AdocConverterTest extends Specification{
+class AdocConverterTest extends Specification {
 
     @Shared
     String testContentPath
 
-    def setup(){
+    def setup() {
         testContentPath = TMUtil.testContentPath("asciidoc")
     }
 
-    def "convert adoc file to html"(){
+    def "convert adoc file to html"() {
         given: "Setup Content Path"
-         String path = testContentPath + "/bismillah.adoc"
+        String path = testContentPath + "/bismillah.adoc"
 
         expect: "Will Get Adoc to HTML"
         String html = AdocConverter.instance().getHtmlFromFile(path)
