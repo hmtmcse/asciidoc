@@ -14,7 +14,6 @@ import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.processor.GenerateProcessor
 import com.hmtmcse.tmutil.TStringUtil
-import groovy.text.SimpleTemplateEngine
 
 class TextToWebHtmlEngine {
 
@@ -267,9 +266,8 @@ class TextToWebHtmlEngine {
             Config config = ConfigLoader.getConfig()
             String layoutPath = FDUtil.concatPath(config.template, pageData.layout)
             TextFileData textFileData = textFile.fileToString(layoutPath)
-            def engine = new SimpleTemplateEngine()
-            def template = engine.createTemplate(textFileData.text).make([page: pageData])
-            return template.toString()
+            FreemarkerTemplate freemarkerTemplate = new FreemarkerTemplate()
+            return freemarkerTemplate.processText(textFileData.text, [page: pageData])
         } catch (Exception e) {
             throw new AsciiDocException(e.getMessage())
         }
