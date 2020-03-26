@@ -43,6 +43,7 @@ class TextToWebHtmlEngine {
             content += "</pre>"
             content += "</body></html>"
         }
+        println(url)
         return content
     }
 
@@ -178,7 +179,7 @@ class TextToWebHtmlEngine {
             if (meta.filePath) {
                 path = concatPath(urlToPath(meta.filePath))
             } else {
-                path = FDUtil.concatPath(textToWebEngineData.absolutePath, ".adoc")
+                path = "${textToWebEngineData.absolutePath}.${config.docFileExtension}".toString()
             }
             if (path && fileDirectory.isExist(path)) {
                 try {
@@ -270,6 +271,9 @@ class TextToWebHtmlEngine {
         try {
             Config config = ConfigLoader.getConfig()
             String layoutPath = FDUtil.concatPath(config.template, pageData.layout)
+            if (!fileDirectory.isExist(layoutPath)) {
+                throw new AsciiDocException("File not found.\nName: ${pageData.layout}, \nPath: ${layoutPath}")
+            }
             TextFileData textFileData = textFile.fileToString(layoutPath)
             FreemarkerTemplate freemarkerTemplate = new FreemarkerTemplate()
             return freemarkerTemplate.processText(textFileData.text, [page: pageData], pageData.layout)
