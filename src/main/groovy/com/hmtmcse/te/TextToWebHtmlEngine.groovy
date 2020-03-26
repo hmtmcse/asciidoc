@@ -36,7 +36,12 @@ class TextToWebHtmlEngine {
             content = process(url, config)
         } catch (Exception e) {
             e.printStackTrace()
-            content = e.getMessage()
+            content = "<html><head><title>..:: 500 ::..</title></head><body>"
+            content += "<h3>Internal Server Error </h1>"
+            content += "<pre>"
+            content += e.getMessage()
+            content += "</pre>"
+            content += "</body></html>"
         }
         return content
     }
@@ -189,7 +194,7 @@ class TextToWebHtmlEngine {
 
     public TextToWebEngineData setupLayout(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
         if (textToWebEngineData.descriptor && textToWebEngineData.descriptor.layout.type) {
-            textToWebEngineData.layout = "${textToWebEngineData.descriptor.layout.type}.html"
+            textToWebEngineData.layout = "${textToWebEngineData.descriptor.layout.type}.${config.layoutFileExtension}".toString()
         } else {
             textToWebEngineData.layout = config.page404
         }
@@ -267,7 +272,7 @@ class TextToWebHtmlEngine {
             String layoutPath = FDUtil.concatPath(config.template, pageData.layout)
             TextFileData textFileData = textFile.fileToString(layoutPath)
             FreemarkerTemplate freemarkerTemplate = new FreemarkerTemplate()
-            return freemarkerTemplate.processText(textFileData.text, [page: pageData])
+            return freemarkerTemplate.processText(textFileData.text, [page: pageData], pageData.layout)
         } catch (Exception e) {
             throw new AsciiDocException(e.getMessage())
         }

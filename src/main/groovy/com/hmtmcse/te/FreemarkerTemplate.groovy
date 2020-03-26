@@ -2,6 +2,7 @@ package com.hmtmcse.te
 
 import com.hmtmcse.common.AsciiDocException
 import freemarker.template.Configuration
+import freemarker.template.DefaultObjectWrapper
 import freemarker.template.Template
 import freemarker.template.TemplateExceptionHandler
 
@@ -10,10 +11,15 @@ class FreemarkerTemplate {
     private Configuration getConfiguration() {
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_30)
         configuration.setDefaultEncoding("UTF-8");
-        configuration.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
+        configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         configuration.setLogTemplateExceptions(false);
         configuration.setWrapUncheckedExceptions(false);
         configuration.setFallbackOnNullLoopVariable(false);
+
+        DefaultObjectWrapper wrapper = new DefaultObjectWrapper();
+        wrapper.setExposeFields(true);
+        configuration.setObjectWrapper(wrapper);
+
         return configuration
     }
 

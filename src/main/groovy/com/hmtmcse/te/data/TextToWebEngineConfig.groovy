@@ -9,4 +9,5 @@ class TextToWebEngineConfig {
     public String defaultPage = null
     public String page404 = "404.html"
     public String page500 = "500.html"
+    public String layoutFileExtension = "ftl"
 }
