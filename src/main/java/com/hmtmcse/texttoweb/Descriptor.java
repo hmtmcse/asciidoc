@@ -10,6 +10,7 @@ public class Descriptor {
     public Layout layout;
     public String defaultTitle;
     public List<Topic> topics = null;
+    public List<Topic> relatedTopics = null;
     public Settings settings;
     public Map<String, Block> blocks = null;
     public Map<String, String> staticMap;
@@ -46,6 +47,20 @@ public class Descriptor {
 
     public Topic topic(String name, String url, String summer) {
         return new Topic(name, url).setSummery(summer);
+    }
+
+    public Descriptor addRelatedTopic(Topic topic) {
+        if (relatedTopics == null) {
+            relatedTopics = new ArrayList<>();
+        }
+        relatedTopics.add(topic);
+        return this;
+    }
+
+    public Descriptor addRelatedTopic(String name, String url, String summer) {
+        Topic topic = new Topic(name, url).setSummery(summer);
+        addRelatedTopic(topic);
+        return this;
     }
 
     public Descriptor addTopicDummySummery(String name, String url) {

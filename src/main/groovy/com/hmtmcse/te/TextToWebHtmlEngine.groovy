@@ -2,7 +2,6 @@ package com.hmtmcse.te
 
 import com.hmtmcse.asciidoc.AdocConverter
 import com.hmtmcse.common.AsciiDocException
-import com.hmtmcse.fileutil.data.TextFileData
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
@@ -127,6 +126,9 @@ class TextToWebHtmlEngine {
             textToWebEngineData.absolutePath = path
             Descriptor navigationDescriptor = textToWebEngineData.descriptor
             textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey, config.urlExtension)
+            if (navigationDescriptor.relatedTopics) {
+                textToWebEngineData.relatedTopicNav = getNavigation(navigationDescriptor.relatedTopics, textToWebEngineData.urlKey, config.urlExtension)
+            }
             setupLayout(textToWebEngineData, config)
             pageData = getPageData(textToWebEngineData, config)
         } catch (Exception e) {
@@ -151,8 +153,13 @@ class TextToWebHtmlEngine {
     public TextToWebPageData getPageData(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) throws AsciiDocException {
         TextToWebPageData textToWebPageData = new TextToWebPageData()
         textToWebPageData.title = getPageTitle(textToWebEngineData, config)
-        if (textToWebEngineData.topicNav.nav) {
+
+        if (textToWebEngineData.topicNav?.nav) {
             textToWebPageData.nav = textToWebEngineData.topicNav.nav
+        }
+
+        if (textToWebEngineData.relatedTopicNav?.nav) {
+            textToWebPageData.relatedNav = textToWebEngineData.relatedTopicNav.nav
         }
 
         if (textToWebEngineData.descriptor.blocks) {

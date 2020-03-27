@@ -11,5 +11,6 @@ class TextToWebEngineData {
     public String relativePath;
     public String absolutePath;
     public TopicNav topicNav;
+    public TopicNav relatedTopicNav;
 
 }

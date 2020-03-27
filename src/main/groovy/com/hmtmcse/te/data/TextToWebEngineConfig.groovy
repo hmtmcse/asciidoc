@@ -7,8 +7,8 @@ class TextToWebEngineConfig {
     public String defaultTitle = "..:: Bismillah ::.."
     public String errorTitle = "..:: Inalillah ::.."
     public String defaultPage = null
-    public String page404 = "404.html"
-    public String page500 = "500.html"
+    public String page404 = "404.ftl"
+    public String page500 = "500.ftl"
     public String layoutFileExtension = "ftl"
     public String docFileExtension = "adoc"
 }
