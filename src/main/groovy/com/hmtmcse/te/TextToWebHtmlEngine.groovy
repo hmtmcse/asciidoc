@@ -274,9 +274,9 @@ class TextToWebHtmlEngine {
             if (!fileDirectory.isExist(layoutPath)) {
                 throw new AsciiDocException("File not found.\nName: ${pageData.layout}, \nPath: ${layoutPath}")
             }
-            TextFileData textFileData = textFile.fileToString(layoutPath)
+//            TextFileData textFileData = textFile.fileToString(layoutPath)
             FreemarkerTemplate freemarkerTemplate = new FreemarkerTemplate()
-            return freemarkerTemplate.processText(textFileData.text, [page: pageData], pageData.layout)
+            return freemarkerTemplate.processTextWithTemplateDir(config.template, pageData.layout, [page: pageData])
         } catch (Exception e) {
             throw new AsciiDocException(e.getMessage())
         }

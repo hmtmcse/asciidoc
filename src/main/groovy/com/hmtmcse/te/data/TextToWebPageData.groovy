@@ -11,4 +11,24 @@ class TextToWebPageData {
     public Map<String, TopicNavItem> nav = [:]
     public Map<String, Block> blocks = [:]
     public List<Topic> topics = []
+
+
+    public String getLeftNavHtml(Map<String, TopicNavItem> nav) {
+        String html = "", nestedNav = ""
+        if (nav) {
+            nav.each { String key, TopicNavItem navItem ->
+                nestedNav = ""
+                if (navItem.childs) {
+                    nestedNav = "<ul>";
+                    nestedNav += getLeftNavHtml(navItem.childs);
+                    nestedNav += "</ul>";
+                }
+                html += "<li><a class='" + navItem.active + "' href='" + navItem.url + "'>" + navItem.name + "</a>";
+                html += nestedNav
+                html += "</li>"
+            }
+        }
+        return html;
+    }
+
 }
