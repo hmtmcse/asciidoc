@@ -1,6 +1,6 @@
 source: 'H:\hmtmcse_com_site\projects\hmtmcse_com_adoc'
 out: '/Desktop/codes/html-out'
-template: "W:\\text-to-web-engine\\engine\\templates\\thymeleaf-java"
+template: "W:\\text-to-web-engine\\engine\\templates\\freemarker-java"
 
 ignore:
   - '.git'
