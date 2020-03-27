@@ -11,6 +11,7 @@ public class Descriptor {
     public String defaultTitle;
     public List<Topic> topics = null;
     public List<Topic> relatedTopics = null;
+    public List<VideoTopic> videoTopics = null;
     public Settings settings;
     public Map<String, Block> blocks = null;
     public Map<String, String> staticMap;
