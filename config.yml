@@ -5,3 +5,4 @@ template: "W:\\text-to-web-engine\\engine\\templates\\freemarker-java"
 ignore:
   - '.git'
   - '.gitignore'
+  - 'static-files'
