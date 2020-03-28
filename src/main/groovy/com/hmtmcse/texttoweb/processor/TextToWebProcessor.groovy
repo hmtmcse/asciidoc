@@ -10,6 +10,8 @@ import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.data.PathData
 import com.hmtmcse.texttoweb.data.ProcessRequest
+import com.hmtmcse.texttoweb.data.ProcessTask
+import com.hmtmcse.texttoweb.data.TopicMergeReport
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
 
@@ -18,6 +20,7 @@ class TextToWebProcessor implements CommandProcessor {
     private FileDirectory fileDirectory
     private Config config
     ProcessRequest processRequest
+    private Map<String, TopicMergeReport> reports = [:]
 
     public TextToWebProcessor(ProcessRequest processRequest) {
         fileDirectory = new FileDirectory()
@@ -36,6 +39,10 @@ class TextToWebProcessor implements CommandProcessor {
         return absolutePath
     }
 
+    private void addReport(TopicMergeReport report){
+        reports.put(report.topicKey, report)
+    }
+
     private List<FileDirectoryListing> getSourceList() throws AsciiDocException {
         if (!fileDirectory.isExist(config.source)) {
             throw new AsciiDocException("Source Not found! Please specify source at config.yml")
@@ -44,20 +51,43 @@ class TextToWebProcessor implements CommandProcessor {
         return fileDirectory.listDirRecursively(config.source, filter)
     }
 
-    private bismillahDescriptorProcess() {
+    private TopicMergeReport allowedByUser(String topicKey) {
+        if (processRequest && processRequest.mergeData && processRequest.mergeData.get(topicKey)) {
+            return processRequest.mergeData.get(topicKey)
+        }
+        return null
+    }
+
+    private Boolean isAllowedByUser(String topicKey) {
+        TopicMergeReport topicMergeReport = allowedByUser(topicKey)
+        if (topicMergeReport) {
+            return topicMergeReport.isMerge
+        }
+        return true
+    }
+
+    private void bismillahDescriptorProcess() {
         PathData pathData = new PathData(config.source, getRelativePath(config.source))
         String path = FDUtil.concatPath(pathData.absolutePath, ymlDescriptorFileName())
-        if (!fileDirectory.isExist(path)) {
+        String bismillahTopicKey = "this-is-root-topic"
+        if (processRequest.task.equals(ProcessTask.REPORT)) {
+            if (!fileDirectory.isExist(path)) {
+                addReport(new TopicMergeReport(bismillahTopicKey, "Main Descriptor Not Exist").setIsEditable(false).setRelativePath("/"))
+            }
+            return
+        }
+
+        if (!fileDirectory.isExist(path) && isAllowedByUser(bismillahTopicKey)) {
             exportToYmlFile(pathData.absolutePath, DescriptorSample.landingDescriptor)
         }
     }
 
 
-    void test(){
+    void test() {
         exportToYmlFile(null, null)
     }
 
-    void manipulateDescriptorOutline() throws AsciiDocException {
+    Map<String, TopicMergeReport> manipulateDescriptorOutline() throws AsciiDocException {
         List<FileDirectoryListing> topics = getSourceList()
         if (!topics) {
             throw new AsciiDocException("Topics Not available")
@@ -67,7 +97,8 @@ class TextToWebProcessor implements CommandProcessor {
                 processTopic(fileDirectoryListing)
             }
         }
-
+        bismillahDescriptorProcess()
+        return reports
     }
 
     void processTopic(FileDirectoryListing fileDirectoryListing) throws AsciiDocException {
