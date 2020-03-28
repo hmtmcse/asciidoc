@@ -15,6 +15,7 @@ public class Descriptor {
     public Settings settings;
     public Map<String, Block> blocks = null;
     public Map<String, String> staticMap;
+    private Boolean isUpdate = true;
 
     public Descriptor addTopic(Topic topic) {
         if (topics == null) {
@@ -70,6 +71,14 @@ public class Descriptor {
         );
         addTopic(topic);
         return this;
+    }
+
+    public Boolean dataUpdatedStatus(){
+        return isUpdate;
+    }
+
+    public void updateStatus(Boolean status){
+        isUpdate = status;
     }
 
 }

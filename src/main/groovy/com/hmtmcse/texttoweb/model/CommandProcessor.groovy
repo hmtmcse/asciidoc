@@ -1,9 +1,9 @@
 package com.hmtmcse.texttoweb.model
 
 import com.hmtmcse.asciidoc.AdocConverter
-import com.hmtmcse.jtfutil.io.JavaNio
+import com.hmtmcse.fileutil.fd.FDUtil
+import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.jtfutil.parser.JsonReadWrite
-import com.hmtmcse.jtfutil.parser.YmlReader
 import com.hmtmcse.jtfutil.text.ReadWriteTextFile
 import com.hmtmcse.parser4java.YamlProcessor
 import com.hmtmcse.shellutil.console.menu.OptionValues
@@ -18,7 +18,7 @@ trait CommandProcessor {
     abstract void process(OptionValues optionValues)
 
     private Boolean exportToFile(String content, String name, String location) {
-        String path = JavaNio.concatPathString(location, name)
+        String path = FDUtil.concatPath(location, name)
         if (backupFile(path)) {
             ReadWriteTextFile readWriteTextFile = new ReadWriteTextFile()
             try {
@@ -31,28 +31,32 @@ trait CommandProcessor {
         return false
     }
 
-    public String jsonDescriptorFileName(){
+    public void init(ProcessRequest processRequest){
+        this.processRequest = processRequest
+    }
+
+    public String jsonDescriptorFileName() {
         return "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.JSON}"
     }
 
-    public String ymltOutlineFileName(){
+    public String ymltOutlineFileName() {
         return "${TextToWebConst.OUTLINE}.${TextToWebConst.YML}"
     }
 
-    public String jsonOutlineFileName(){
+    public String jsonOutlineFileName() {
         return "${TextToWebConst.OUTLINE}.${TextToWebConst.JSON}"
     }
 
-    public String ymlDescriptorFileName(){
+    public String ymlDescriptorFileName() {
         return "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.YML}"
     }
 
     Boolean backupFile(String newFile, String oldFile = null) {
-        if (JavaNio.isExist(newFile)) {
+        if (FileDirectory.instance().isExist(newFile)) {
             backupFile(newFile + ".${TextToWebConst.BACK}", newFile)
         } else {
             if (oldFile) {
-                return JavaNio.move(oldFile, newFile)
+                return FileDirectory.instance().move(oldFile, newFile)
             }
         }
         return true
@@ -71,30 +75,30 @@ trait CommandProcessor {
 
 
     String exportToYmlText(Descriptor descriptor) {
-        YmlReader ymlReader = new YmlReader()
+        YamlProcessor yamlProcessor = new YamlProcessor()
         try {
-            return ymlReader.klassToStringSkipNull(descriptor)
+            return yamlProcessor.klassToString(descriptor)
         } catch (Exception e) {
             return null
         }
     }
 
     Boolean exportToOutlineYmlFile(String path, Descriptor descriptor) {
-        try {
-            String content = exportToYmlText(descriptor)
-            return exportToFile(content, ymltOutlineFileName(), path)
-        } catch (Exception e) {
-            return false
-        }
+        return exportToYmlFile(path, descriptor, ymltOutlineFileName())
     }
 
-    Boolean exportToYmlFile(String path, Descriptor descriptor) {
+
+    Boolean exportToYmlFile(String path, Descriptor descriptor, String fileName = ymlDescriptorFileName()) {
         try {
             if (processRequest.task.equals(ProcessTask.REPORT)) {
                 return false
             }
+            String descriptorFile = FDUtil.concatPath(path, ymlDescriptorFileName())
+            if (FileDirectory.instance().isExist(descriptorFile) && !descriptor.dataUpdatedStatus()) {
+                return true
+            }
             String content = exportToYmlText(descriptor)
-            return exportToFile(content, ymlDescriptorFileName(), path)
+            return exportToFile(content, fileName, path)
         } catch (Exception e) {
             return false
         }
@@ -104,7 +108,7 @@ trait CommandProcessor {
     Descriptor loadJsonFromFile(String path) {
         JsonReadWrite jsonReadWrite = new JsonReadWrite()
         try {
-            String pathWithName = JavaNio.concatPathString(path, jsonDescriptorFileName())
+            String pathWithName = FDUtil.concatPath(path, jsonDescriptorFileName())
             return jsonReadWrite.readJsonFileAsKlass(pathWithName, Descriptor.class)
         } catch (Exception e) {
             return null
@@ -116,7 +120,7 @@ trait CommandProcessor {
         try {
             return yamlProcessor.ymlAsNestedKlass(path, Descriptor.class)
         } catch (Exception e) {
-            println(e.getMessage())
+            println("Load Yml From File " + e.getMessage())
             return null
         }
     }
@@ -131,13 +135,13 @@ trait CommandProcessor {
     Boolean exportAdocToHtmlFile(String sourceAdoc, String outPath, String name) {
         AdocConverter adocConverter = new AdocConverter()
         String htmlContent = ""
-        if (JavaNio.isExist(sourceAdoc)){
+        if (FileDirectory.instance().isExist(sourceAdoc)) {
             htmlContent = adocConverter.getHtmlFromFile(sourceAdoc)
         }
         return exportToFile(htmlContent, name, outPath)
     }
 
-    public removeAdocExtension(String text){
+    public removeAdocExtension(String text) {
         return text.replace(".${TextToWebConst.ADOC}", "")
     }
 
@@ -151,29 +155,29 @@ trait CommandProcessor {
             Object[] it -> " " + it[2]?.trim()
         })
 
-        String camelCaseToSpace =  underscoreToSpace.replaceAll("(\\s*[A-Z])", {
+        String camelCaseToSpace = underscoreToSpace.replaceAll("(\\s*[A-Z])", {
             Object[] it -> " " + it[0]?.trim()
         })
 
         String hyphenToSpace = camelCaseToSpace.replaceAll("\\s*[\\-_]*\\s*", {
-            Object[] it -> it[0].equals("")?"":" "
+            Object[] it -> it[0].equals("") ? "" : " "
         })
 
-        if (hyphenToSpace){
+        if (hyphenToSpace) {
             return hyphenToSpace.trim().toLowerCase().capitalize()
         }
         return text
     }
 
 
-    public String pathToURL(String path){
-        if (path){
+    public String pathToURL(String path) {
+        if (path) {
             path = path.replace(File.separator, "/")
-            if (path.startsWith("/")){
+            if (path.startsWith("/")) {
                 path = path.substring(1)
             }
 
-            if (path.endsWith("/")){
+            if (path.endsWith("/")) {
                 path = path.substring(0, path.length() - 1)
             }
         }

@@ -21,11 +21,13 @@ class TextToWebProcessor implements CommandProcessor {
     private Config config
     ProcessRequest processRequest
     private Map<String, TopicMergeReport> reports = [:]
+    private Boolean isDescriptorUpdated  = false
 
     public TextToWebProcessor(ProcessRequest processRequest) {
         fileDirectory = new FileDirectory()
         config = ConfigLoader.getConfig()
         this.processRequest = processRequest
+        init(processRequest)
     }
 
 
@@ -140,13 +142,16 @@ class TextToWebProcessor implements CommandProcessor {
                 if (processRequest.task.equals(ProcessTask.MERGE)) {
                     TopicMergeReport topicMergeReport = getTopicReport(previousTopic.get(index))
                     if (topicMergeReport && topicMergeReport.isMerge) {
+                        isDescriptorUpdated = true
                         previousTopic.remove(index)
                         return
                     }
                 }
                 if (topic.childs) {
+                    isDescriptorUpdated = true
                     previousTopic.get(index).name += " - Deleted With Child"
                 } else {
+                    isDescriptorUpdated = true
                     previousTopic.get(index).name += " - Deleted"
                 }
                 addTopicReport(previousTopic.get(index))
@@ -159,7 +164,9 @@ class TextToWebProcessor implements CommandProcessor {
             name = null
             if (processRequest.task.equals(ProcessTask.MERGE)) {
                 TopicMergeReport topicMergeReport = getTopicReport(newTopic)
-                if (topicMergeReport && topicMergeReport.isMerge && topicMergeReport.name) {
+                if (topicMergeReport && !topicMergeReport.isMerge) {
+                    return
+                } else if (topicMergeReport && topicMergeReport.name) {
                     name = topicMergeReport.name
                 }
             }
@@ -169,12 +176,14 @@ class TextToWebProcessor implements CommandProcessor {
                 newTopic.name = name ?: newTopic.name
                 previousTopic.add(newTopic)
                 addTopicReport(newTopic)
+                isDescriptorUpdated = true
             } else if (newTopic instanceof Map) {
                 temp = newTopic.topic
                 temp.name += " - Added with Child"
                 temp.name = name ?: temp.name
                 previousTopic.add(temp)
                 addTopicReport(temp)
+                isDescriptorUpdated = true
             }
         }
         return previousTopic
@@ -197,7 +206,9 @@ class TextToWebProcessor implements CommandProcessor {
 
     private Descriptor preprocessAndMargeDescriptorTopics(Descriptor currentDescriptor, Descriptor previousDescriptor) {
         Map currentTopicMap = topicDescriptorListToMap(currentDescriptor.topics)
+        isDescriptorUpdated  = false
         previousDescriptor.topics = margeTopicDescriptor(currentTopicMap, previousDescriptor.topics)
+        previousDescriptor.updateStatus(isDescriptorUpdated)
         return previousDescriptor
     }
 
@@ -282,7 +293,7 @@ class TextToWebProcessor implements CommandProcessor {
 
         String descriptorYml = FDUtil.concatPath(topicsRootPath, ymlDescriptorFileName())
         descriptor = processAndMargeDescriptorTopics(descriptorYml, descriptor)
-        println(exportToYmlFile(topicsRootPath, descriptor))
+        println("Export Process Topic: " + exportToYmlFile(topicsRootPath, descriptor))
     }
 
     private void processSubTopicAndDetails(FileDirectoryListing fileDirectoryListingInternal) {
