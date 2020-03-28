@@ -56,7 +56,7 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     private TopicMergeReport allowedByUser(String topicKey) {
-        if (processRequest && processRequest.mergeData && processRequest.mergeData.get(topicKey)) {
+        if (topicKey && processRequest && processRequest.mergeData && processRequest.mergeData.get(topicKey)) {
             return processRequest.mergeData.get(topicKey)
         }
         return null
@@ -107,19 +107,29 @@ class TextToWebProcessor implements CommandProcessor {
         return path
     }
 
+    private String getTopicKey(Topic topic) {
+        if (topic.tracker) {
+            return topic.tracker
+        } else if (topic.url && !topic.url.equals("#")) {
+            return topic.url
+        }
+        return topic.name
+    }
+
     private void addTopicReport(Topic topic) {
         if (!processRequest.task.equals(ProcessTask.REPORT)) {
             return
         }
         TopicMergeReport topicMergeReport = new TopicMergeReport()
-        if (topic.tracker) {
-            topicMergeReport.topicKey = topic.tracker
-        } else if (topic.url && !topic.url.equals("#")) {
-            topicMergeReport.topicKey = topic.url
-        }
+        topicMergeReport.topicKey = getTopicKey(topic)
         topicMergeReport.name = topic.name
         topicMergeReport.relativePath = topic.url == "#" ? "" : topic.url
         addReport(topicMergeReport)
+    }
+
+    private TopicMergeReport getTopicReport(Topic topic) {
+        String key = getTopicKey(topic)
+        return allowedByUser(key)
     }
 
     private List<Topic> margeTopicDescriptor(Map currentTopicMap, List<Topic> previousTopic) {
@@ -131,6 +141,13 @@ class TextToWebProcessor implements CommandProcessor {
             } else if (currentTopicMap.get(topic.url)) {
                 currentTopicMap.remove(topic.url)
             } else {
+                if (processRequest.task.equals(ProcessTask.MERGE)) {
+                    TopicMergeReport topicMergeReport = getTopicReport(previousTopic.get(index))
+                    if (topicMergeReport && topicMergeReport.isMerge) {
+                        previousTopic.remove(index)
+                        return
+                    }
+                }
                 if (topic.childs) {
                     previousTopic.get(index).name += " - Deleted With Child"
                 } else {
@@ -141,18 +158,28 @@ class TextToWebProcessor implements CommandProcessor {
         }
 
         Topic temp
+        String name
         currentTopicMap.each { key, newTopic ->
+            name = null
+            if (processRequest.task.equals(ProcessTask.MERGE)) {
+                TopicMergeReport topicMergeReport = getTopicReport(newTopic)
+                if (topicMergeReport && topicMergeReport.isMerge && topicMergeReport.name) {
+                    name = topicMergeReport.name
+                }
+            }
+
             if (newTopic instanceof Topic) {
                 newTopic.name = newTopic.name + " - Added"
+                newTopic.name = name ?: newTopic.name
                 previousTopic.add(newTopic)
                 addTopicReport(newTopic)
             } else if (newTopic instanceof Map) {
                 temp = newTopic.topic
                 temp.name += " - Added with Child"
+                temp.name = name ?: temp.name
                 previousTopic.add(temp)
                 addTopicReport(temp)
             }
-
         }
         return previousTopic
     }
