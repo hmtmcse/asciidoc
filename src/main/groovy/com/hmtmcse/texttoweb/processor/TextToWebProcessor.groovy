@@ -1,12 +1,16 @@
 package com.hmtmcse.texttoweb.processor
 
 import com.hmtmcse.common.AsciiDocException
+import com.hmtmcse.fileutil.data.FDInfo
 import com.hmtmcse.fileutil.data.FDListingFilter
 import com.hmtmcse.fileutil.data.FileDirectoryListing
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
+import com.hmtmcse.jtfutil.io.JavaNio
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Config
+import com.hmtmcse.texttoweb.Descriptor
+import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.data.PathData
 import com.hmtmcse.texttoweb.data.ProcessRequest
@@ -39,7 +43,7 @@ class TextToWebProcessor implements CommandProcessor {
         return absolutePath
     }
 
-    private void addReport(TopicMergeReport report){
+    private void addReport(TopicMergeReport report) {
         reports.put(report.topicKey, report)
     }
 
@@ -72,7 +76,7 @@ class TextToWebProcessor implements CommandProcessor {
         String bismillahTopicKey = "this-is-root-topic"
         if (processRequest.task.equals(ProcessTask.REPORT)) {
             if (!fileDirectory.isExist(path)) {
-                addReport(new TopicMergeReport(bismillahTopicKey, "Main Descriptor Not Exist").setIsEditable(false).setRelativePath("/"))
+                addReport(new TopicMergeReport("Main Descriptor Not Exist", bismillahTopicKey).setIsEditable(false).setRelativePath("/"))
             }
             return
         }
@@ -80,6 +84,77 @@ class TextToWebProcessor implements CommandProcessor {
         if (!fileDirectory.isExist(path) && isAllowedByUser(bismillahTopicKey)) {
             exportToYmlFile(pathData.absolutePath, DescriptorSample.landingDescriptor)
         }
+    }
+
+    private Boolean isSkipFile(FDInfo topicsDir) {
+        if (topicsDir && topicsDir.name &&
+                (topicsDir.name.equals(this.ymlDescriptorFileName()) ||
+                        topicsDir.name.equals(this.jsonDescriptorFileName()) ||
+                        topicsDir.name.equals(this.jsonOutlineFileName()) ||
+                        topicsDir.name.equals(this.ymltOutlineFileName()))) {
+            return true
+        }
+        return false
+    }
+
+    private String getURL(String absolutePath) {
+        String path = getRelativePath(absolutePath)
+        if (path) {
+            path = removeAdocExtension(path)
+            path = pathToURL(path)
+            path = config.urlStartWith + path
+        }
+        return path
+    }
+
+    private void addTopicReport(Topic topic) {
+        if (!processRequest.task.equals(ProcessTask.REPORT)) {
+            return
+        }
+        TopicMergeReport topicMergeReport = new TopicMergeReport()
+        if (topic.tracker) {
+            topicMergeReport.topicKey = topic.tracker
+        } else if (topic.url && !topic.url.equals("#")) {
+            topicMergeReport.topicKey = topic.url
+        }
+        topicMergeReport.name = topic.name
+        topicMergeReport.relativePath = topic.url == "#" ? "" : topic.url
+        addReport(topicMergeReport)
+    }
+
+    private List<Topic> margeTopicDescriptor(Map currentTopicMap, List<Topic> previousTopic) {
+        previousTopic.eachWithIndex { Topic topic, Integer index ->
+            if (topic.childs && currentTopicMap.get(topic.tracker)) {
+                Map topicMap = currentTopicMap.get(topic.tracker).topicMap
+                topic.childs = margeTopicDescriptor(topicMap, topic.childs)
+                currentTopicMap.remove(topic.tracker)
+            } else if (currentTopicMap.get(topic.url)) {
+                currentTopicMap.remove(topic.url)
+            } else {
+                if (topic.childs) {
+                    previousTopic.get(index).name += " - Deleted With Child"
+                } else {
+                    previousTopic.get(index).name += " - Deleted"
+                }
+                addTopicReport(previousTopic.get(index))
+            }
+        }
+
+        Topic temp
+        currentTopicMap.each { key, newTopic ->
+            if (newTopic instanceof Topic) {
+                newTopic.name = newTopic.name + " - Added"
+                previousTopic.add(newTopic)
+                addTopicReport(newTopic)
+            } else if (newTopic instanceof Map) {
+                temp = newTopic.topic
+                temp.name += " - Added with Child"
+                previousTopic.add(temp)
+                addTopicReport(temp)
+            }
+
+        }
+        return previousTopic
     }
 
 
@@ -102,7 +177,37 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     void processTopic(FileDirectoryListing fileDirectoryListing) throws AsciiDocException {
+        if (!fileDirectoryListing) {
+            return
+        }
+        FDInfo fileDirectoryInfo = fileDirectoryListing.fileDirectoryInfo
+        Map<String, Topic> topicMap = [:]
+        Descriptor descriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(fileDirectoryInfo.name))
+        Topic topic
+        String url, humReadableName, topicsRootPath = fileDirectoryInfo.absolutePath
 
+        // JAVA ....
+        fileDirectoryListing.subDirectories.each { FileDirectoryListing fileDirectoryListingInternal ->
+            FDInfo topicsDir = fileDirectoryListingInternal.fileDirectoryInfo
+            if (isSkipFile(topicsDir)) {
+                return
+            }
+            url = getURL(topicsRootPath) + "/" + topicsDir.name
+            humReadableName = makeHumReadableWithoutExt(topicsDir.name)
+
+            topic = descriptor.topic(makeHumReadableWithoutExt(topicsDir.name), url, "For more details about ${humReadableName} click here. It will bring you to details of this Topic.")
+            topicMap.put(url, topic)
+            descriptor.addTopic(topic)
+
+            // Grails
+            if (topicsDir.isDirectory && fileDirectoryListingInternal.subDirectories) {
+                topicRootProcess(topicsDir)
+            }
+        }
+
+        String descriptorYml = JavaNio.concatPathString(topicsRootPath, ymlDescriptorFileName())
+        descriptor = margeDescriptorTopics(descriptorYml, descriptor)
+        println(exportToYmlFile(topicsRootPath, descriptor))
     }
 
     void processSubTopic() {}
