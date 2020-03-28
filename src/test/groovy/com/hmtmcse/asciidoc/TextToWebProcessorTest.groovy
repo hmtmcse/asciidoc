@@ -14,4 +14,10 @@ class TextToWebProcessorTest extends Specification {
         println("Test")
     }
 
+    def "Test Descriptor Report"() {
+        expect: "Test Descriptor Report"
+        TextToWebProcessor textToWebProcessor = new TextToWebProcessor(new ProcessRequest())
+        println(textToWebProcessor.manipulateDescriptorOutline())
+    }
+
 }
