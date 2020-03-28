@@ -15,6 +15,8 @@ import com.hmtmcse.texttoweb.data.*
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
 
+import java.util.concurrent.CopyOnWriteArrayList
+
 class TextToWebProcessor implements CommandProcessor {
 
     private FileDirectory fileDirectory
@@ -131,6 +133,7 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     private List<Topic> margeTopicDescriptor(Map currentTopicMap, List<Topic> previousTopic) {
+        previousTopic = new CopyOnWriteArrayList<>(previousTopic)
         previousTopic.eachWithIndex { Topic topic, Integer index ->
             if (topic.childs && currentTopicMap.get(topic.tracker)) {
                 Map topicMap = currentTopicMap.get(topic.tracker).topicMap
