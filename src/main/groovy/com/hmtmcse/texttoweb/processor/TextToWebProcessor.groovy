@@ -6,16 +6,12 @@ import com.hmtmcse.fileutil.data.FDListingFilter
 import com.hmtmcse.fileutil.data.FileDirectoryListing
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
-import com.hmtmcse.jtfutil.io.JavaNio
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
-import com.hmtmcse.texttoweb.data.PathData
-import com.hmtmcse.texttoweb.data.ProcessRequest
-import com.hmtmcse.texttoweb.data.ProcessTask
-import com.hmtmcse.texttoweb.data.TopicMergeReport
+import com.hmtmcse.texttoweb.data.*
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
 
@@ -184,29 +180,81 @@ class TextToWebProcessor implements CommandProcessor {
         return previousTopic
     }
 
-
-    void test() {
-        exportToYmlFile(null, null)
-    }
-
-    Map<String, TopicMergeReport> manipulateDescriptorOutline() throws AsciiDocException {
-        List<FileDirectoryListing> topics = getSourceList()
+    private Map topicDescriptorListToMap(List<Topic> topics) {
+        Map topicMap = [:]
         if (!topics) {
-            throw new AsciiDocException("Topics Not available")
+            return topicMap
         }
-        topics.each { FileDirectoryListing fileDirectoryListing ->
-            if (fileDirectoryListing.fileDirectoryInfo.isDirectory && fileDirectoryListing.subDirectories) {
-                processTopic(fileDirectoryListing)
+        topics.each { Topic topic ->
+            if (topic.childs) {
+                topicMap.put(topic.tracker, [topic: topic, topicMap: topicDescriptorListToMap(topic.childs)])
+            } else {
+                topicMap.put(topic.url, topic)
             }
         }
-        bismillahDescriptorProcess()
-        return reports
+        return topicMap
     }
 
-    void processTopic(FileDirectoryListing fileDirectoryListing) throws AsciiDocException {
+    private Descriptor preprocessAndMargeDescriptorTopics(Descriptor currentDescriptor, Descriptor previousDescriptor) {
+        Map currentTopicMap = topicDescriptorListToMap(currentDescriptor.topics)
+        previousDescriptor.topics = margeTopicDescriptor(currentTopicMap, previousDescriptor.topics)
+        return previousDescriptor
+    }
+
+    private Descriptor processAndMargeDescriptorTopics(String descriptorFile, Descriptor newDescriptor) {
+        if (!fileDirectory.isExist(descriptorFile)) {
+            return newDescriptor
+        }
+
+        Descriptor currentDescriptor = null
+        try {
+            currentDescriptor = loadYmlFromFile(descriptorFile)
+            if (!currentDescriptor) {
+                return newDescriptor
+            }
+        } catch (Exception e) {
+            return newDescriptor
+        }
+        return preprocessAndMargeDescriptorTopics(newDescriptor, currentDescriptor)
+    }
+
+    OutlineAndDescriptor prepareOutlineAndDescriptor(List<FileDirectoryListing> subDirectories, OutlineAndDescriptor outlineAndDescriptor, Map index = [outline: 0, details: null]) {
+        String url, humReadableName
+        subDirectories.each { FileDirectoryListing fileDirectoryListing ->
+            FDInfo topicDir = fileDirectoryListing.fileDirectoryInfo
+            if (isSkipFile(topicDir)) {
+                return
+            }
+            url = getURL(topicDir.absolutePath)
+            humReadableName = makeHumReadableWithoutExt(topicDir.name)
+            if (topicDir.isDirectory && fileDirectoryListing.subDirectories) {
+                OutlineAndDescriptor _outlineAndDescriptor = new OutlineAndDescriptor(humReadableName, "#", "##" + url)
+                _outlineAndDescriptor = prepareOutlineAndDescriptor(fileDirectoryListing.subDirectories, _outlineAndDescriptor, [outline: 0, details: null])
+
+                Topic detailsDescriptorTopic = new Topic(humReadableName, "#").setTracker("##" + url)
+                _outlineAndDescriptor.detailsDescriptor.topics.each {
+                    detailsDescriptorTopic.addChild(it)
+                }
+                outlineAndDescriptor.addToDetailsByIndex(index.details, detailsDescriptorTopic)
+
+
+                _outlineAndDescriptor.outlineDescriptor.topics.each {
+                    outlineAndDescriptor.addToOutlineByIndex(index.outline, it)
+                }
+
+            } else {
+                outlineAndDescriptor.addToOutlineByIndex(index.outline, new Topic(humReadableName, url))
+                outlineAndDescriptor.addToDetailsByIndex(index.details, new Topic(humReadableName, url))
+            }
+        }
+        return outlineAndDescriptor
+    }
+
+    private void processTopic(FileDirectoryListing fileDirectoryListing) throws AsciiDocException {
         if (!fileDirectoryListing) {
             return
         }
+
         FDInfo fileDirectoryInfo = fileDirectoryListing.fileDirectoryInfo
         Map<String, Topic> topicMap = [:]
         Descriptor descriptor = DescriptorSample.getTopicsDescriptor(makeHumReadableWithoutExt(fileDirectoryInfo.name))
@@ -228,18 +276,58 @@ class TextToWebProcessor implements CommandProcessor {
 
             // Grails
             if (topicsDir.isDirectory && fileDirectoryListingInternal.subDirectories) {
-                topicRootProcess(topicsDir)
+                processSubTopicAndDetails(fileDirectoryListingInternal)
             }
         }
 
-        String descriptorYml = JavaNio.concatPathString(topicsRootPath, ymlDescriptorFileName())
-        descriptor = margeDescriptorTopics(descriptorYml, descriptor)
+        String descriptorYml = FDUtil.concatPath(topicsRootPath, ymlDescriptorFileName())
+        descriptor = processAndMargeDescriptorTopics(descriptorYml, descriptor)
         println(exportToYmlFile(topicsRootPath, descriptor))
     }
 
-    void processSubTopic() {}
+    private void processSubTopicAndDetails(FileDirectoryListing fileDirectoryListingInternal) {
+        FDInfo topicsDir = fileDirectoryListingInternal.fileDirectoryInfo
+        String url = getURL(topicsDir.absolutePath)
+        OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name), "#", "##" + url)
+        outlineAndDescriptor = prepareOutlineAndDescriptor(fileDirectoryListingInternal.subDirectories, outlineAndDescriptor)
 
-    void processTopicDetails() {}
+        String topicsRootPath = topicsDir.absolutePath
+        String outlineDescriptorYml = FDUtil.concatPath(topicsRootPath, ymltOutlineFileName())
+        if (outlineAndDescriptor.outlineDescriptor) {
+            outlineAndDescriptor.outlineDescriptor = processAndMargeDescriptorTopics(outlineDescriptorYml, outlineAndDescriptor.outlineDescriptor)
+        }
+        exportToOutlineYmlFile(topicsRootPath, outlineAndDescriptor.outlineDescriptor)
+
+        String descriptorYml = FDUtil.concatPath(topicsRootPath, ymlDescriptorFileName())
+        if (outlineAndDescriptor.detailsDescriptor) {
+            outlineAndDescriptor.detailsDescriptor = processAndMargeDescriptorTopics(descriptorYml, outlineAndDescriptor.detailsDescriptor)
+        }
+        exportToYmlFile(topicsRootPath, outlineAndDescriptor.detailsDescriptor)
+    }
+
+
+
+
+
+    public void test() {
+        exportToYmlFile(null, null)
+    }
+
+    public Map<String, TopicMergeReport> manipulateDescriptorOutline() throws AsciiDocException {
+        List<FileDirectoryListing> topics = getSourceList()
+        if (!topics) {
+            throw new AsciiDocException("Topics Not available")
+        }
+        topics.each { FileDirectoryListing fileDirectoryListing ->
+            if (fileDirectoryListing.fileDirectoryInfo.isDirectory && fileDirectoryListing.subDirectories) {
+                processTopic(fileDirectoryListing)
+            }
+        }
+        bismillahDescriptorProcess()
+        return reports
+    }
+
+
 
 
 }
