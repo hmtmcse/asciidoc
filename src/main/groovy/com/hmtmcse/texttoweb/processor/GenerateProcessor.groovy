@@ -109,6 +109,10 @@ class GenerateProcessor implements CommandProcessor {
         }
     }
 
+    // Report (DryRun)
+    // Prepare Descriptor
+    // Export normal html and with extension, without extension
+
 
     void manipulateDescriptor() {
         List<FileInfo> list = FileUtil.listAll(config.source)
@@ -290,27 +294,5 @@ class GenerateProcessor implements CommandProcessor {
         }
         return outlineAndDescriptor
     }
-
-    void searchIndex(List<FileInfo> list) {
-
-    }
-
-    void siteMap(List<FileInfo> list) {
-
-    }
-
-    void exportProject(List<FileInfo> list) {
-
-    }
-
-    void landing() {
-
-    }
-
-    void topics() {}
-
-    void outline() {}
-
-    void details() {}
 
 }

@@ -9,9 +9,12 @@ import com.hmtmcse.parser4java.YamlProcessor
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
+import com.hmtmcse.texttoweb.data.ProcessRequest
+import com.hmtmcse.texttoweb.data.ProcessTask
 
 trait CommandProcessor {
 
+    public ProcessRequest processRequest
     abstract void process(OptionValues optionValues)
 
     private Boolean exportToFile(String content, String name, String location) {
@@ -87,6 +90,9 @@ trait CommandProcessor {
 
     Boolean exportToYmlFile(String path, Descriptor descriptor) {
         try {
+            if (processRequest.task.equals(ProcessTask.REPORT)) {
+                return false
+            }
             String content = exportToYmlText(descriptor)
             return exportToFile(content, ymlDescriptorFileName(), path)
         } catch (Exception e) {
