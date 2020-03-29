@@ -36,9 +36,19 @@ class FreemarkerTemplate {
     }
 
     public String processTextWithTemplateDir(String templatePath, String templateName, Map<String, Object> params = [:]) throws AsciiDocException {
+        Configuration configuration = getConfiguration()
+        configuration.setDirectoryForTemplateLoading(new File(templatePath))
+        return processTextByScan(configuration, templateName, params)
+    }
+
+    public String processTextClassPath(String templatePath, String templateName, Map<String, Object> params = [:]) throws AsciiDocException {
+        Configuration configuration = getConfiguration()
+        configuration.setClassForTemplateLoading(this.getClass(), templatePath)
+        return processTextByScan(configuration, templateName, params)
+    }
+
+    private String processTextByScan(Configuration configuration, String templateName, Map<String, Object> params = [:]) throws AsciiDocException {
         try {
-            Configuration configuration = getConfiguration()
-            configuration.setDirectoryForTemplateLoading(new File(templatePath))
             Template templateProcessor = configuration.getTemplate(templateName)
             Writer output = new StringWriter();
             templateProcessor.process(params, output);
