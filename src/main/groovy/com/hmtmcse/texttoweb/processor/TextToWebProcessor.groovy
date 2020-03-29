@@ -87,6 +87,17 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     private Boolean isSkipFile(FDInfo topicsDir) {
+        if (!topicsDir || !topicsDir.name) {
+            return true
+        }
+
+        if (config.ignore) {
+            for (String ignore : config.ignore) {
+                if (ignore.equals(topicsDir.name) || topicsDir.name.endsWith(ignore)) {
+                    return true
+                }
+            }
+        }
         if (topicsDir && topicsDir.name &&
                 (topicsDir.name.equals(this.ymlDescriptorFileName()) ||
                         topicsDir.name.equals(this.jsonDescriptorFileName()) ||

@@ -20,7 +20,7 @@ class ConfigLoader {
                 path = FileDirectory.instance().getFile(path).getAbsolutePath()
             } else if (FileDirectory.instance().isExist(pathUnderEngineDir)) {
                 path = FileDirectory.instance().getFile(pathUnderEngineDir).getAbsolutePath()
-            }else if (FileDirectory.instance().isExist(pathUnderModuleDir)) {
+            } else if (FileDirectory.instance().isExist(pathUnderModuleDir)) {
                 path = FileDirectory.instance().getFile(pathUnderModuleDir).getAbsolutePath()
             } else {
                 path = null
@@ -41,6 +41,12 @@ class ConfigLoader {
             if (out) {
                 config.out = out
             }
+        }
+        if (config) {
+            config.ignore.add(".git")
+            config.ignore.add(".gitignore")
+            config.ignore.add("static-files")
+            config.ignore.add(".back")
         }
         return config
     }
