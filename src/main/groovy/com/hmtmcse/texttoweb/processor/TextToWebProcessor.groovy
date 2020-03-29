@@ -166,7 +166,12 @@ class TextToWebProcessor implements CommandProcessor {
         currentTopicMap.each { key, newTopic ->
             name = null
             if (processRequest.task.equals(ProcessTask.MERGE)) {
-                TopicMergeReport topicMergeReport = getTopicReport(newTopic)
+                TopicMergeReport topicMergeReport
+                if (newTopic instanceof Topic) {
+                    topicMergeReport = getTopicReport(newTopic)
+                }else if (newTopic instanceof Map) {
+                    topicMergeReport = getTopicReport(newTopic.topic)
+                }
                 if (topicMergeReport && !topicMergeReport.isMerge) {
                     return
                 } else if (topicMergeReport && topicMergeReport.name) {
