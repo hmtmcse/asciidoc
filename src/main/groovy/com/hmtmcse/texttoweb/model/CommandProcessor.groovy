@@ -3,8 +3,8 @@ package com.hmtmcse.texttoweb.model
 import com.hmtmcse.asciidoc.AdocConverter
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
+import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.jtfutil.parser.JsonReadWrite
-import com.hmtmcse.jtfutil.text.ReadWriteTextFile
 import com.hmtmcse.parser4java.YamlProcessor
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Descriptor
@@ -15,15 +15,16 @@ import com.hmtmcse.texttoweb.data.ProcessTask
 trait CommandProcessor {
 
     public ProcessRequest processRequest
+
     abstract void process(OptionValues optionValues)
 
     private Boolean exportToFile(String content, String name, String location) {
         String path = FDUtil.concatPath(location, name)
         if (backupFile(path)) {
-            ReadWriteTextFile readWriteTextFile = new ReadWriteTextFile()
+            TextFile textFile = new TextFile()
             try {
-                content = readWriteTextFile.findAndReplaceInText(content, readWriteTextFile.copyFromMap(["!!com.hmtmcse.texttoweb.Descriptor\\n": ""]))
-                return readWriteTextFile.writeStringToFile(location, name, content)
+                content = textFile.findOnlyReplaceInText(content, ["!!com.hmtmcse.texttoweb.Descriptor\\n": ""])
+                return textFile.stringToFile(location, name, content)
             } catch (Exception e) {
                 return false
             }
@@ -31,7 +32,7 @@ trait CommandProcessor {
         return false
     }
 
-    public void init(ProcessRequest processRequest){
+    public void init(ProcessRequest processRequest) {
         this.processRequest = processRequest
     }
 
