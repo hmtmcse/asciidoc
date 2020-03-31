@@ -23,7 +23,7 @@ class TextToWebProcessor implements CommandProcessor {
     private Config config
     ProcessRequest processRequest
     private Map<String, TopicMergeReport> reports = [:]
-    private Boolean isDescriptorUpdated  = false
+    private Boolean isDescriptorUpdated = false
 
     public TextToWebProcessor(ProcessRequest processRequest) {
         fileDirectory = new FileDirectory()
@@ -180,7 +180,7 @@ class TextToWebProcessor implements CommandProcessor {
                 TopicMergeReport topicMergeReport
                 if (newTopic instanceof Topic) {
                     topicMergeReport = getTopicReport(newTopic)
-                }else if (newTopic instanceof Map) {
+                } else if (newTopic instanceof Map) {
                     topicMergeReport = getTopicReport(newTopic.topic)
                 }
                 if (topicMergeReport && !topicMergeReport.isMerge) {
@@ -225,7 +225,7 @@ class TextToWebProcessor implements CommandProcessor {
 
     private Descriptor preprocessAndMargeDescriptorTopics(Descriptor currentDescriptor, Descriptor previousDescriptor) {
         Map currentTopicMap = topicDescriptorListToMap(currentDescriptor.topics)
-        isDescriptorUpdated  = false
+        isDescriptorUpdated = false
         previousDescriptor.topics = margeTopicDescriptor(currentTopicMap, previousDescriptor.topics)
         previousDescriptor.updateStatus(isDescriptorUpdated)
         return previousDescriptor
@@ -335,19 +335,74 @@ class TextToWebProcessor implements CommandProcessor {
         exportToYmlFile(topicsRootPath, outlineAndDescriptor.detailsDescriptor)
     }
 
+    private List<FileDirectoryListing> getTopicList() throws AsciiDocException {
+        List<FileDirectoryListing> topics = getSourceList()
+        if (!topics) {
+            throw new AsciiDocException("Topics Not available")
+        }
+    }
+
+    private void processTopicToHtml(List<Topic> topics) {
+        if (topics) {
+            topics.each { Topic topic ->
+                if (topic.childs) {
+                    processTopicToHtml(topic.childs)
+                } else {
+
+                }
+            }
+        }
+    }
+
+    private void processDescriptorToHtml(String descriptorPath) {
+        try {
+            if (fileDirectory.isExist(descriptorPath)) {
+                Descriptor descriptor = loadYmlFromFile(descriptorPath)
+                if (!descriptor) {
+                    println("Empty Descriptor")
+                    return
+                }
+                if (descriptor.topics) {
+                    processTopicToHtml(descriptor.topics)
+                }
+                if (descriptor.relatedTopics) {
+                    processTopicToHtml(descriptor.relatedTopics)
+                }
+            } else {
+                println("Descriptor not exist.")
+            }
+        } catch (Exception e) {
+            println("Process Descriptor To Html Error: " + e.getMessage())
+        }
+    }
+
+    private void iterateDescriptor(List<FileDirectoryListing> sources) throws AsciiDocException {
+        String fileName
+        sources.each { FileDirectoryListing fileDirectoryListing ->
+            if (fileDirectoryListing.fileDirectoryInfo.isDirectory && fileDirectoryListing.subDirectories) {
+                iterateDescriptor(fileDirectoryListing.subDirectories)
+            } else {
+                fileName = fileDirectoryListing.fileDirectoryInfo.name
+                if (fileName && (fileName.equals(ymlDescriptorFileName()) || fileName.equals(ymltOutlineFileName()))) {
+                    processDescriptorToHtml(fileDirectoryListing.fileDirectoryInfo.absolutePath)
+                }
+            }
+        }
+    }
 
 
-
+    public void exportToHtml() throws AsciiDocException {
+        List<FileDirectoryListing> topics = getTopicList()
+        iterateDescriptor(topics)
+    }
 
     public void test() {
         exportToYmlFile(null, null)
     }
 
+
     public Map<String, TopicMergeReport> manipulateDescriptorOutline() throws AsciiDocException {
-        List<FileDirectoryListing> topics = getSourceList()
-        if (!topics) {
-            throw new AsciiDocException("Topics Not available")
-        }
+        List<FileDirectoryListing> topics = getTopicList()
         topics.each { FileDirectoryListing fileDirectoryListing ->
             if (fileDirectoryListing.fileDirectoryInfo.isDirectory && fileDirectoryListing.subDirectories) {
                 processTopic(fileDirectoryListing)
@@ -356,8 +411,6 @@ class TextToWebProcessor implements CommandProcessor {
         bismillahDescriptorProcess()
         return reports
     }
-
-
 
 
 }
