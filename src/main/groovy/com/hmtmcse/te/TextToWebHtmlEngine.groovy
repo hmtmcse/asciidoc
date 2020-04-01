@@ -5,6 +5,7 @@ import com.hmtmcse.common.AsciiDocException
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
+import com.hmtmcse.fm.TwFileUtil
 import com.hmtmcse.te.data.*
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.Descriptor
@@ -48,10 +49,6 @@ class TextToWebHtmlEngine {
 
     private String concatPath(String path) {
         return FDUtil.concatPath(config.source, path)
-    }
-
-    private String urlToPath(String url) {
-        return TStringUtil.findReplace(url, slash, File.separator)
     }
 
     private String urlToUrlKey(String url) {
@@ -116,8 +113,8 @@ class TextToWebHtmlEngine {
             if (!url) {
                 throw new AsciiDocException("Empty URL")
             }
-            String trimUrl = TStringUtil.trimStartEndChar(url, slash)
-            String urlToPath = urlToPath(trimUrl)
+            String trimUrl = TwFileUtil.trimSlash(url)
+            String urlToPath = TwFileUtil.urlToPath(trimUrl)
             String path = concatPath(urlToPath)
             InternalResponse internalResponse = getDescriptorName(path)
 
@@ -184,7 +181,7 @@ class TextToWebHtmlEngine {
             TopicNavItem meta = textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)
             String path
             if (meta.filePath) {
-                path = concatPath(urlToPath(meta.filePath))
+                path = concatPath(TwFileUtil.urlToPath(meta.filePath))
             } else {
                 path = "${textToWebEngineData.absolutePath}.${config.docFileExtension}".toString()
             }

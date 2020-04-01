@@ -43,4 +43,11 @@ class TextToWebProcessorTest extends Specification {
         println(YamlProcessor.instance().klassToString(textToWebProcessor.manipulateDescriptorOutline()))
     }
 
+    def "Test Export to html"() {
+        expect: "Test Export to html"
+        TextToWebProcessor textToWebProcessor = new TextToWebProcessor(new ProcessRequest())
+//        println(YamlProcessor.instance().klassToString(textToWebProcessor.manipulateDescriptorOutline()))
+        textToWebProcessor.exportToHtml()
+    }
+
 }

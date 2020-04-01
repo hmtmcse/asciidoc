@@ -6,7 +6,10 @@ import com.hmtmcse.fileutil.data.FDListingFilter
 import com.hmtmcse.fileutil.data.FileDirectoryListing
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
+import com.hmtmcse.fileutil.text.TextFile
+import com.hmtmcse.fm.TwFileUtil
 import com.hmtmcse.shellutil.console.menu.OptionValues
+import com.hmtmcse.te.TextToWebHtmlEngine
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.Topic
@@ -24,11 +27,15 @@ class TextToWebProcessor implements CommandProcessor {
     ProcessRequest processRequest
     private Map<String, TopicMergeReport> reports = [:]
     private Boolean isDescriptorUpdated = false
+    private TextToWebHtmlEngine textToWebHtmlEngine
+    private TextFile textFile
 
     public TextToWebProcessor(ProcessRequest processRequest) {
         fileDirectory = new FileDirectory()
         config = ConfigLoader.getConfig()
         this.processRequest = processRequest
+        textToWebHtmlEngine = new TextToWebHtmlEngine()
+        textFile = new TextFile()
         init(processRequest)
     }
 
@@ -86,7 +93,7 @@ class TextToWebProcessor implements CommandProcessor {
         }
     }
 
-    private Boolean isSkipFile(FDInfo topicsDir) {
+    private Boolean isSkipFile(FDInfo topicsDir, Boolean isNotDescriptor = false) {
         if (!topicsDir || !topicsDir.name) {
             return true
         }
@@ -98,7 +105,8 @@ class TextToWebProcessor implements CommandProcessor {
                 }
             }
         }
-        if (topicsDir && topicsDir.name &&
+
+        if (!isNotDescriptor && topicsDir && topicsDir.name &&
                 (topicsDir.name.equals(this.ymlDescriptorFileName()) ||
                         topicsDir.name.equals(this.jsonDescriptorFileName()) ||
                         topicsDir.name.equals(this.jsonOutlineFileName()) ||
@@ -340,7 +348,48 @@ class TextToWebProcessor implements CommandProcessor {
         if (!topics) {
             throw new AsciiDocException("Topics Not available")
         }
+        return topics
     }
+
+    private Boolean isFileHistoryStatusOkay(String relativePath){
+        return true
+    }
+
+    private Boolean urlEligibleForExport(String url) {
+        String relativePath = TwFileUtil.trimAndUrlToPath(url)
+        String sourceRelativePath = "${relativePath}.${processRequest.docFileExtension}".toString()
+        String sourceDoc = FDUtil.concatPath(config.source, sourceRelativePath)
+        String outputDoc = FDUtil.concatPath(config.out, "${relativePath}.${processRequest.exportFileExtension}".toString())
+        if (fileDirectory.isExist(sourceDoc) && isFileHistoryStatusOkay(sourceRelativePath)) {
+            return true
+        } else if (!fileDirectory.isExist(outputDoc)) {
+            return true
+        }
+        return false
+    }
+
+    private Boolean exportUrlToHtml(String url) {
+        String errorFrom = "Export Url to Html Error:"
+        try {
+            String relativePath = TwFileUtil.trimAndUrlToPath(url)
+            String outputDoc = FDUtil.concatPath(config.out, "${relativePath}.${processRequest.exportFileExtension}".toString())
+            if (!fileDirectory.removeIfExist(outputDoc)) {
+                println("${errorFrom} Unable to remove existing output file: ${outputDoc}")
+                return
+            }
+            String html = textToWebHtmlEngine.getContentByURL(url, processRequest)
+            if (html) {
+                File outputDocFile = new File(outputDoc)
+                fileDirectory.createDirectories(outputDocFile.getParentFile().absolutePath)
+                return textFile.stringToFile(outputDoc, html)
+            } else {
+                println("${errorFrom} HTML Not found.")
+            }
+        } catch (Exception e) {
+            println("${errorFrom} ${e.getMessage()}")
+        }
+    }
+
 
     private void processTopicToHtml(List<Topic> topics) {
         if (topics) {
@@ -348,7 +397,11 @@ class TextToWebProcessor implements CommandProcessor {
                 if (topic.childs) {
                     processTopicToHtml(topic.childs)
                 } else {
-
+                    if (topic.url && !topic.url.equals("#") && urlEligibleForExport(topic.url)){
+                        if (!exportUrlToHtml(topic.url)){
+                            println("Unable to export file for url: ${topic.url}")
+                        }
+                    }
                 }
             }
         }
@@ -379,7 +432,9 @@ class TextToWebProcessor implements CommandProcessor {
     private void iterateDescriptor(List<FileDirectoryListing> sources) throws AsciiDocException {
         String fileName
         sources.each { FileDirectoryListing fileDirectoryListing ->
-            if (fileDirectoryListing.fileDirectoryInfo.isDirectory && fileDirectoryListing.subDirectories) {
+            if (isSkipFile(fileDirectoryListing.fileDirectoryInfo, true)) {
+                return
+            } else if (fileDirectoryListing.fileDirectoryInfo.isDirectory && fileDirectoryListing.subDirectories) {
                 iterateDescriptor(fileDirectoryListing.subDirectories)
             } else {
                 fileName = fileDirectoryListing.fileDirectoryInfo.name
