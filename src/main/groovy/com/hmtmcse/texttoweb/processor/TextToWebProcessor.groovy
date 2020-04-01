@@ -17,7 +17,6 @@ import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.data.*
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
-
 import java.util.concurrent.CopyOnWriteArrayList
 
 class TextToWebProcessor implements CommandProcessor {
@@ -29,6 +28,7 @@ class TextToWebProcessor implements CommandProcessor {
     private Boolean isDescriptorUpdated = false
     private TextToWebHtmlEngine textToWebHtmlEngine
     private TextFile textFile
+
 
     public TextToWebProcessor(ProcessRequest processRequest) {
         fileDirectory = new FileDirectory()

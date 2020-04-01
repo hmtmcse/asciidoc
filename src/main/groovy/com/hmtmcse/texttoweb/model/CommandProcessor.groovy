@@ -32,6 +32,7 @@ trait CommandProcessor {
         return false
     }
 
+
     public void init(ProcessRequest processRequest) {
         this.processRequest = processRequest
     }
@@ -39,6 +40,7 @@ trait CommandProcessor {
     public String jsonDescriptorFileName() {
         return "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.JSON}"
     }
+
 
     public String ymltOutlineFileName() {
         return "${TextToWebConst.OUTLINE}.${TextToWebConst.YML}"
@@ -169,6 +171,8 @@ trait CommandProcessor {
         }
         return text
     }
+
+
 
 
     public String pathToURL(String path) {
