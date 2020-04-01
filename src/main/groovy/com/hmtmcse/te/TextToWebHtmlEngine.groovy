@@ -7,6 +7,7 @@ import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.fm.TwFileUtil
 import com.hmtmcse.te.data.*
+import com.hmtmcse.te.taglib.HtmlTagHelper
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
@@ -134,7 +135,7 @@ class TextToWebHtmlEngine {
             pageData.layout = config.page500
             e.printStackTrace()
         }
-        return renderPage(pageData)
+        return renderPage(pageData, config)
     }
 
     public String getPageTitle(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
@@ -271,16 +272,17 @@ class TextToWebHtmlEngine {
         return topicNav
     }
 
-    public String renderPage(TextToWebPageData pageData) throws AsciiDocException {
+    public String renderPage(TextToWebPageData pageData, TextToWebEngineConfig twConfig) throws AsciiDocException {
         try {
             Config config = ConfigLoader.getConfig()
             String layoutPath = FDUtil.concatPath(config.template, pageData.layout)
             if (!fileDirectory.isExist(layoutPath)) {
                 throw new AsciiDocException("File not found.\nName: ${pageData.layout}, \nPath: ${layoutPath}")
             }
-//            TextFileData textFileData = textFile.fileToString(layoutPath)
+            HtmlTagHelper htmlTagHelper = new HtmlTagHelper(twConfig)
+            pageData.tagHelper = htmlTagHelper
             FreemarkerTemplate freemarkerTemplate = new FreemarkerTemplate()
-            return freemarkerTemplate.processTextWithTemplateDir(config.template, pageData.layout, [page: pageData])
+            return freemarkerTemplate.processTextWithTemplateDir(config.template, pageData.layout, [page: pageData, tagHelper: htmlTagHelper])
         } catch (Exception e) {
             throw new AsciiDocException(e.getMessage())
         }

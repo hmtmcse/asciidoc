@@ -3,7 +3,7 @@ package com.hmtmcse.te.data
 class TextToWebEngineConfig {
 
     public String urlExtension = ""
-    public String defaultContent  = "<h1>Coming Soon....</h1>";
+    public String defaultContent = "<h1>Coming Soon....</h1>";
     public String defaultTitle = "..:: Bismillah ::.."
     public String errorTitle = "..:: Inalillah ::.."
     public String defaultPage = null
@@ -12,4 +12,6 @@ class TextToWebEngineConfig {
     public String layoutFileExtension = "ftl"
     public String docFileExtension = "adoc"
     public String exportFileExtension = "html"
+    public HtmlExportType htmlExportType = HtmlExportType.ONLINE
+
 }

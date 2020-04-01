@@ -1,6 +1,7 @@
 package com.hmtmcse.asciidoc
 
 import com.hmtmcse.parser4java.YamlProcessor
+import com.hmtmcse.te.data.HtmlExportType
 import com.hmtmcse.texttoweb.data.ProcessRequest
 import com.hmtmcse.texttoweb.data.ProcessTask
 import com.hmtmcse.texttoweb.data.TopicMergeReport
@@ -44,8 +45,12 @@ class TextToWebProcessorTest extends Specification {
     }
 
     def "Test Export to html"() {
+        given:
+        ProcessRequest processRequest = new ProcessRequest()
+        processRequest.htmlExportType = HtmlExportType.OFFLINE
+
         expect: "Test Export to html"
-        TextToWebProcessor textToWebProcessor = new TextToWebProcessor(new ProcessRequest())
+        TextToWebProcessor textToWebProcessor = new TextToWebProcessor(processRequest)
 //        println(YamlProcessor.instance().klassToString(textToWebProcessor.manipulateDescriptorOutline()))
         textToWebProcessor.exportToHtml()
     }
