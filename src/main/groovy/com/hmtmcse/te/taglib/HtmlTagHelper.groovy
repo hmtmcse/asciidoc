@@ -34,7 +34,7 @@ class HtmlTagHelper {
     private String processLink(String url, Boolean isExtension = false) {
         if (url && url.equals("#")) {
             return url
-        } else {
+        } else if (!config.isFromWebsite) {
             url = concatUrl(url)
         }
         if (config.htmlExportType == HtmlExportType.ONLINE) {
@@ -50,7 +50,7 @@ class HtmlTagHelper {
             url = url.substring(0, url.length() - 1)
         }
 
-        if (isExtension && config.exportFileExtension && !url.endsWith("/")){
+        if (isExtension && config.exportFileExtension && !url.endsWith("/")) {
             url += ".${config.exportFileExtension}".toString()
         }
 

@@ -379,7 +379,7 @@ class TextToWebProcessor implements CommandProcessor {
             String html = textToWebHtmlEngine.getContentByURL(url, processRequest)
             if (html) {
                 File outputDocFile = new File(outputDoc)
-                fileDirectory.createDirectories(outputDocFile.getParentFile().absolutePath)
+                fileDirectory.createDirectoriesIfNotExist(outputDocFile.getParentFile().absolutePath)
                 return textFile.stringToFile(outputDoc, html)
             } else {
                 println("${errorFrom} HTML Not found.")
@@ -428,6 +428,10 @@ class TextToWebProcessor implements CommandProcessor {
         }
     }
 
+    private void exportDescriptorPage(String descriptorPath) {
+
+    }
+
     private void iterateDescriptor(List<FileDirectoryListing> sources) throws AsciiDocException {
         String fileName
         sources.each { FileDirectoryListing fileDirectoryListing ->
@@ -438,6 +442,7 @@ class TextToWebProcessor implements CommandProcessor {
             } else {
                 fileName = fileDirectoryListing.fileDirectoryInfo.name
                 if (fileName && (fileName.equals(ymlDescriptorFileName()) || fileName.equals(ymltOutlineFileName()))) {
+                    exportDescriptorPage(fileDirectoryListing.fileDirectoryInfo.absolutePath)
                     processDescriptorToHtml(fileDirectoryListing.fileDirectoryInfo.absolutePath)
                 }
             }

@@ -13,5 +13,6 @@ class TextToWebEngineConfig {
     public String docFileExtension = "adoc"
     public String exportFileExtension = null
     public HtmlExportType htmlExportType = HtmlExportType.ONLINE
+    public Boolean isFromWebsite = true
 
 }
