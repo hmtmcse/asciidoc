@@ -1,6 +1,7 @@
 package com.hmtmcse.te
 
 import com.hmtmcse.common.AsciiDocException
+import freemarker.cache.NullCacheStorage
 import freemarker.template.Configuration
 import freemarker.template.DefaultObjectWrapper
 import freemarker.template.Template
@@ -19,6 +20,10 @@ class FreemarkerTemplate {
         DefaultObjectWrapper wrapper = new DefaultObjectWrapper();
         wrapper.setExposeFields(true);
         configuration.setObjectWrapper(wrapper);
+
+        // Disable Cache
+        configuration.setCacheStorage(new NullCacheStorage())
+        configuration.setTemplateUpdateDelayMilliseconds(0);
 
         return configuration
     }

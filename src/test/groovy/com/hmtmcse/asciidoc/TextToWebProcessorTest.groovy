@@ -47,7 +47,8 @@ class TextToWebProcessorTest extends Specification {
     def "Test Export to html"() {
         given:
         ProcessRequest processRequest = new ProcessRequest()
-        processRequest.htmlExportType = HtmlExportType.OFFLINE
+//        processRequest.htmlExportType = HtmlExportType.OFFLINE
+        processRequest.exportFileExtension = "html"
 
         expect: "Test Export to html"
         TextToWebProcessor textToWebProcessor = new TextToWebProcessor(processRequest)

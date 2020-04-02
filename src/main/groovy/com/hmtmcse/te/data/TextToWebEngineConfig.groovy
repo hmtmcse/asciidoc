@@ -11,7 +11,7 @@ class TextToWebEngineConfig {
     public String page500 = "500.ftl"
     public String layoutFileExtension = "ftl"
     public String docFileExtension = "adoc"
-    public String exportFileExtension = "html"
+    public String exportFileExtension = null
     public HtmlExportType htmlExportType = HtmlExportType.ONLINE
 
 }

@@ -26,7 +26,7 @@ class TextToWebPageData {
                     nestedNav += getLeftNavHtml(navItem.childs);
                     nestedNav += "</ul>";
                 }
-                html += "<li><a class='" + navItem.active + "' href='" + tagHelper.twUrl(navItem.url) + "'>" + navItem.name + "</a>";
+                html += "<li><a class='" + navItem.active + "' href='" + tagHelper.twUrlWithExtension(navItem.url) + "'>" + navItem.name + "</a>";
                 html += nestedNav
                 html += "</li>"
             }

@@ -121,7 +121,6 @@ class TextToWebProcessor implements CommandProcessor {
         if (path) {
             path = removeAdocExtension(path)
             path = pathToURL(path)
-            path = config.urlStartWith + path
         }
         return path
     }
