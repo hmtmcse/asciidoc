@@ -17,6 +17,7 @@ import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.data.*
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
+
 import java.util.concurrent.CopyOnWriteArrayList
 
 class TextToWebProcessor implements CommandProcessor {
@@ -28,6 +29,7 @@ class TextToWebProcessor implements CommandProcessor {
     private Boolean isDescriptorUpdated = false
     private TextToWebHtmlEngine textToWebHtmlEngine
     private TextFile textFile
+    private Map<String, Boolean> trackDescriptorPage = [:]
 
 
     public TextToWebProcessor(ProcessRequest processRequest) {
@@ -36,6 +38,7 @@ class TextToWebProcessor implements CommandProcessor {
         this.processRequest = processRequest
         textToWebHtmlEngine = new TextToWebHtmlEngine()
         textFile = new TextFile()
+        trackDescriptorPage = [:]
         init(processRequest)
     }
 
@@ -367,11 +370,11 @@ class TextToWebProcessor implements CommandProcessor {
         return false
     }
 
-    private Boolean exportUrlToHtml(String url) {
+    private Boolean exportUrlToHtml(String url, String name = "") {
         String errorFrom = "Export Url to Html Error:"
         try {
             String relativePath = TwFileUtil.trimAndUrlToPath(url)
-            String outputDoc = FDUtil.concatPath(config.out, "${relativePath}.${processRequest.exportFileExtension}".toString())
+            String outputDoc = FDUtil.concatPath(config.out, "${relativePath}${name}.${processRequest.exportFileExtension}".toString())
             if (!fileDirectory.removeIfExist(outputDoc)) {
                 println("${errorFrom} Unable to remove existing output file: ${outputDoc}")
                 return
@@ -429,7 +432,27 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     private void exportDescriptorPage(String descriptorPath) {
-
+        String path
+        if (descriptorPath && descriptorPath.endsWith(ymlDescriptorFileName())) {
+            path = descriptorPath.replace(ymlDescriptorFileName(), "")
+        } else if (descriptorPath && descriptorPath.endsWith(ymltOutlineFileName())) {
+            path = descriptorPath.replace(ymltOutlineFileName(), "")
+        }
+        if (path) {
+            String url = getURL(path)
+            if (!url || url.equals("") || trackDescriptorPage.get(url)) {
+                return
+            }
+            String name = ""
+            trackDescriptorPage.put(url, true)
+            if (url && url.equals("/")) {
+                name = "index"
+            } else if (url && !url.startsWith("/")) {
+                url = "/" + url
+            }
+            exportUrlToHtml(url, name)
+            println("URL: ${url}")
+        }
     }
 
     private void iterateDescriptor(List<FileDirectoryListing> sources) throws AsciiDocException {
@@ -452,6 +475,7 @@ class TextToWebProcessor implements CommandProcessor {
 
     public void exportToHtml() throws AsciiDocException {
         List<FileDirectoryListing> topics = getTopicList()
+        processRequest.isFromWebsite = false
         iterateDescriptor(topics)
     }
 
