@@ -1,5 +1,6 @@
 package com.hmtmcse.texttoweb.common
 
+import com.hmtmcse.common.AsciiDocConstant
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.parser4java.YamlProcessor
 import com.hmtmcse.shellutil.console.menu.OptionValues
@@ -47,6 +48,7 @@ class ConfigLoader {
             config.ignore.add(".gitignore")
             config.ignore.add("static-files")
             config.ignore.add(".back")
+            config.ignore.add(AsciiDocConstant.text2webLog)
         }
         return config
     }

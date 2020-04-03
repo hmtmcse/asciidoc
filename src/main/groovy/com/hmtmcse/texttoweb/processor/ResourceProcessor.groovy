@@ -4,18 +4,58 @@ import com.hmtmcse.common.AsciiDocConstant
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
+import com.hmtmcse.parser4java.JsonProcessor
 import com.hmtmcse.texttoweb.Config
+import com.hmtmcse.texttoweb.resource.StaticResourceIndex
 
 class ResourceProcessor {
 
     private Config config
     private TextFile textFile
     private FileDirectory fileDirectory
+    private JsonProcessor jsonProcessor
+    private StaticResourceIndex templateFileLogIndex
+    private StaticResourceIndex docFileLogIndex
+    private StaticResourceIndex docResourcesFileLogIndex
 
     ResourceProcessor(Config config) {
         this.config = config
         textFile = new TextFile()
         fileDirectory = new FileDirectory()
+    }
+
+    private String logDir() {
+        return FDUtil.concatPath(config.source, AsciiDocConstant.text2webLog)
+    }
+
+    private StaticResourceIndex loadFileIndex(String fileName) {
+        String path = FDUtil.concatPath(logDir(), fileName)
+        if (fileDirectory.isDirectory(path)) {
+            try {
+                String json = textFile.fileToString(path)
+                if (json) {
+                    return jsonProcessor.objectFromText(json, StaticResourceIndex.class)
+                }
+            } catch (Exception e) {
+                println("Error from loadFileIndex: ${e.getMessage()}")
+            }
+        }
+        return new StaticResourceIndex()
+    }
+
+    private void exportFileIndex(StaticResourceIndex staticResourceIndex, String fileName) {
+        String path = logDir()
+        fileDirectory.createDirectoriesIfNotExist(path)
+        path = FDUtil.concatPath(path, fileName)
+        fileDirectory.removeIfExist(path)
+        try {
+            String json = jsonProcessor.objectToJson(staticResourceIndex)
+            if (json) {
+                textFile.stringToFile(path, json)
+            }
+        } catch (Exception e) {
+            println("Error from exportFileIndex: ${e.getMessage()}")
+        }
     }
 
 
