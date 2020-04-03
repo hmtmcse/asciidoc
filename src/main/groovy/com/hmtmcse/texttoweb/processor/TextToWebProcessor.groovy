@@ -383,10 +383,10 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
 
-
     private Boolean exportUrlToHtml(String url, String name = "") {
         String errorFrom = "Export Url to Html Error:"
         try {
+            SearchProcessor searchIndexProcessor = new SearchProcessor()
             String relativePath = TwFileUtil.trimAndUrlToPath(url)
             String outputDoc = FDUtil.concatPath(config.out, "${relativePath}${name}${processRequest.getExportFileExtensionByNullCheck()}".toString())
             if (!fileDirectory.removeIfExist(outputDoc)) {
@@ -397,6 +397,7 @@ class TextToWebProcessor implements CommandProcessor {
             if (html) {
                 File outputDocFile = new File(outputDoc)
                 fileDirectory.createDirectoriesIfNotExist(outputDocFile.getParentFile().absolutePath)
+                html = searchIndexProcessor.process(url, html)
                 return textFile.stringToFile(outputDoc, html)
             } else {
                 println("${errorFrom} HTML Not found.")
