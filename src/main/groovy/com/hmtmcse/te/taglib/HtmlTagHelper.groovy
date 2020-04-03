@@ -1,5 +1,6 @@
 package com.hmtmcse.te.taglib
 
+import com.hmtmcse.common.AsciiDocConstant
 import com.hmtmcse.te.data.HtmlExportType
 import com.hmtmcse.te.data.TextToWebEngineConfig
 import com.hmtmcse.texttoweb.Config
@@ -57,20 +58,28 @@ class HtmlTagHelper {
         return url
     }
 
+    private String processOnlySlash(String url) {
+        if (url && url.equals("/") && config.exportFileExtension) {
+            return url + AsciiDocConstant.bismillahFile
+        }
+        return url
+    }
+
     public String addCssTag(String cssLink) {
-        return "<link rel='stylesheet' href='${processLink(cssLink)}'>"
+        return "<link rel='stylesheet' href='${processLink(cssLink, false)}'>"
     }
 
     public String addJsTag(String jsLink) {
-        return "<script src='${processLink(jsLink)}' type='text/javascript' ></script>"
+        return "<script src='${processLink(jsLink, false)}' type='text/javascript' ></script>"
     }
 
     public String twUrl(String url, Boolean isExtension = false) {
         return processLink(url, isExtension)
     }
 
+
     public String twUrlWithExtension(String url) {
-        return processLink(url, true)
+        return processLink(processOnlySlash(url), true)
     }
 
 }

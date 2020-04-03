@@ -1,5 +1,6 @@
 package com.hmtmcse.texttoweb.processor
 
+import com.hmtmcse.common.AsciiDocConstant
 import com.hmtmcse.common.AsciiDocException
 import com.hmtmcse.fileutil.data.FDInfo
 import com.hmtmcse.fileutil.data.FDListingFilter
@@ -446,7 +447,7 @@ class TextToWebProcessor implements CommandProcessor {
             String name = ""
             trackDescriptorPage.put(url, true)
             if (url && url.equals("/")) {
-                name = "index"
+                name = AsciiDocConstant.bismillahFile
             } else if (url && !url.startsWith("/")) {
                 url = "/" + url
             }
