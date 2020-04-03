@@ -31,6 +31,7 @@ class TextToWebProcessor implements CommandProcessor {
     private TextToWebHtmlEngine textToWebHtmlEngine
     private TextFile textFile
     private Map<String, Boolean> trackDescriptorPage = [:]
+    private ResourceProcessor resourceProcessor
 
 
     public TextToWebProcessor(ProcessRequest processRequest) {
@@ -40,6 +41,7 @@ class TextToWebProcessor implements CommandProcessor {
         textToWebHtmlEngine = new TextToWebHtmlEngine()
         textFile = new TextFile()
         trackDescriptorPage = [:]
+        resourceProcessor = new ResourceProcessor(config)
         init(processRequest)
     }
 
@@ -498,10 +500,22 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
 
+    private void exportStaticPage() {
+        String url = "/page-404"
+        String extension = ""
+        if (!processRequest.exportFileExtension) {
+            extension = ".html"
+        }
+        exportUrlToHtml(url, extension)
+    }
+
     public void exportToHtml() throws AsciiDocException {
         List<FileDirectoryListing> topics = getTopicList()
         processRequest.isFromWebsite = false
+        resourceProcessor.loadDocumentIndex()
         iterateDescriptor(topics)
+        exportStaticPage()
+        resourceProcessor.exportStaticContent()
     }
 
     public void test() {
