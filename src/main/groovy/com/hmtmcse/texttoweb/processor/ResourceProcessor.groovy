@@ -51,8 +51,15 @@ class ResourceProcessor {
 
     }
 
+    private String get404Page() {
+        if (config.urlStartWith && config.urlStartWith.startsWith("/")) {
+            return "${config.urlStartWith}/${AsciiDocConstant.page404}"
+        }
+        return "/${config.urlStartWith}/${AsciiDocConstant.page404}"
+    }
+
     public void exportHtaccess() {
-        String content = "ErrorDocument 404 /${config.urlStartWith}/${AsciiDocConstant.page404}"
+        String content = "ErrorDocument 404 ${get404Page()}"
         content += "\n" + "<IfModule mod_deflate.c>"
         content += "\n" + "AddOutputFilterByType DEFLATE application/javascript"
         content += "\n" + "AddOutputFilterByType DEFLATE application/x-javascript"
@@ -71,11 +78,21 @@ class ResourceProcessor {
     }
 
     public void exportGithubConfig() {
-
+        String content = "---"
+        content += "\n" + "permalink: ${get404Page()}"
+        content += "\n" + "---"
+        try {
+            String path = FDUtil.concatPath(config.out, "404.md")
+            fileDirectory.removeIfExist(path)
+            textFile.stringToFile(path, content)
+        } catch (Exception e) {
+            println("Error from Export github 404: ${e.getMessage()}")
+        }
     }
 
     public void exportStaticContent() {
         exportHtaccess()
+        exportGithubConfig()
     }
 
 }
