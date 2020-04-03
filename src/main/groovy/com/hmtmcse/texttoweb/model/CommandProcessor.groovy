@@ -172,9 +172,6 @@ trait CommandProcessor {
         return text
     }
 
-
-
-
     public String pathToURL(String path) {
         if (path) {
             path = path.replace(File.separator, "/")
@@ -188,4 +185,5 @@ trait CommandProcessor {
         }
         return path
     }
+
 }

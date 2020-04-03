@@ -52,7 +52,7 @@ class HtmlTagHelper {
         }
 
         if (isExtension && config.exportFileExtension && !url.endsWith("/")) {
-            url += ".${config.exportFileExtension}".toString()
+            url += "${config.getExportFileExtensionByNullCheck()}".toString()
         }
 
         return url

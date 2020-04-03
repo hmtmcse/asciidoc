@@ -7,7 +7,6 @@ import com.hmtmcse.shellutil.console.menu.OptionDefinition
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.shellutil.print.ConsolePrinter
 import com.hmtmcse.texttoweb.TextToWebConst
-import com.hmtmcse.texttoweb.processor.GenerateProcessor
 
 class TextToWebMenu {
 
@@ -23,8 +22,7 @@ class TextToWebMenu {
         OptionDefinition optionDefinition = new OptionDefinition(new CommandAction() {
             @Override
             public void process(OptionValues optionValues) throws ShellUtilException {
-                GenerateProcessor generateProcessor = new GenerateProcessor()
-                generateProcessor.process(optionValues)
+
             }
         })
         optionDefinition.setCommandDescription("Generate Descriptor and others")
@@ -40,8 +38,7 @@ class TextToWebMenu {
         OptionDefinition optionDefinition = new OptionDefinition(new CommandAction() {
             @Override
             public void process(OptionValues optionValues) throws ShellUtilException {
-                GenerateProcessor generateProcessor = new GenerateProcessor()
-                generateProcessor.process(optionValues)
+
             }
         })
         optionDefinition.setCommandDescription("Export to Static")

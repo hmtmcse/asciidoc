@@ -8,7 +8,7 @@ class TextToWebPageData {
 
     public String title = ""
     public String content  = ""
-    public String layout = "404"
+    public String layout = null
     public Map<String, TopicNavItem> nav = [:]
     public Map<String, TopicNavItem> relatedNav = [:]
     public Map<String, Block> blocks = [:]

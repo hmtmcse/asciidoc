@@ -13,7 +13,7 @@ import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
 import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
-import com.hmtmcse.texttoweb.processor.GenerateProcessor
+import com.hmtmcse.texttoweb.processor.TextToWebProcessor
 import com.hmtmcse.tmutil.TStringUtil
 
 class TextToWebHtmlEngine {
@@ -61,6 +61,8 @@ class TextToWebHtmlEngine {
         return urlToUrlKey(trimUrl)
     }
 
+
+
     public TextToWebEngineData getDescriptorData(String url, String relativePath, String descriptorName) throws AsciiDocException {
         try {
             List<String> urlFragments = []
@@ -73,12 +75,12 @@ class TextToWebHtmlEngine {
             textToWebEngineData.relativePath = relativePath
             String descriptorFile, temp
             Integer lengthTo
-            GenerateProcessor generateProcessor = new GenerateProcessor()
+            TextToWebProcessor textToWebProcessor = new TextToWebProcessor()
             if (urlFragments) {
                 for (String fragment : urlFragments) {
                     descriptorFile = FDUtil.concatPath(concatPath(relativePath), descriptorName)
                     if (fileDirectory.isExist(descriptorFile)) {
-                        textToWebEngineData.descriptor = generateProcessor.loadYmlFromFile(descriptorFile)
+                        textToWebEngineData.descriptor = textToWebProcessor.loadYmlFromFile(descriptorFile)
                         return textToWebEngineData
                     }
                     temp = File.separator + fragment
@@ -88,7 +90,9 @@ class TextToWebHtmlEngine {
                     }
                 }
             }
-            textToWebEngineData.descriptor = generateProcessor.loadYmlFromFile(concatPath(descriptorName))
+            if (url != null && url.equals("")) {
+                textToWebEngineData.descriptor = textToWebProcessor.loadYmlFromFile(concatPath(descriptorName))
+            }
             return textToWebEngineData
         } catch (Exception e) {
             throw new AsciiDocException(e.getMessage())
@@ -122,13 +126,16 @@ class TextToWebHtmlEngine {
             TextToWebEngineData textToWebEngineData = getDescriptorData(trimUrl, urlToPath, internalResponse.descriptorName)
             textToWebEngineData.urlKey = urlToUrlKey(textToWebEngineData.url)
             textToWebEngineData.absolutePath = path
-            Descriptor navigationDescriptor = textToWebEngineData.descriptor
-            textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey, config.urlExtension)
-            if (navigationDescriptor.relatedTopics) {
-                textToWebEngineData.relatedTopicNav = getNavigation(navigationDescriptor.relatedTopics, textToWebEngineData.urlKey, config.urlExtension)
+
+            if (textToWebEngineData.descriptor) {
+                Descriptor navigationDescriptor = textToWebEngineData.descriptor
+                textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey, config.urlExtension)
+                if (navigationDescriptor.relatedTopics) {
+                    textToWebEngineData.relatedTopicNav = getNavigation(navigationDescriptor.relatedTopics, textToWebEngineData.urlKey, config.urlExtension)
+                }
+                setupLayout(textToWebEngineData, config)
+                pageData = getPageData(textToWebEngineData, config)
             }
-            setupLayout(textToWebEngineData, config)
-            pageData = getPageData(textToWebEngineData, config)
         } catch (Exception e) {
             pageData.content = e.getMessage()
             pageData.title = config.errorTitle
@@ -275,6 +282,9 @@ class TextToWebHtmlEngine {
     public String renderPage(TextToWebPageData pageData, TextToWebEngineConfig twConfig) throws AsciiDocException {
         try {
             Config config = ConfigLoader.getConfig()
+            if (!pageData.layout) {
+                pageData.layout = twConfig.page404
+            }
             String layoutPath = FDUtil.concatPath(config.template, pageData.layout)
             if (!fileDirectory.isExist(layoutPath)) {
                 throw new AsciiDocException("File not found.\nName: ${pageData.layout}, \nPath: ${layoutPath}")

@@ -15,4 +15,8 @@ class TextToWebEngineConfig {
     public HtmlExportType htmlExportType = HtmlExportType.ONLINE
     public Boolean isFromWebsite = true
 
+    public String getExportFileExtensionByNullCheck() {
+        return exportFileExtension ? ("." + exportFileExtension) : ""
+    }
+
 }

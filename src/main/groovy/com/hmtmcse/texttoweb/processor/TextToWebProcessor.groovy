@@ -354,28 +354,41 @@ class TextToWebProcessor implements CommandProcessor {
         return topics
     }
 
-    private Boolean isFileHistoryStatusOkay(String relativePath){
+    private Boolean isFileHistoryStatusOkay(String relativePath) {
         return true
     }
 
-    private Boolean urlEligibleForExport(String url) {
+    private UrlEligibleForExport urlEligibleForExport(String url) {
+        UrlEligibleForExport urlEligibleForExport = new UrlEligibleForExport()
         String relativePath = TwFileUtil.trimAndUrlToPath(url)
         String sourceRelativePath = "${relativePath}.${processRequest.docFileExtension}".toString()
         String sourceDoc = FDUtil.concatPath(config.source, sourceRelativePath)
-        String outputDoc = FDUtil.concatPath(config.out, "${relativePath}.${processRequest.exportFileExtension}".toString())
-        if (fileDirectory.isExist(sourceDoc) && isFileHistoryStatusOkay(sourceRelativePath)) {
-            return true
-        } else if (!fileDirectory.isExist(outputDoc)) {
-            return true
+
+        if (!fileDirectory.isExist(sourceDoc)) {
+            return urlEligibleForExport
         }
-        return false
+
+        FDInfo fdInfo = fileDirectory.getDetailsInfo(sourceDoc, true)
+        if (fdInfo.isDirectory) {
+            urlEligibleForExport.name = getBismillahFileName()
+        }
+
+        String outputDoc = FDUtil.concatPath(config.out, "${relativePath}.${processRequest.getExportFileExtensionByNullCheck()}".toString())
+        if (isFileHistoryStatusOkay(sourceRelativePath)) {
+            return urlEligibleForExport.setIsEligible(true)
+        } else if (!fileDirectory.isExist(outputDoc)) {
+            return urlEligibleForExport.setIsEligible(true)
+        }
+        return urlEligibleForExport
     }
+
+
 
     private Boolean exportUrlToHtml(String url, String name = "") {
         String errorFrom = "Export Url to Html Error:"
         try {
             String relativePath = TwFileUtil.trimAndUrlToPath(url)
-            String outputDoc = FDUtil.concatPath(config.out, "${relativePath}${name}.${processRequest.exportFileExtension}".toString())
+            String outputDoc = FDUtil.concatPath(config.out, "${relativePath}${name}${processRequest.getExportFileExtensionByNullCheck()}".toString())
             if (!fileDirectory.removeIfExist(outputDoc)) {
                 println("${errorFrom} Unable to remove existing output file: ${outputDoc}")
                 return
@@ -400,8 +413,9 @@ class TextToWebProcessor implements CommandProcessor {
                 if (topic.childs) {
                     processTopicToHtml(topic.childs)
                 } else {
-                    if (topic.url && !topic.url.equals("#") && urlEligibleForExport(topic.url)){
-                        if (!exportUrlToHtml(topic.url)){
+                    UrlEligibleForExport urlEligibleForExport = urlEligibleForExport(topic.url)
+                    if (topic.url && !topic.url.equals("#") && urlEligibleForExport.isEligible) {
+                        if (!exportUrlToHtml(topic.url, urlEligibleForExport.name)) {
                             println("Unable to export file for url: ${topic.url}")
                         }
                     }
@@ -432,6 +446,10 @@ class TextToWebProcessor implements CommandProcessor {
         }
     }
 
+    private String getBismillahFileName() {
+        return "/${AsciiDocConstant.bismillahFile}.html".toString()
+    }
+
     private void exportDescriptorPage(String descriptorPath) {
         String path
         if (descriptorPath && descriptorPath.endsWith(ymlDescriptorFileName())) {
@@ -445,14 +463,19 @@ class TextToWebProcessor implements CommandProcessor {
                 return
             }
             String name = ""
+            String nameWithExtension = getBismillahFileName()
             trackDescriptorPage.put(url, true)
             if (url && url.equals("/")) {
                 name = AsciiDocConstant.bismillahFile
             } else if (url && !url.startsWith("/")) {
                 url = "/" + url
             }
-            exportUrlToHtml(url, name)
-            println("URL: ${url}")
+
+            if (!processRequest.exportFileExtension) {
+                exportUrlToHtml(url, nameWithExtension)
+            } else {
+                exportUrlToHtml(url, name)
+            }
         }
     }
 
@@ -495,6 +518,5 @@ class TextToWebProcessor implements CommandProcessor {
         bismillahDescriptorProcess()
         return reports
     }
-
 
 }
