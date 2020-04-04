@@ -65,8 +65,8 @@ class ResourceProcessor {
         }
     }
 
-    private String getRelativePath(String path) {
-        path = path.replace(config.source, "")
+    private String getRelativePath(String path, String source = config.source) {
+        path = path.replace(source, "")
         if (path.length() > 1 && path.startsWith(File.separator)) {
             path = path.substring(1)
         }
@@ -83,22 +83,24 @@ class ResourceProcessor {
         return TStringUtil.findReplace(key, "-", "_")
     }
 
-    public void copySourceToOut(FDInfo fdInfo, String relativePath) {
-        String source = FDUtil.concatPath(config.source, relativePath)
-        String out = FDUtil.concatPath(config.out, relativePath)
+    public void copySourceToOut(StaticResourceParams params, FDInfo fdInfo, String relativePath) {
+        String source = FDUtil.concatPath(params.source, relativePath)
+        String out = FDUtil.concatPath(params.out, relativePath)
         if (fdInfo.isDirectory) {
             fileDirectory.createDirectoriesIfNotExist(out)
         } else if (fdInfo.isRegularFile && fileDirectory.isExist(source)) {
             fileDirectory.removeIfExist(out)
+            fileDirectory.createParentDir(out)
             fileDirectory.copy(source, out)
+            println("Coping to ${out}")
         }
     }
 
-    private void removeOutResources(StaticResourceIndex removeStaticResourceIndex) {
+    private void removeOutResources(StaticResourceParams params, StaticResourceIndex removeStaticResourceIndex) {
         if (removeStaticResourceIndex && removeStaticResourceIndex.fileLogs) {
             String out
             removeStaticResourceIndex.fileLogs.each { String key, StaticResourceIndexData data ->
-                out = FDUtil.concatPath(config.out, data.relativePath)
+                out = FDUtil.concatPath(params.out, data.relativePath)
                 fileDirectory.removeAllIfExist(out)
             }
         }
@@ -115,15 +117,15 @@ class ResourceProcessor {
                     return
                 }
                 if (fdInfo.isDirectory && fileDirectoryListing.subDirectories) {
-                    createAndCopyStaticResourceIndex(new StaticResourceParams(fileDirectoryListing.subDirectories))
+                    createAndCopyStaticResourceIndex(params.copy(fileDirectoryListing.subDirectories))
                 }
-                relativePath = getRelativePath(fdInfo.absolutePath)
+                relativePath = getRelativePath(fdInfo.absolutePath, params.source)
                 key = pathToKey(relativePath)
                 if (oldStaticResourceIndex && oldStaticResourceIndex.fileLogs && oldStaticResourceIndex.fileLogs.get(key)) {
                     staticResourceIndexData = oldStaticResourceIndex.fileLogs.get(key)
-                    if (fdInfo.updatedAt.toMillis() != staticResourceIndexData.lastUpdated) {
+                    if ((fdInfo.updatedAt.toMillis() != staticResourceIndexData.lastUpdated) || (params.out && !fileDirectory.isExist(FDUtil.concatPath(params.out, relativePath)))) {
                         if (params.isCopySourceToOutCopy) {
-                            copySourceToOut(fdInfo, relativePath)
+                            copySourceToOut(params, fdInfo, relativePath)
                         }
                         staticResourceIndexData.lastUpdated = fdInfo.updatedAt.toMillis()
                     }
@@ -135,25 +137,38 @@ class ResourceProcessor {
                     staticResourceIndexData.lastUpdated = fdInfo.updatedAt.toMillis()
                     newStaticResourceIndex.fileLogs.put(key, staticResourceIndexData)
                     if (params.isCopySourceToOutCopy) {
-                        copySourceToOut(fdInfo, relativePath)
+                        copySourceToOut(params, fdInfo, relativePath)
                     }
                 }
             }
         }
     }
 
-    private StaticResourceIndex createAndCopyStaticResourceIndex(String path, StaticResourceIndex oldStaticResourceIndex) {
-        if (fileDirectory.isExist(path)) {
+    private StaticResourceIndex processCreateAndCopyStaticResourceIndex(StaticResourceParams staticResourceParams) {
+        if (fileDirectory.isExist(staticResourceParams.source)) {
             try {
                 newStaticResourceIndex = new StaticResourceIndex()
-                this.oldStaticResourceIndex = oldStaticResourceIndex
-                createAndCopyStaticResourceIndex(new StaticResourceParams(fileDirectory.listDirRecursively(path)))
+                this.oldStaticResourceIndex = staticResourceParams.oldStaticResourceIndex
+                staticResourceParams.setList(fileDirectory.listDirRecursively(staticResourceParams.source))
+                createAndCopyStaticResourceIndex(staticResourceParams)
             } catch (Exception e) {
                 println("Error from createStaticResourceIndex: ${e.getMessage()}")
                 return oldStaticResourceIndex
             }
         }
         return newStaticResourceIndex
+    }
+
+    public void updateDocumentIndex() {
+        try {
+            StaticResourceParams staticResourceParams = new StaticResourceParams()
+            staticResourceParams.oldStaticResourceIndex = (docFileLogIndex ?: new StaticResourceIndex())
+            staticResourceParams.source = config.source
+            this.newStaticResourceIndex = processCreateAndCopyStaticResourceIndex(staticResourceParams)
+            exportFileIndex(this.newStaticResourceIndex, AsciiDocConstant.docFileLog)
+        } catch (Exception e) {
+            println("Error from updateDocumentIndex: ${e.getMessage()}")
+        }
     }
 
     public void loadDocumentIndex() {
@@ -184,40 +199,39 @@ class ResourceProcessor {
         return true
     }
 
-    public void updateDocumentIndex() {
-        this.newStaticResourceIndex = new StaticResourceIndex()
-        this.oldStaticResourceIndex = (docFileLogIndex ?: new StaticResourceIndex())
+
+
+
+    public void updateDocumentResourceIndex() {
         try {
-            this.newStaticResourceIndex = createAndCopyStaticResourceIndex(config.source, this.oldStaticResourceIndex)
-            exportFileIndex(this.newStaticResourceIndex, AsciiDocConstant.docFileLog)
+            StaticResourceParams staticResourceParams = new StaticResourceParams()
+            staticResourceParams.oldStaticResourceIndex = (loadLogFileIndex(AsciiDocConstant.docResourcesFileLog) ?: new StaticResourceIndex())
+            staticResourceParams.source = FDUtil.concatPath(config.source, AsciiDocConstant.staticFiles)
+            staticResourceParams.out = FDUtil.concatPath(config.out, AsciiDocConstant.staticFiles)
+            staticResourceParams.isCopySourceToOutCopy = true
+            fileDirectory.createDirectoriesIfNotExist(staticResourceParams.out)
+            this.newStaticResourceIndex = processCreateAndCopyStaticResourceIndex(staticResourceParams)
+            exportFileIndex(this.newStaticResourceIndex, AsciiDocConstant.docResourcesFileLog)
         } catch (Exception e) {
-            println("Error from updateDocumentIndex: ${e.getMessage()}")
+            println("Error from updateDocumentResourceIndex: ${e.getMessage()}")
         }
     }
 
-    public void loadDocumentResourceIndex() {
-
-    }
-
-    public void updateDocumentResourceIndex() {
-
-    }
-
-    public void exportDocumentResourceIndex() {
-
-    }
-
-    public void loadTemplateAssetIndex() {
-
-    }
-
     public void updateTemplateAssetIndex() {
-
+        try {
+            StaticResourceParams staticResourceParams = new StaticResourceParams()
+            staticResourceParams.oldStaticResourceIndex = (loadLogFileIndex(AsciiDocConstant.templateFileLog) ?: new StaticResourceIndex())
+            staticResourceParams.source = FDUtil.concatPath(config.template, AsciiDocConstant.asset)
+            staticResourceParams.out = FDUtil.concatPath(config.out, AsciiDocConstant.asset)
+            staticResourceParams.isCopySourceToOutCopy = true
+            fileDirectory.createDirectoriesIfNotExist(staticResourceParams.out)
+            this.newStaticResourceIndex = processCreateAndCopyStaticResourceIndex(staticResourceParams)
+            exportFileIndex(this.newStaticResourceIndex, AsciiDocConstant.templateFileLog)
+        } catch (Exception e) {
+            println("Error from updateTemplateAssetIndex: ${e.getMessage()}")
+        }
     }
 
-    public void exportTemplateAssetIndex() {
-
-    }
 
     private String get404Page() {
         if (config.urlStartWith && config.urlStartWith.startsWith("/")) {
@@ -262,6 +276,8 @@ class ResourceProcessor {
         updateDocumentIndex()
         exportHtaccess()
         exportGithubConfig()
+        updateDocumentResourceIndex()
+        updateTemplateAssetIndex()
     }
 
 }
