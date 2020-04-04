@@ -2,6 +2,7 @@ package com.hmtmcse.texttoweb.processor
 
 import com.hmtmcse.common.AsciiDocConstant
 import com.hmtmcse.common.AsciiDocException
+import com.hmtmcse.common.AsciiDocUtil
 import com.hmtmcse.fileutil.data.FDInfo
 import com.hmtmcse.fileutil.data.FDListingFilter
 import com.hmtmcse.fileutil.data.FileDirectoryListing
@@ -100,16 +101,9 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     private Boolean isSkipFile(FDInfo topicsDir, Boolean isNotDescriptor = false) {
-        if (!topicsDir || !topicsDir.name) {
-            return true
-        }
 
-        if (config.ignore) {
-            for (String ignore : config.ignore) {
-                if (ignore.equals(topicsDir.name) || topicsDir.name.endsWith(ignore)) {
-                    return true
-                }
-            }
+        if (AsciiDocUtil.isSkipFile(topicsDir)) {
+            return true
         }
 
         if (!isNotDescriptor && topicsDir && topicsDir.name &&
@@ -356,9 +350,6 @@ class TextToWebProcessor implements CommandProcessor {
         return topics
     }
 
-    private Boolean isFileHistoryStatusOkay(String relativePath) {
-        return true
-    }
 
     private UrlEligibleForExport urlEligibleForExport(String url) {
         UrlEligibleForExport urlEligibleForExport = new UrlEligibleForExport()
@@ -376,7 +367,7 @@ class TextToWebProcessor implements CommandProcessor {
         }
 
         String outputDoc = FDUtil.concatPath(config.out, "${relativePath}.${processRequest.getExportFileExtensionByNullCheck()}".toString())
-        if (isFileHistoryStatusOkay(sourceRelativePath)) {
+        if (resourceProcessor.isModifiedDocFile(sourceRelativePath, fdInfo)) {
             return urlEligibleForExport.setIsEligible(true)
         } else if (!fileDirectory.isExist(outputDoc)) {
             return urlEligibleForExport.setIsEligible(true)

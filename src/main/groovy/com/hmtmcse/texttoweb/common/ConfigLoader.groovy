@@ -48,6 +48,9 @@ class ConfigLoader {
             config.ignore.add(".gitignore")
             config.ignore.add("static-files")
             config.ignore.add(".back")
+            config.ignore.add(".idea")
+            config.ignore.add(".gitignore")
+            config.ignore.add(".vscode")
             config.ignore.add(AsciiDocConstant.text2webLog)
         }
         return config
