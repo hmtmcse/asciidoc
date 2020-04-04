@@ -1,12 +1,16 @@
 package com.hmtmcse.texttoweb.processor
 
 import com.hmtmcse.common.AsciiDocConstant
+import com.hmtmcse.fileutil.data.FDInfo
+import com.hmtmcse.fileutil.data.FileDirectoryListing
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.parser4java.JsonProcessor
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.resource.StaticResourceIndex
+import com.hmtmcse.texttoweb.resource.StaticResourceIndexData
+import com.hmtmcse.tmutil.TStringUtil
 
 class ResourceProcessor {
 
@@ -17,6 +21,7 @@ class ResourceProcessor {
     private StaticResourceIndex templateFileLogIndex
     private StaticResourceIndex docFileLogIndex
     private StaticResourceIndex docResourcesFileLogIndex
+    private StaticResourceIndex tempOldIndex
 
     ResourceProcessor(Config config) {
         this.config = config
@@ -58,6 +63,61 @@ class ResourceProcessor {
         }
     }
 
+    private String getRelativePath(String path) {
+        path = path.replace(config.source, "")
+        if (path.length() > 1 && path.startsWith("/")) {
+            path = path.substring(1)
+        }
+
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1)
+        }
+        return path
+    }
+
+    private String pathToKey(String path) {
+        String key = TStringUtil.findReplace(path, File.separator, "_")
+        key = TStringUtil.findReplace(key, ".", "_")
+        return TStringUtil.findReplace(key, "-", "_")
+    }
+
+    private StaticResourceIndex createStaticResourceIndex(StaticResourceIndex staticResourceIndex, StaticResourceIndex oldStaticResourceIndex, List<FileDirectoryListing> list) {
+        FDInfo fdInfo;
+        String key, relativePath
+        StaticResourceIndexData staticResourceIndexData
+        if (list) {
+            list.each { FileDirectoryListing fileDirectoryListing ->
+                fdInfo = fileDirectoryListing.fileDirectoryInfo
+                if (fdInfo.isDirectory && fileDirectoryListing.subDirectories) {
+                    createStaticResourceIndex(staticResourceIndex, oldStaticResourceIndex, fileDirectoryListing.subDirectories)
+                }
+                relativePath = getRelativePath(fdInfo.absolutePath)
+                key = pathToKey(relativePath)
+                if (oldStaticResourceIndex && oldStaticResourceIndex.fileLogs && oldStaticResourceIndex.fileLogs.get(key)) {
+                    staticResourceIndex.fileLogs.put(key, oldStaticResourceIndex.fileLogs.get(key))
+                    oldStaticResourceIndex.fileLogs.remove(key)
+                } else {
+                    staticResourceIndexData = new StaticResourceIndexData()
+                    staticResourceIndexData.relativePath = relativePath
+                    staticResourceIndexData.lastUpdated = fdInfo.updatedAt.toMillis()
+                    staticResourceIndex.fileLogs.put(key, staticResourceIndexData)
+                }
+            }
+        }
+        return oldStaticResourceIndex
+    }
+
+    private StaticResourceIndex createStaticResourceIndex(String path, StaticResourceIndex oldStaticResourceIndex) {
+        StaticResourceIndex staticResourceIndex = new StaticResourceIndex()
+        if (fileDirectory.isExist(path)) {
+            try {
+                return createStaticResourceIndex(staticResourceIndex, oldStaticResourceIndex, fileDirectory.listDirRecursively())
+            } catch (Exception e) {
+                println("Error from createStaticResourceIndex: ${e.getMessage()}")
+            }
+        }
+        return staticResourceIndex
+    }
 
     public void loadDocumentIndex() {
 
