@@ -19,7 +19,6 @@ import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.data.*
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
-
 import java.util.concurrent.CopyOnWriteArrayList
 
 class TextToWebProcessor implements CommandProcessor {
@@ -453,7 +452,7 @@ class TextToWebProcessor implements CommandProcessor {
         }
         if (path) {
             String url = getURL(path)
-            if (!url || url.equals("") || trackDescriptorPage.get(url)) {
+            if (!url || url.equals("") || trackDescriptorPage.get(url) || !resourceProcessor.isModifiedDocFile(path)) {
                 return
             }
             String name = ""

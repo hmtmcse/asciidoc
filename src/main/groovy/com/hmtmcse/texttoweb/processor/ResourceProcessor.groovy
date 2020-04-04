@@ -164,6 +164,15 @@ class ResourceProcessor {
         }
     }
 
+    public Boolean isModifiedDocFile(String path) {
+        String relativePath = getRelativePath(path)
+        if (relativePath) {
+            FDInfo fdInfo = fileDirectory.getDetailsInfo(path, false)
+            return isModifiedDocFile(relativePath, fdInfo)
+        }
+        return true
+    }
+
     public Boolean isModifiedDocFile(String relativePath, FDInfo fdInfo) {
         if (docFileLogIndex == null) {
             loadDocumentIndex()
