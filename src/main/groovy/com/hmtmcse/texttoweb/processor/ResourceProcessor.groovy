@@ -32,7 +32,7 @@ class ResourceProcessor {
     }
 
     private String logDir() {
-        return FDUtil.concatPath(config.source, AsciiDocConstant.text2webLog)
+        return FDUtil.concatPath(config.source, AsciiDocConstant.text2webData, AsciiDocConstant.vcs)
     }
 
     private StaticResourceIndex loadLogFileIndex(String fileName) {

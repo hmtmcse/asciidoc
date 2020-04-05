@@ -19,6 +19,7 @@ import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.data.*
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
+
 import java.util.concurrent.CopyOnWriteArrayList
 
 class TextToWebProcessor implements CommandProcessor {
@@ -374,13 +375,16 @@ class TextToWebProcessor implements CommandProcessor {
         return urlEligibleForExport
     }
 
+    private String urlToOutputDocFile(String url, String name = "", String out = config.out) {
+        String relativePath = TwFileUtil.trimAndUrlToPath(url)
+        return FDUtil.concatPath(out, "${relativePath}${name}${processRequest.getExportFileExtensionByNullCheck()}".toString())
+    }
 
     private Boolean exportUrlToHtml(String url, String name = "") {
         String errorFrom = "Export Url to Html Error:"
         try {
             SearchProcessor searchIndexProcessor = new SearchProcessor()
-            String relativePath = TwFileUtil.trimAndUrlToPath(url)
-            String outputDoc = FDUtil.concatPath(config.out, "${relativePath}${name}${processRequest.getExportFileExtensionByNullCheck()}".toString())
+            String outputDoc = urlToOutputDocFile(url, name)
             if (!fileDirectory.removeIfExist(outputDoc)) {
                 println("${errorFrom} Unable to remove existing output file: ${outputDoc}")
                 return
@@ -452,7 +456,7 @@ class TextToWebProcessor implements CommandProcessor {
         }
         if (path) {
             String url = getURL(path)
-            if (!url || url.equals("") || trackDescriptorPage.get(url) || !resourceProcessor.isModifiedDocFile(path)) {
+            if (!url || url.equals("") || trackDescriptorPage.get(url)) {
                 return
             }
             String name = ""
@@ -464,11 +468,15 @@ class TextToWebProcessor implements CommandProcessor {
                 url = "/" + url
             }
 
-            if (!processRequest.exportFileExtension) {
-                exportUrlToHtml(url, nameWithExtension)
-            } else {
-                exportUrlToHtml(url, name)
+            String outputName = name
+            if (!processRequest.exportFileExtension){
+                outputName = nameWithExtension
             }
+
+            if (!resourceProcessor.isModifiedDocFile(path) && fileDirectory.isExist(urlToOutputDocFile(url, outputName))) {
+                return
+            }
+            exportUrlToHtml(url, outputName)
         }
     }
 

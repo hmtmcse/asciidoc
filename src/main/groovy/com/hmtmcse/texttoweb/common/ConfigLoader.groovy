@@ -51,7 +51,7 @@ class ConfigLoader {
             config.ignore.add(".idea")
             config.ignore.add(".gitignore")
             config.ignore.add(".vscode")
-            config.ignore.add(AsciiDocConstant.text2webLog)
+            config.ignore.add(AsciiDocConstant.text2webData)
         }
         return config
     }
