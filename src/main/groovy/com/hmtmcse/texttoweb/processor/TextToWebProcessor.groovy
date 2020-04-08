@@ -101,7 +101,6 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     private Boolean isSkipFile(FDInfo topicsDir, Boolean isNotDescriptor = false) {
-
         if (AsciiDocUtil.isSkipFile(topicsDir)) {
             return true
         }
