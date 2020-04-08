@@ -61,12 +61,16 @@ class TextToWebProcessor implements CommandProcessor {
         reports.put(report.topicKey, report)
     }
 
-    private List<FileDirectoryListing> getSourceList() throws AsciiDocException {
+    private String getSourcePath() throws AsciiDocException {
         if (!fileDirectory.isExist(config.source)) {
             throw new AsciiDocException("Source Not found! Please specify source at config.yml")
         }
+        return config.source
+    }
+
+    private List<FileDirectoryListing> getSourceList() throws AsciiDocException {
         FDListingFilter filter = new FDListingFilter().details()
-        return fileDirectory.listDirRecursively(config.source, filter)
+        return fileDirectory.listDirRecursively(getSourcePath(), filter)
     }
 
     private TopicMergeReport allowedByUser(String topicKey) {
@@ -232,6 +236,9 @@ class TextToWebProcessor implements CommandProcessor {
     private Descriptor preprocessAndMargeDescriptorTopics(Descriptor currentDescriptor, Descriptor previousDescriptor) {
         Map currentTopicMap = topicDescriptorListToMap(currentDescriptor.topics)
         isDescriptorUpdated = false
+        if (!previousDescriptor.topics) {
+            previousDescriptor.topics = new ArrayList<>()
+        }
         previousDescriptor.topics = margeTopicDescriptor(currentTopicMap, previousDescriptor.topics)
         previousDescriptor.updateStatus(isDescriptorUpdated)
         return previousDescriptor
@@ -468,7 +475,7 @@ class TextToWebProcessor implements CommandProcessor {
             }
 
             String outputName = name
-            if (!processRequest.exportFileExtension){
+            if (!processRequest.exportFileExtension) {
                 outputName = nameWithExtension
             }
 
@@ -524,6 +531,9 @@ class TextToWebProcessor implements CommandProcessor {
         List<FileDirectoryListing> topics = getTopicList()
         topics.each { FileDirectoryListing fileDirectoryListing ->
             if (fileDirectoryListing.fileDirectoryInfo.isDirectory && fileDirectoryListing.subDirectories) {
+                if (isSkipFile(fileDirectoryListing.fileDirectoryInfo)) {
+                    return
+                }
                 processTopic(fileDirectoryListing)
             }
         }
