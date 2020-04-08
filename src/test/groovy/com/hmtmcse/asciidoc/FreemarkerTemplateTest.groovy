@@ -19,7 +19,7 @@ class FreemarkerTemplateTest extends Specification {
                 "</body>\n" +
                 "</html>";
         FreemarkerTemplate freemarkerTemplate = new FreemarkerTemplate()
-        println freemarkerTemplate.processText(template)
+        println(freemarkerTemplate.processText(template))
     }
 
 }
