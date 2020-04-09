@@ -41,23 +41,25 @@ class DescriptorSample {
         descriptor.addBlock(TextToWebConst.SQUIRE_BLOCK, squireBlock)
 
         Block listBlock = new Block("List Block", "#")
-        Block popularTutorials = new Block("Popular Tutorials", "#")
+
+
+        Topic popularTutorials = new Topic("Popular Tutorials", "#")
         popularTutorials.addChild(new Topic("Java Basic", "#"))
         popularTutorials.addChild(new Topic("Java Advanced", "#"))
         popularTutorials.addChild(new Topic("Java Certifications", "#"))
-        listBlock.addBlock("popularTutorials", popularTutorials)
+        listBlock.addChild(popularTutorials)
 
-        Block upcomingTutorials = new Block("Upcoming Tutorials", "#")
+        Topic upcomingTutorials = new Topic("Upcoming Tutorials", "#")
         upcomingTutorials.addChild(new Topic("Python Basic", "#"))
         upcomingTutorials.addChild(new Topic("React JS", "#"))
         upcomingTutorials.addChild(new Topic("PHP Laravel", "#"))
-        listBlock.addBlock("upcomingTutorials", upcomingTutorials)
+        listBlock.addChild(upcomingTutorials)
 
-        Block recentUploadedTutorial = new Block("Recent Uploaded Tutorial", "#")
+        Topic recentUploadedTutorial = new Topic("Recent Uploaded Tutorial", "#")
         recentUploadedTutorial.addChild(new Topic("Java Basic", "#"))
         recentUploadedTutorial.addChild(new Topic("Java Advanced", "#"))
         recentUploadedTutorial.addChild(new Topic("Java Certifications", "#"))
-        listBlock.addBlock("recentUploadedTutorial", recentUploadedTutorial)
+        listBlock.addChild(recentUploadedTutorial)
 
         descriptor.addBlock(TextToWebConst.LIST_BLOCK, listBlock)
 

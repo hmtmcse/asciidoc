@@ -349,11 +349,7 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     private List<FileDirectoryListing> getTopicList() throws AsciiDocException {
-        List<FileDirectoryListing> topics = getSourceList()
-        if (!topics) {
-            throw new AsciiDocException("Topics Not available")
-        }
-        return topics
+        return getSourceList()
     }
 
 
