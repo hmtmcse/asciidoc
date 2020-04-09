@@ -244,19 +244,51 @@ class TextToWebProcessor implements CommandProcessor {
         return previousDescriptor
     }
 
+    private List<Topic> newDescriptorTopicProcessAndReport(List<Topic> topics) {
+        topics = new CopyOnWriteArrayList<>(topics)
+        if (processRequest.task.equals(ProcessTask.MERGE)) {
+            TopicMergeReport topicMergeReport
+            topics.each { Topic topic ->
+                topicMergeReport = getTopicReport(topic)
+                if (topicMergeReport && !topicMergeReport.isMerge) {
+                    topics.remove(topic)
+                } else {
+                    if (topic.childs) {
+                        topic.childs = newDescriptorTopicProcessAndReport(topic.childs)
+                    }
+                }
+            }
+        } else {
+            topics.each { Topic topic ->
+                addTopicReport(topic)
+                if (topic.childs) {
+                    topic.childs = newDescriptorTopicProcessAndReport(topic.childs)
+                }
+            }
+        }
+        return topics
+    }
+
+    private Descriptor newDescriptorProcessAndReport(Descriptor newDescriptor) {
+        if (newDescriptor.topics) {
+            newDescriptor.topics = newDescriptorTopicProcessAndReport(newDescriptor.topics)
+        }
+        return newDescriptor
+    }
+
     private Descriptor processAndMargeDescriptorTopics(String descriptorFile, Descriptor newDescriptor) {
         if (!fileDirectory.isExist(descriptorFile)) {
-            return newDescriptor
+            return newDescriptorProcessAndReport(newDescriptor)
         }
 
         Descriptor currentDescriptor = null
         try {
             currentDescriptor = loadYmlFromFile(descriptorFile)
             if (!currentDescriptor) {
-                return newDescriptor
+                return newDescriptorProcessAndReport(newDescriptor)
             }
         } catch (Exception e) {
-            return newDescriptor
+            return newDescriptorProcessAndReport(newDescriptor)
         }
         return preprocessAndMargeDescriptorTopics(newDescriptor, currentDescriptor)
     }
