@@ -29,6 +29,7 @@ class TextToWebProcessor implements CommandProcessor {
     ProcessRequest processRequest
     private Map<String, TopicMergeReport> reports = [:]
     private Boolean isDescriptorUpdated = false
+    private Boolean isUpdateAllHtml = false
     private TextToWebHtmlEngine textToWebHtmlEngine
     private TextFile textFile
     private Map<String, Boolean> trackDescriptorPage = [:]
@@ -391,7 +392,7 @@ class TextToWebProcessor implements CommandProcessor {
         String sourceRelativePath = "${relativePath}.${processRequest.docFileExtension}".toString()
         String sourceDoc = FDUtil.concatPath(config.source, sourceRelativePath)
 
-        if (!fileDirectory.isExist(sourceDoc)) {
+        if (!fileDirectory.isExist(sourceDoc) || isUpdateAllHtml) {
             return urlEligibleForExport
         }
 
@@ -483,6 +484,7 @@ class TextToWebProcessor implements CommandProcessor {
 
     private void exportDescriptorPage(String descriptorPath) {
         String path
+        isUpdateAllHtml = false
         if (descriptorPath && descriptorPath.endsWith(ymlDescriptorFileName())) {
             path = descriptorPath.replace(ymlDescriptorFileName(), "")
         } else if (descriptorPath && descriptorPath.endsWith(ymltOutlineFileName())) {
@@ -511,6 +513,7 @@ class TextToWebProcessor implements CommandProcessor {
                 return
             }
             exportUrlToHtml(url, outputName)
+            isUpdateAllHtml = true
         }
     }
 
