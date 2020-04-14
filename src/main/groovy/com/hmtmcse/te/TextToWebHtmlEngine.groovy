@@ -228,6 +228,8 @@ class TextToWebHtmlEngine {
                     continue
                 }
 
+                topicNavItem.seo = topic.seo
+
                 if (topic.seo && topic.seo.title) {
                     topicNavItem.title = topic.seo.title
                 } else if (topic.name) {
