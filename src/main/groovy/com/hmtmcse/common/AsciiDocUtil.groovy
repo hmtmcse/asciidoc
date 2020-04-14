@@ -7,7 +7,7 @@ import com.hmtmcse.texttoweb.common.ConfigLoader
 
 class AsciiDocUtil {
 
-    public static Boolean isSkipFile(FDInfo topicsDir, String source = null) {
+    public static Boolean isSkipFile(FDInfo topicsDir, String source = null, List notSkip = []) {
         Config config = ConfigLoader.getConfig()
         if (!topicsDir || !topicsDir.name) {
             return true
@@ -18,6 +18,9 @@ class AsciiDocUtil {
 
         if (config.ignore) {
             for (String ignore : config.ignore) {
+                if (notSkip.contains(ignore)) {
+                    return false
+                }
                 if (
                 (source && topicsDir.absolutePath && topicsDir.absolutePath.startsWith(FDUtil.concatPath(source, ignore, topicsDir.name))) ||
                         ignore.equals(topicsDir.name) ||

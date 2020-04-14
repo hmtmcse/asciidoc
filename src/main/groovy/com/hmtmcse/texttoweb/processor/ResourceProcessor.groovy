@@ -106,18 +106,18 @@ class ResourceProcessor {
         }
     }
 
-    private void createAndCopyStaticResourceIndex(StaticResourceParams params) {
+    private void createAndCopyStaticResourceIndex(StaticResourceParams params, List notSkip = []) {
         FDInfo fdInfo;
         String key, relativePath
         StaticResourceIndexData staticResourceIndexData
         if (params.list) {
             params.list.each { FileDirectoryListing fileDirectoryListing ->
                 fdInfo = fileDirectoryListing.fileDirectoryInfo
-                if (AsciiDocUtil.isSkipFile(fdInfo)) {
+                if (AsciiDocUtil.isSkipFile(fdInfo, null, notSkip)) {
                     return
                 }
                 if (fdInfo.isDirectory && fileDirectoryListing.subDirectories) {
-                    createAndCopyStaticResourceIndex(params.copy(fileDirectoryListing.subDirectories))
+                    createAndCopyStaticResourceIndex(params.copy(fileDirectoryListing.subDirectories), notSkip)
                 }
                 relativePath = getRelativePath(fdInfo.absolutePath, params.source)
                 key = pathToKey(relativePath)
@@ -144,13 +144,13 @@ class ResourceProcessor {
         }
     }
 
-    private StaticResourceIndex processCreateAndCopyStaticResourceIndex(StaticResourceParams staticResourceParams) {
+    private StaticResourceIndex processCreateAndCopyStaticResourceIndex(StaticResourceParams staticResourceParams, List notSkip = []) {
         if (fileDirectory.isExist(staticResourceParams.source)) {
             try {
                 newStaticResourceIndex = new StaticResourceIndex()
                 this.oldStaticResourceIndex = staticResourceParams.oldStaticResourceIndex
                 staticResourceParams.setList(fileDirectory.listDirRecursively(staticResourceParams.source))
-                createAndCopyStaticResourceIndex(staticResourceParams)
+                createAndCopyStaticResourceIndex(staticResourceParams, notSkip)
             } catch (Exception e) {
                 println("Error from createStaticResourceIndex: ${e.getMessage()}")
                 return oldStaticResourceIndex
@@ -210,7 +210,7 @@ class ResourceProcessor {
             staticResourceParams.out = FDUtil.concatPath(config.out, AsciiDocConstant.staticFiles)
             staticResourceParams.isCopySourceToOutCopy = true
             fileDirectory.createDirectoriesIfNotExist(staticResourceParams.out)
-            this.newStaticResourceIndex = processCreateAndCopyStaticResourceIndex(staticResourceParams)
+            this.newStaticResourceIndex = processCreateAndCopyStaticResourceIndex(staticResourceParams, [AsciiDocConstant.staticFiles])
             exportFileIndex(this.newStaticResourceIndex, AsciiDocConstant.docResourcesFileLog)
         } catch (Exception e) {
             println("Error from updateDocumentResourceIndex: ${e.getMessage()}")
