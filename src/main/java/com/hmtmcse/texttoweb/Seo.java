@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Seo {
+
     public String title;
     public List<String> scripts;
     public List<Tag> tags;

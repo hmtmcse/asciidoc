@@ -1,10 +1,12 @@
 package com.hmtmcse.texttoweb.model
 
 import com.hmtmcse.asciidoc.AdocConverter
+import com.hmtmcse.fileutil.data.FDInfo
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.jtfutil.parser.JsonReadWrite
+import com.hmtmcse.parser4java.JsonProcessor
 import com.hmtmcse.parser4java.YamlProcessor
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.texttoweb.Descriptor
@@ -32,6 +34,10 @@ trait CommandProcessor {
         return false
     }
 
+    public String jsonStatus(String message = "", String status = "success") {
+        JsonProcessor jsonProcessor = new JsonProcessor()
+        return jsonProcessor.klassToString([status: status, message: message])
+    }
 
     public void init(ProcessRequest processRequest) {
         this.processRequest = processRequest
@@ -90,6 +96,13 @@ trait CommandProcessor {
         return exportToYmlFile(path, descriptor, ymltOutlineFileName())
     }
 
+    Boolean exportToYmlFileFromAbsolutePath(String path, Descriptor descriptor) {
+        FileDirectory fileDirectory = new FileDirectory()
+        FDInfo fdInfo = fileDirectory.getDetailsInfo(path, true)
+        String descriptorPath = fileDirectory.getParentPath(path)
+        String content = exportToYmlText(descriptor)
+        return exportToFile(content, fdInfo.name, descriptorPath)
+    }
 
     Boolean exportToYmlFile(String path, Descriptor descriptor, String fileName = ymlDescriptorFileName()) {
         try {

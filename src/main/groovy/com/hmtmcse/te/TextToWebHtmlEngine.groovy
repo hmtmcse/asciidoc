@@ -82,6 +82,7 @@ class TextToWebHtmlEngine {
                     descriptorFile = FDUtil.concatPath(concatPath(relativePath), descriptorName)
                     if (fileDirectory.isExist(descriptorFile)) {
                         textToWebEngineData.descriptor = textToWebProcessor.loadYmlFromFile(descriptorFile)
+                        textToWebEngineData.descriptorAbsolutePath = descriptorFile
                         return textToWebEngineData
                     }
                     temp = File.separator + fragment
@@ -92,7 +93,8 @@ class TextToWebHtmlEngine {
                 }
             }
             if (url != null && url.equals("")) {
-                textToWebEngineData.descriptor = textToWebProcessor.loadYmlFromFile(concatPath(descriptorName))
+                textToWebEngineData.descriptorAbsolutePath = concatPath(descriptorName)
+                textToWebEngineData.descriptor = textToWebProcessor.loadYmlFromFile(textToWebEngineData.descriptorAbsolutePath)
             }
             return textToWebEngineData
         } catch (Exception e) {
@@ -194,6 +196,8 @@ class TextToWebHtmlEngine {
         String title = config.defaultTitle
         if (textToWebEngineData.topicNav.meta && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)?.title) {
             title = textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey).title
+        } else if (textToWebEngineData.descriptor.seo?.title) {
+            title = textToWebEngineData.descriptor.seo.title
         } else if (textToWebEngineData.descriptor.defaultTitle) {
             title = textToWebEngineData.descriptor.defaultTitle
         }
@@ -292,9 +296,6 @@ class TextToWebHtmlEngine {
                 if (topic.url && topic.url != "#") {
                     topicNavItem.url = topic.url + extension
                     navKey = trimAndUrlToUrlKey(topic.url)
-                } else if (topic.tracker && topic.tracker.startsWith("##")) {
-                    topicNavItem.url = "#"
-                    navKey = trimAndUrlToUrlKey(topic.tracker.substring(2))
                 } else {
                     topicNavItem.url = "#"
                     navKey = "#-" + navIndex
@@ -352,7 +353,7 @@ class TextToWebHtmlEngine {
             String seoEditor = ""
             if (twConfig.isDevelopmentMode){
                 SeoProcessor seoProcessor = new SeoProcessor()
-                seoEditor = seoProcessor.getSeoEditor()
+                seoEditor = seoProcessor.getSeoEditor(pageData.textToWebEngineData.url)
             }
             return freemarkerTemplate.processTextWithTemplateDir(config.template, pageData.layout, [page: pageData, tagHelper: htmlTagHelper, seoEditor: seoEditor])
         } catch (Exception e) {

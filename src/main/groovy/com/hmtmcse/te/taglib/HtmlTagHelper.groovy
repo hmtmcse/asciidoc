@@ -72,11 +72,11 @@ class HtmlTagHelper {
     }
 
     public String addCssTag(String cssLink) {
-        return "<link rel='stylesheet' href='${processLink(cssLink, false)}'>"
+        return "<link rel=\"stylesheet\" type=\"text/css\" href=\"${processLink(cssLink, false)}\">"
     }
 
     public String addJsTag(String jsLink) {
-        return "<script src='${processLink(jsLink, false)}' type='text/javascript' ></script>"
+        return "<script src=\"${processLink(jsLink, false)}\" type=\"text/javascript\" ></script>"
     }
 
     public String twUrl(String url, Boolean isExtension = false) {
@@ -93,14 +93,14 @@ class HtmlTagHelper {
         String attrs = ""
         if (tag.attrs){
             tag.attrs.each { key, value ->
-                attrs += "${key}='${value}' "
+                attrs += "${key}=\"${value}\" "
             }
         }
-        htmlTag += attrs
+        htmlTag += attrs.trim()
         if (tag.content){
             htmlTag += ">${tag.content}</${tag.name}>"
         }else{
-            htmlTag += " >"
+            htmlTag += ">"
         }
         return htmlTag
     }
@@ -110,9 +110,9 @@ class HtmlTagHelper {
             return ""
         }
         TextToWebEngineData textToWebEngineData = pageData.textToWebEngineData
-        if (textToWebEngineData.topicNav.meta && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)?.seo) {
+        Seo seo = textToWebEngineData.getSeoData()
+        if (seo) {
             String tags = ""
-            Seo seo = textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey).seo
             if (seo && seo.tags) {
                 seo.tags.each {
                     tags += generateTag(it) + "\n"
