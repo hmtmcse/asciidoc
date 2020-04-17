@@ -59,6 +59,7 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
     private void addReport(TopicMergeReport report) {
+        report.descriptorName = getLoadedDescriptorName()
         reports.put(report.topicKey, report)
     }
 
@@ -569,6 +570,9 @@ class TextToWebProcessor implements CommandProcessor {
             }
         }
         bismillahDescriptorProcess()
+        if (reports) {
+            reports = reports.sort { a, b -> a.value.name <=> b.value.name }
+        }
         return reports
     }
 

@@ -15,6 +15,7 @@ import com.hmtmcse.texttoweb.data.ProcessTask
 trait CommandProcessor {
 
     public ProcessRequest processRequest
+    public String loadedDescriptorName = ""
 
     abstract void process(OptionValues optionValues)
 
@@ -118,9 +119,24 @@ trait CommandProcessor {
         }
     }
 
+    private void setDescriptorType(String path) {
+        if (path && path.endsWith(ymlDescriptorFileName())) {
+            loadedDescriptorName = TextToWebConst.DESCRIPTOR
+        } else if (path && path.endsWith(ymltOutlineFileName())) {
+            loadedDescriptorName = TextToWebConst.OUTLINE
+        } else {
+            loadedDescriptorName = ""
+        }
+    }
+
+    String getLoadedDescriptorName() {
+        return loadedDescriptorName
+    }
+
     Descriptor loadYmlFromFile(String path) {
         YamlProcessor yamlProcessor = new YamlProcessor()
         try {
+            setDescriptorType(path)
             return yamlProcessor.ymlAsNestedKlass(path, Descriptor.class)
         } catch (Exception e) {
             println("Load Yml From File " + e.getMessage())

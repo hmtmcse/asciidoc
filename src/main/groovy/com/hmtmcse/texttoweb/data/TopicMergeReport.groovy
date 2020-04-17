@@ -8,6 +8,7 @@ class TopicMergeReport {
     public String topicKey
     public String relativePath
     public String trashPath
+    public String descriptorName
 
     TopicMergeReport() {}
 
