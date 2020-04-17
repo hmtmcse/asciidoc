@@ -5,6 +5,7 @@ import com.hmtmcse.texttoweb.Descriptor
 class TextToWebEngineData {
 
     public Descriptor descriptor
+    public String breadcrumbName = "Back to"
     public String layout;
     public String urlKey;
     public String url;

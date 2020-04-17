@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Topic {
     public String name;
+    public String breadcrumbName;
     public String url;
     public String target;
     public String tracker;

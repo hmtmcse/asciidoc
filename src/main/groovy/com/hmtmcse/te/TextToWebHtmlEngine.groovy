@@ -15,6 +15,7 @@ import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.processor.TextToWebProcessor
 import com.hmtmcse.tmutil.TStringUtil
+import com.hmtmcse.tmutil.TomTom
 
 class TextToWebHtmlEngine {
 
@@ -60,7 +61,6 @@ class TextToWebHtmlEngine {
         String trimUrl = TStringUtil.trimStartEndChar(url, slash)
         return urlToUrlKey(trimUrl)
     }
-
 
 
     public TextToWebEngineData getDescriptorData(String url, String relativePath, String descriptorName) throws AsciiDocException {
@@ -112,30 +112,64 @@ class TextToWebHtmlEngine {
         return internalResponse
     }
 
+    BreadcrumbData getBreadcrumb(String url, TextToWebEngineConfig config) {
+        BreadcrumbData breadcrumbData = null
+        TextToWebEngineData toWebEngineData = processTextToWebEngineData(url, config)
+        if (toWebEngineData) {
+            breadcrumbData = new BreadcrumbData(getBreadcrumb(toWebEngineData, config), url)
+        }
+        return breadcrumbData
+    }
+
+    List<BreadcrumbData> getBreadcrumbList(String url, TextToWebEngineConfig config) {
+        List<String> list = TwFileUtil.splitUrl(url)
+        List<BreadcrumbData> breadcrumb = []
+        String concatUrl = "/"
+        BreadcrumbData breadcrumbData = null
+        Config appConfig = ConfigLoader.getConfig()
+        breadcrumb.add(new BreadcrumbData(appConfig.homePageName, concatUrl))
+        list.each { String urlFragment ->
+            concatUrl = TomTom.concatWithSeparator(concatUrl, urlFragment, "/")
+            breadcrumbData = getBreadcrumb(concatUrl, config)
+            if (breadcrumbData) {
+                breadcrumb.add(breadcrumbData)
+            }
+        }
+        return breadcrumb
+    }
+
+    TextToWebEngineData processTextToWebEngineData(String url, TextToWebEngineConfig config) throws AsciiDocException {
+        String trimUrl = TwFileUtil.trimSlash(url)
+        String urlToPath = TwFileUtil.urlToPath(trimUrl)
+        String path = concatPath(urlToPath)
+        InternalResponse internalResponse = getDescriptorName(path)
+
+        TextToWebEngineData textToWebEngineData = getDescriptorData(trimUrl, urlToPath, internalResponse.descriptorName)
+        textToWebEngineData.urlKey = urlToUrlKey(textToWebEngineData.url)
+        textToWebEngineData.absolutePath = path
+
+        if (textToWebEngineData.descriptor) {
+            Descriptor navigationDescriptor = textToWebEngineData.descriptor
+            textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey, config.urlExtension)
+            if (navigationDescriptor.relatedTopics) {
+                textToWebEngineData.relatedTopicNav = getNavigation(navigationDescriptor.relatedTopics, textToWebEngineData.urlKey, config.urlExtension)
+            }
+        }
+        return textToWebEngineData
+    }
+
     String process(String url, TextToWebEngineConfig config) throws AsciiDocException {
         TextToWebPageData pageData = new TextToWebPageData()
         try {
             if (!url) {
                 throw new AsciiDocException("Empty URL")
             }
-            String trimUrl = TwFileUtil.trimSlash(url)
-            String urlToPath = TwFileUtil.urlToPath(trimUrl)
-            String path = concatPath(urlToPath)
-            InternalResponse internalResponse = getDescriptorName(path)
-
-            TextToWebEngineData textToWebEngineData = getDescriptorData(trimUrl, urlToPath, internalResponse.descriptorName)
-            textToWebEngineData.urlKey = urlToUrlKey(textToWebEngineData.url)
-            textToWebEngineData.absolutePath = path
-
+            TextToWebEngineData textToWebEngineData = processTextToWebEngineData(url, config)
             if (textToWebEngineData.descriptor) {
-                Descriptor navigationDescriptor = textToWebEngineData.descriptor
-                textToWebEngineData.topicNav = getNavigation(navigationDescriptor.topics, textToWebEngineData.urlKey, config.urlExtension)
-                if (navigationDescriptor.relatedTopics) {
-                    textToWebEngineData.relatedTopicNav = getNavigation(navigationDescriptor.relatedTopics, textToWebEngineData.urlKey, config.urlExtension)
-                }
                 setupLayout(textToWebEngineData, config)
                 pageData = getPageData(textToWebEngineData, config)
             }
+            pageData.breadcrumb = getBreadcrumbList(url, config)
         } catch (Exception e) {
             pageData.content = e.getMessage()
             pageData.title = config.errorTitle
@@ -143,6 +177,15 @@ class TextToWebHtmlEngine {
             e.printStackTrace()
         }
         return renderPage(pageData, config)
+    }
+
+    public String getBreadcrumb(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
+        String title = config.breadcrumbName
+        if (textToWebEngineData.topicNav.meta && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)?.breadcrumbName) {
+            return textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey).breadcrumbName
+        }
+        title = textToWebEngineData.descriptor.name ?: textToWebEngineData.descriptor.defaultTitle
+        return title
     }
 
     public String getPageTitle(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
@@ -230,6 +273,12 @@ class TextToWebHtmlEngine {
 
                 topicNavItem.seo = topic.seo
 
+                if (topic.breadcrumbName) {
+                    topicNavItem.breadcrumbName = topic.breadcrumbName
+                } else {
+                    topicNavItem.breadcrumbName = topic.name
+                }
+
                 if (topic.seo && topic.seo.title) {
                     topicNavItem.title = topic.seo.title
                 } else if (topic.name) {
@@ -241,6 +290,9 @@ class TextToWebHtmlEngine {
                 if (topic.url && topic.url != "#") {
                     topicNavItem.url = topic.url + extension
                     navKey = trimAndUrlToUrlKey(topic.url)
+                } else if (topic.tracker && topic.tracker.startsWith("##")) {
+                    topicNavItem.url = "#"
+                    navKey = trimAndUrlToUrlKey(topic.tracker.substring(2))
                 } else {
                     topicNavItem.url = "#"
                     navKey = "#-" + navIndex

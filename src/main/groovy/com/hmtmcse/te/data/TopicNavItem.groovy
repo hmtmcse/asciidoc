@@ -8,6 +8,7 @@ class TopicNavItem {
     public String title
     public String url
     public String active = ""
+    public String breadcrumbName
     public Seo seo
     public String filePath = null
     public Map<String, TopicNavItem> childs = [:]

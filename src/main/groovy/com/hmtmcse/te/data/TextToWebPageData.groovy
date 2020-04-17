@@ -14,6 +14,7 @@ class TextToWebPageData {
     public Map<String, Block> blocks = [:]
     public List<Topic> topics = []
     public HtmlTagHelper tagHelper
+    public List<BreadcrumbData> breadcrumb = []
 
 
     public String getLeftNavHtml(Map<String, TopicNavItem> nav) {

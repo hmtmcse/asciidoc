@@ -9,6 +9,7 @@ import java.util.Map;
 public class Descriptor {
     public Layout layout;
     public String defaultTitle;
+    public String name;
     public List<Topic> topics = null;
     public List<Topic> relatedTopics = null;
     public List<VideoTopic> videoTopics = null;

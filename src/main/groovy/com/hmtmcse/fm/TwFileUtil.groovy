@@ -17,4 +17,16 @@ class TwFileUtil {
     public static String trimAndUrlToPath(String url) {
         return urlToPath(trimSlash(url))
     }
+
+    public static List<String> splitUrl(String url) {
+        String trimUrl = trimSlash(url)
+        List<String> list = []
+        if (trimUrl) {
+            String[] array = trimUrl.split(slash)
+            if (array.length) {
+                return Arrays.asList(array);
+            }
+        }
+        return list
+    }
 }
