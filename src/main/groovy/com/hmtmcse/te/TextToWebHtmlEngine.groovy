@@ -171,6 +171,7 @@ class TextToWebHtmlEngine {
                 pageData = getPageData(textToWebEngineData, config)
             }
             pageData.breadcrumb = getBreadcrumbList(url, config)
+            pageData.textToWebEngineData = textToWebEngineData
         } catch (Exception e) {
             pageData.content = e.getMessage()
             pageData.title = config.errorTitle
@@ -344,7 +345,7 @@ class TextToWebHtmlEngine {
             if (!fileDirectory.isExist(layoutPath)) {
                 throw new AsciiDocException("File not found.\nName: ${pageData.layout}, \nPath: ${layoutPath}")
             }
-            HtmlTagHelper htmlTagHelper = new HtmlTagHelper(twConfig)
+            HtmlTagHelper htmlTagHelper = new HtmlTagHelper(twConfig, pageData)
             pageData.tagHelper = htmlTagHelper
             FreemarkerTemplate freemarkerTemplate = new FreemarkerTemplate()
 
