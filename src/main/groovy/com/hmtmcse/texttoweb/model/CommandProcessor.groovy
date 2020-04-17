@@ -17,7 +17,6 @@ trait CommandProcessor {
     public ProcessRequest processRequest
     public String loadedDescriptorName = ""
 
-    abstract void process(OptionValues optionValues)
 
     private Boolean exportToFile(String content, String name, String location) {
         String path = FDUtil.concatPath(location, name)

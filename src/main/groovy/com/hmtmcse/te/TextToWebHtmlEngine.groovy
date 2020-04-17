@@ -13,6 +13,7 @@ import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.TextToWebConst
 import com.hmtmcse.texttoweb.Topic
 import com.hmtmcse.texttoweb.common.ConfigLoader
+import com.hmtmcse.texttoweb.processor.SeoProcessor
 import com.hmtmcse.texttoweb.processor.TextToWebProcessor
 import com.hmtmcse.tmutil.TStringUtil
 import com.hmtmcse.tmutil.TomTom
@@ -346,7 +347,13 @@ class TextToWebHtmlEngine {
             HtmlTagHelper htmlTagHelper = new HtmlTagHelper(twConfig)
             pageData.tagHelper = htmlTagHelper
             FreemarkerTemplate freemarkerTemplate = new FreemarkerTemplate()
-            return freemarkerTemplate.processTextWithTemplateDir(config.template, pageData.layout, [page: pageData, tagHelper: htmlTagHelper])
+
+            String seoEditor = ""
+            if (twConfig.isDevelopmentMode){
+                SeoProcessor seoProcessor = new SeoProcessor()
+                seoEditor = seoProcessor.getSeoEditor()
+            }
+            return freemarkerTemplate.processTextWithTemplateDir(config.template, pageData.layout, [page: pageData, tagHelper: htmlTagHelper, seoEditor: seoEditor])
         } catch (Exception e) {
             throw new AsciiDocException(e.getMessage())
         }

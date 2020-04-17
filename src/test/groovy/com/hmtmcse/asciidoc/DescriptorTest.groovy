@@ -70,9 +70,7 @@ class DescriptorTest extends Specification {
 
         Settings settings = new Settings()
         Seo defaultSeo = new Seo("..:: HMTMCSE ::..")
-        Tags head = new Tags(TextToWebConst.HEAD)
-        head.addTag(new Tag().canonical("#"))
-        defaultSeo.addTags(head)
+        defaultSeo.addTags(new Tag().canonical("#"))
         settings.defaultSeo = defaultSeo
         descriptor.settings = settings
 

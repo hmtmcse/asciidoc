@@ -48,8 +48,6 @@ class TextToWebProcessor implements CommandProcessor {
     }
 
 
-    @Override
-    void process(OptionValues optionValues) {}
 
     public String getRelativePath(String absolutePath) {
         if (absolutePath) {

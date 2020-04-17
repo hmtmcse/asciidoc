@@ -6,7 +6,7 @@ import java.util.List;
 public class Seo {
     public String title;
     public List<String> scripts;
-    public List<Tags> tags;
+    public List<Tag> tags;
 
     public Seo() {}
 
@@ -27,7 +27,7 @@ public class Seo {
         return this;
     }
 
-    public Seo addTags(Tags tag) {
+    public Seo addTags(Tag tag) {
         if (tags == null) {
             tags = new ArrayList<>();
         }
@@ -47,11 +47,13 @@ public class Seo {
         this.scripts = scripts;
     }
 
-    public List<Tags> getTags() {
+    public List<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tags> tags) {
+    public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
+
+
 }
