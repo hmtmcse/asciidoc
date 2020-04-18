@@ -98,6 +98,7 @@ class TextToWebHtmlEngine {
             }
             return textToWebEngineData
         } catch (Exception e) {
+            e.printStackTrace()
             throw new AsciiDocException(e.getMessage())
         }
     }
@@ -185,10 +186,12 @@ class TextToWebHtmlEngine {
 
     public String getBreadcrumb(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
         String title = config.breadcrumbName
-        if (textToWebEngineData.topicNav.meta && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)?.breadcrumbName) {
+        if (textToWebEngineData.topicNav && textToWebEngineData.topicNav.meta && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)?.breadcrumbName) {
             return textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey).breadcrumbName
         }
-        title = textToWebEngineData.descriptor.name ?: textToWebEngineData.descriptor.defaultTitle
+        if (textToWebEngineData.descriptor) {
+            title = textToWebEngineData.descriptor.name ?: textToWebEngineData.descriptor.defaultTitle
+        }
         return title
     }
 
@@ -357,6 +360,7 @@ class TextToWebHtmlEngine {
             }
             return freemarkerTemplate.processTextWithTemplateDir(config.template, pageData.layout, [page: pageData, tagHelper: htmlTagHelper, seoEditor: seoEditor])
         } catch (Exception e) {
+            e.printStackTrace()
             throw new AsciiDocException(e.getMessage())
         }
     }

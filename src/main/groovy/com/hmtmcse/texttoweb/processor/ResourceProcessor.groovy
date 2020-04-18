@@ -24,7 +24,7 @@ class ResourceProcessor {
     public StaticResourceIndex newStaticResourceIndex
     public StaticResourceIndex oldStaticResourceIndex
     public StaticResourceIndex docFileLogIndex
-    public List<TopicMergeReport> reports = [:]
+    public List<TopicMergeReport> reports = []
     private static final String copied = "copied"
     private static final String deleted = "deleted"
 
@@ -110,8 +110,17 @@ class ResourceProcessor {
             fileDirectory.createParentDir(out)
             fileDirectory.copy(source, out)
             println("Coping to ${out}")
-            addReport(copied, out, "Copied to")
+            addReport(copied, out, "Copied")
         }
+    }
+
+    private void copyToTrash(String source, String relativePath){
+        String trash, parent
+        trash = FDUtil.concatPath(trashDir(), relativePath)
+        parent = fileDirectory.createParentDir(trash)
+        fileDirectory.removeAllIfExist(trash)
+        fileDirectory.copyAll(source, trash)
+        println("Deleting ${trash}")
     }
 
     private void removeOutResources(StaticResourceParams params, StaticResourceIndex removeStaticResourceIndex) {
@@ -123,10 +132,10 @@ class ResourceProcessor {
             removeStaticResourceIndex.fileLogs.each { String key, StaticResourceIndexData data ->
                 out = FDUtil.concatPath(params.out, data.relativePath)
                 trash = FDUtil.concatPath(trashDir(), data.relativePath)
-                fileDirectory.removeAllIfExist(trash)
-                fileDirectory.copyAll(out, trash)
+                copyToTrash(out, data.relativePath)
                 fileDirectory.removeAllIfExist(out)
-                addReport(deleted, out, "Copied to", trash)
+                removeStaticResourceIndex.fileLogs.remove(key)
+                addReport(deleted, out, "Deleted", trash)
             }
         }
     }
@@ -176,7 +185,6 @@ class ResourceProcessor {
                 this.oldStaticResourceIndex = staticResourceParams.oldStaticResourceIndex
                 staticResourceParams.setList(fileDirectory.listDirRecursively(staticResourceParams.source))
                 createAndCopyStaticResourceIndex(staticResourceParams, notSkip)
-                removeOutResources(staticResourceParams, oldStaticResourceIndex)
             } catch (Exception e) {
                 println("Error from createStaticResourceIndex: ${e.getMessage()}")
                 return oldStaticResourceIndex
@@ -187,6 +195,7 @@ class ResourceProcessor {
 
     public void updateDocumentIndex() {
         try {
+            println("Updating Document Index")
             StaticResourceParams staticResourceParams = new StaticResourceParams()
             staticResourceParams.oldStaticResourceIndex = (docFileLogIndex ?: new StaticResourceIndex())
             staticResourceParams.source = config.source
@@ -208,6 +217,9 @@ class ResourceProcessor {
 
     public Boolean isModifiedDocFile(String path) {
         String relativePath = getRelativePath(path)
+        if (relativePath && relativePath.startsWith("/")){
+            relativePath = relativePath.substring(1)
+        }
         if (relativePath) {
             FDInfo fdInfo = fileDirectory.getDetailsInfo(path, false)
             return isModifiedDocFile(relativePath, fdInfo)
@@ -231,6 +243,7 @@ class ResourceProcessor {
 
     public void updateDocumentResourceIndex() {
         try {
+            println("Updating Document Resource Index")
             StaticResourceParams staticResourceParams = new StaticResourceParams()
             staticResourceParams.oldStaticResourceIndex = (loadLogFileIndex(AsciiDocConstant.docResourcesFileLog) ?: new StaticResourceIndex())
             staticResourceParams.source = FDUtil.concatPath(config.source, AsciiDocConstant.staticFiles)
@@ -247,6 +260,7 @@ class ResourceProcessor {
 
     public void updateTemplateAssetIndex() {
         try {
+            println("Updating Template Asset Index")
             StaticResourceParams staticResourceParams = new StaticResourceParams()
             staticResourceParams.oldStaticResourceIndex = (loadLogFileIndex(AsciiDocConstant.templateFileLog) ?: new StaticResourceIndex())
             staticResourceParams.source = FDUtil.concatPath(config.template, AsciiDocConstant.asset)

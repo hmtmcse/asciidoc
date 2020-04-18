@@ -28,6 +28,7 @@ class TextToWebProcessor implements CommandProcessor {
     private Config config
     ProcessRequest processRequest
     private Map<String, TopicMergeReport> reports = [:]
+    public List<TopicMergeReport> docExportReports = []
     private Boolean isDescriptorUpdated = false
     private Boolean isUpdateAllHtml = false
     private TextToWebHtmlEngine textToWebHtmlEngine
@@ -46,7 +47,6 @@ class TextToWebProcessor implements CommandProcessor {
         resourceProcessor = new ResourceProcessor(config)
         init(processRequest)
     }
-
 
 
     public String getRelativePath(String absolutePath) {
@@ -216,6 +216,14 @@ class TextToWebProcessor implements CommandProcessor {
             }
         }
         return previousTopic
+    }
+
+    public void addDocExportReport(String status, String path, String message = "") {
+        TopicMergeReport topicMergeReport = new TopicMergeReport()
+        topicMergeReport.setStatus(status)
+        topicMergeReport.setPath(path)
+        topicMergeReport.setMessage(message)
+        docExportReports.add(topicMergeReport)
     }
 
     private Map topicDescriptorListToMap(List<Topic> topics) {
@@ -416,9 +424,13 @@ class TextToWebProcessor implements CommandProcessor {
 
     private Boolean exportUrlToHtml(String url, String name = "") {
         String errorFrom = "Export Url to Html Error:"
+        String status = "Doc Exported"
         try {
             SearchProcessor searchIndexProcessor = new SearchProcessor()
             String outputDoc = urlToOutputDocFile(url, name)
+            if (fileDirectory.isExist(outputDoc)){
+                status = "Doc Updated"
+            }
             if (!fileDirectory.removeIfExist(outputDoc)) {
                 println("${errorFrom} Unable to remove existing output file: ${outputDoc}")
                 return
@@ -428,6 +440,7 @@ class TextToWebProcessor implements CommandProcessor {
                 File outputDocFile = new File(outputDoc)
                 fileDirectory.createDirectoriesIfNotExist(outputDocFile.getParentFile().absolutePath)
                 html = searchIndexProcessor.process(url, html)
+                addDocExportReport(status, outputDoc, "Exported")
                 return textFile.stringToFile(outputDoc, html)
             } else {
                 println("${errorFrom} HTML Not found.")
@@ -508,7 +521,7 @@ class TextToWebProcessor implements CommandProcessor {
                 outputName = nameWithExtension
             }
 
-            if (!resourceProcessor.isModifiedDocFile(path) && fileDirectory.isExist(urlToOutputDocFile(url, outputName))) {
+            if (!resourceProcessor.isModifiedDocFile(descriptorPath) && fileDirectory.isExist(urlToOutputDocFile(url, outputName))) {
                 return
             }
             exportUrlToHtml(url, outputName)
@@ -540,7 +553,10 @@ class TextToWebProcessor implements CommandProcessor {
         if (!processRequest.exportFileExtension) {
             extension = ".html"
         }
-        exportUrlToHtml(url, extension)
+        String path = FDUtil.concatPath(config.out, url + extension)
+        if (!fileDirectory.isExist(path)) {
+            exportUrlToHtml(url, extension)
+        }
     }
 
     public List<TopicMergeReport> exportToHtml() throws AsciiDocException {
@@ -550,7 +566,7 @@ class TextToWebProcessor implements CommandProcessor {
         iterateDescriptor(topics)
         exportStaticPage()
         resourceProcessor.exportStaticContent()
-        return resourceProcessor.reports
+        return resourceProcessor.reports + docExportReports
     }
 
     public void test() {
