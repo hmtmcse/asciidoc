@@ -543,13 +543,14 @@ class TextToWebProcessor implements CommandProcessor {
         exportUrlToHtml(url, extension)
     }
 
-    public void exportToHtml() throws AsciiDocException {
+    public List<TopicMergeReport> exportToHtml() throws AsciiDocException {
         List<FileDirectoryListing> topics = getTopicList()
         processRequest.isFromWebsite = false
         resourceProcessor.loadDocumentIndex()
         iterateDescriptor(topics)
         exportStaticPage()
         resourceProcessor.exportStaticContent()
+        return resourceProcessor.reports
     }
 
     public void test() {

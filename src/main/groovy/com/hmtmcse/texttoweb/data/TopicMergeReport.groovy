@@ -8,6 +8,9 @@ class TopicMergeReport {
     public String topicKey
     public String relativePath
     public String trashPath
+    public String path
+    public String status
+    public String message
     public String descriptorName
 
     TopicMergeReport() {}
@@ -39,6 +42,26 @@ class TopicMergeReport {
 
     TopicMergeReport setRelativePath(String relativePath) {
         this.relativePath = relativePath
+        return this
+    }
+
+    TopicMergeReport setTrashPath(String trashPath) {
+        this.trashPath = trashPath
+        return this
+    }
+
+    TopicMergeReport setPath(String path) {
+        this.path = path
+        return this
+    }
+
+    TopicMergeReport setStatus(String status) {
+        this.status = status
+        return this
+    }
+
+    TopicMergeReport setMessage(String message) {
+        this.message = message
         return this
     }
 }

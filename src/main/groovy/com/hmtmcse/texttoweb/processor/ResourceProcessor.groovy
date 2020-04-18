@@ -10,6 +10,7 @@ import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.parser4java.JsonProcessor
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.data.StaticResourceParams
+import com.hmtmcse.texttoweb.data.TopicMergeReport
 import com.hmtmcse.texttoweb.resource.StaticResourceIndex
 import com.hmtmcse.texttoweb.resource.StaticResourceIndexData
 import com.hmtmcse.tmutil.TStringUtil
@@ -23,6 +24,9 @@ class ResourceProcessor {
     public StaticResourceIndex newStaticResourceIndex
     public StaticResourceIndex oldStaticResourceIndex
     public StaticResourceIndex docFileLogIndex
+    public List<TopicMergeReport> reports = [:]
+    private static final String copied = "copied"
+    private static final String deleted = "deleted"
 
     ResourceProcessor(Config config) {
         this.config = config
@@ -33,6 +37,10 @@ class ResourceProcessor {
 
     private String logDir() {
         return FDUtil.concatPath(config.source, AsciiDocConstant.text2webData, AsciiDocConstant.vcs)
+    }
+
+    private String trashDir() {
+        return FDUtil.concatPath(config.out, AsciiDocConstant.text2webData, AsciiDocConstant.trash)
     }
 
     private StaticResourceIndex loadLogFileIndex(String fileName) {
@@ -83,6 +91,15 @@ class ResourceProcessor {
         return TStringUtil.findReplace(key, "-", "_")
     }
 
+    public void addReport(String status, String path, String message = "", String trash = "") {
+        TopicMergeReport topicMergeReport = new TopicMergeReport()
+        topicMergeReport.setStatus(status)
+        topicMergeReport.setPath(path)
+        topicMergeReport.setMessage(message)
+        topicMergeReport.setTrashPath(trash)
+        reports.add(topicMergeReport)
+    }
+
     public void copySourceToOut(StaticResourceParams params, FDInfo fdInfo, String relativePath) {
         String source = FDUtil.concatPath(params.source, relativePath)
         String out = FDUtil.concatPath(params.out, relativePath)
@@ -93,15 +110,23 @@ class ResourceProcessor {
             fileDirectory.createParentDir(out)
             fileDirectory.copy(source, out)
             println("Coping to ${out}")
+            addReport(copied, out, "Copied to")
         }
     }
 
     private void removeOutResources(StaticResourceParams params, StaticResourceIndex removeStaticResourceIndex) {
+        config
         if (removeStaticResourceIndex && removeStaticResourceIndex.fileLogs) {
             String out
+            String trash
+            fileDirectory.createDirectoriesIfNotExist(trashDir())
             removeStaticResourceIndex.fileLogs.each { String key, StaticResourceIndexData data ->
                 out = FDUtil.concatPath(params.out, data.relativePath)
+                trash = FDUtil.concatPath(trashDir(), data.relativePath)
+                fileDirectory.removeAllIfExist(trash)
+                fileDirectory.copyAll(out, trash)
                 fileDirectory.removeAllIfExist(out)
+                addReport(deleted, out, "Copied to", trash)
             }
         }
     }
@@ -151,6 +176,7 @@ class ResourceProcessor {
                 this.oldStaticResourceIndex = staticResourceParams.oldStaticResourceIndex
                 staticResourceParams.setList(fileDirectory.listDirRecursively(staticResourceParams.source))
                 createAndCopyStaticResourceIndex(staticResourceParams, notSkip)
+                removeOutResources(staticResourceParams, oldStaticResourceIndex)
             } catch (Exception e) {
                 println("Error from createStaticResourceIndex: ${e.getMessage()}")
                 return oldStaticResourceIndex
@@ -166,6 +192,7 @@ class ResourceProcessor {
             staticResourceParams.source = config.source
             this.newStaticResourceIndex = processCreateAndCopyStaticResourceIndex(staticResourceParams)
             exportFileIndex(this.newStaticResourceIndex, AsciiDocConstant.docFileLog)
+            removeOutResources(staticResourceParams, oldStaticResourceIndex)
         } catch (Exception e) {
             println("Error from updateDocumentIndex: ${e.getMessage()}")
         }
@@ -212,6 +239,7 @@ class ResourceProcessor {
             fileDirectory.createDirectoriesIfNotExist(staticResourceParams.out)
             this.newStaticResourceIndex = processCreateAndCopyStaticResourceIndex(staticResourceParams, [AsciiDocConstant.staticFiles])
             exportFileIndex(this.newStaticResourceIndex, AsciiDocConstant.docResourcesFileLog)
+            removeOutResources(staticResourceParams, oldStaticResourceIndex)
         } catch (Exception e) {
             println("Error from updateDocumentResourceIndex: ${e.getMessage()}")
         }
@@ -227,6 +255,7 @@ class ResourceProcessor {
             fileDirectory.createDirectoriesIfNotExist(staticResourceParams.out)
             this.newStaticResourceIndex = processCreateAndCopyStaticResourceIndex(staticResourceParams)
             exportFileIndex(this.newStaticResourceIndex, AsciiDocConstant.templateFileLog)
+            removeOutResources(staticResourceParams, oldStaticResourceIndex)
         } catch (Exception e) {
             println("Error from updateTemplateAssetIndex: ${e.getMessage()}")
         }
@@ -272,12 +301,13 @@ class ResourceProcessor {
         }
     }
 
-    public void exportStaticContent() {
+    public List<TopicMergeReport> exportStaticContent() {
         updateDocumentIndex()
         exportHtaccess()
         exportGithubConfig()
         updateDocumentResourceIndex()
         updateTemplateAssetIndex()
+        return reports
     }
 
 }
