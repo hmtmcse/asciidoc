@@ -400,7 +400,7 @@ class TextToWebProcessor implements CommandProcessor {
         String sourceDoc = FDUtil.concatPath(config.source, sourceRelativePath)
 
         if (!fileDirectory.isExist(sourceDoc) || isUpdateAllHtml) {
-            return urlEligibleForExport
+            return urlEligibleForExport.setIsEligible(true)
         }
 
         FDInfo fdInfo = fileDirectory.getDetailsInfo(sourceDoc, true)
