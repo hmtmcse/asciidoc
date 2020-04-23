@@ -2,6 +2,7 @@ package com.hmtmcse.te
 
 import com.hmtmcse.asciidoc.AdocConverter
 import com.hmtmcse.common.AsciiDocException
+import com.hmtmcse.fileutil.data.FDInfo
 import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
@@ -235,6 +236,30 @@ class TextToWebHtmlEngine {
         return textToWebPageData
     }
 
+    private String parseDocFileToHtml(String path, TextToWebEngineConfig config) throws AsciiDocException {
+        try {
+            AdocConverter adocConverter = new AdocConverter()
+            return adocConverter.getHtmlFromFile(path)
+        } catch (Exception ignore) {
+            throw new AsciiDocException(ignore.getMessage())
+        }
+    }
+
+    private String readSubDirectoryContent(String content, TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
+        try {
+            String path = concatPath(textToWebEngineData.url)
+            if (fileDirectory.isDirectory(path)) {
+                FDInfo info = fileDirectory.getDetailsInfo(path, false)
+                path = FDUtil.concatPath(path, info.name) + (config.docFileExtension ? ".${config.docFileExtension}" : "")
+                if (fileDirectory.isExist(path)) {
+                    return parseDocFileToHtml(path, config)
+                }
+            }
+        } catch (Exception ignore) {
+        }
+        return content
+    }
+
     public String getPageContent(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) throws AsciiDocException {
         String content = config.defaultContent
         if (textToWebEngineData.urlKey && textToWebEngineData.topicNav.meta.get(textToWebEngineData.urlKey)) {
@@ -246,16 +271,14 @@ class TextToWebHtmlEngine {
                 path = "${textToWebEngineData.absolutePath}.${config.docFileExtension}".toString()
             }
             if (path && fileDirectory.isExist(path)) {
-                try {
-                    AdocConverter adocConverter = new AdocConverter()
-                    content = adocConverter.getHtmlFromFile(path)
-                } catch (Exception ignore) {
-                    throw new AsciiDocException(ignore.getMessage())
-                }
+                content = parseDocFileToHtml(path, config)
             }
+        } else {
+            content = readSubDirectoryContent(content, textToWebEngineData, config)
         }
         return content
     }
+
 
     public TextToWebEngineData setupLayout(TextToWebEngineData textToWebEngineData, TextToWebEngineConfig config) {
         if (textToWebEngineData.descriptor && textToWebEngineData.descriptor.layout.type) {
