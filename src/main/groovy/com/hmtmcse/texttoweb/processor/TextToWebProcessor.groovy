@@ -12,6 +12,8 @@ import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.fm.TwFileUtil
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.te.TextToWebHtmlEngine
+import com.hmtmcse.te.data.TextToWebEngineConfig
+import com.hmtmcse.te.data.TextToWebEngineData
 import com.hmtmcse.texttoweb.Config
 import com.hmtmcse.texttoweb.Descriptor
 import com.hmtmcse.texttoweb.Topic
@@ -19,6 +21,7 @@ import com.hmtmcse.texttoweb.common.ConfigLoader
 import com.hmtmcse.texttoweb.data.*
 import com.hmtmcse.texttoweb.model.CommandProcessor
 import com.hmtmcse.texttoweb.sample.DescriptorSample
+import com.hmtmcse.tmutil.TomTom
 
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -337,10 +340,10 @@ class TextToWebProcessor implements CommandProcessor {
             isIncludeTopic = !isChildIndex(topicDir)
             humReadableName = makeHumReadableWithoutExt(topicDir.name)
             if (topicDir.isDirectory && fileDirectoryListing.subDirectories) {
-                OutlineAndDescriptor _outlineAndDescriptor = new OutlineAndDescriptor(humReadableName, "#", "##" + url)
+                OutlineAndDescriptor _outlineAndDescriptor = new OutlineAndDescriptor(humReadableName, url, "##" + url)
                 _outlineAndDescriptor = prepareOutlineAndDescriptor(fileDirectoryListing.subDirectories, _outlineAndDescriptor, [outline: 0, details: null])
 
-                Topic detailsDescriptorTopic = new Topic(humReadableName, "#").setTracker("##" + url)
+                Topic detailsDescriptorTopic = new Topic(humReadableName, url).setTracker("##" + url)
                 _outlineAndDescriptor.detailsDescriptor.topics.each {
                     detailsDescriptorTopic.addChild(it)
                 }
@@ -397,7 +400,7 @@ class TextToWebProcessor implements CommandProcessor {
     private void processSubTopicAndDetails(FileDirectoryListing fileDirectoryListingInternal) {
         FDInfo topicsDir = fileDirectoryListingInternal.fileDirectoryInfo
         String url = getURL(topicsDir.absolutePath)
-        OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name), "#", "##" + url)
+        OutlineAndDescriptor outlineAndDescriptor = new OutlineAndDescriptor(makeHumReadableWithoutExt(topicsDir.name), url, "##" + url)
         outlineAndDescriptor = prepareOutlineAndDescriptor(fileDirectoryListingInternal.subDirectories, outlineAndDescriptor)
 
         String topicsRootPath = topicsDir.absolutePath
@@ -418,20 +421,45 @@ class TextToWebProcessor implements CommandProcessor {
         return getSourceList()
     }
 
+    private Map subContentIndex(relativePath) {
+        Map response = [
+                relativePath: relativePath,
+                isSubContent: false,
+        ]
+        try {
+            String path = FDUtil.concatPath(config.source, relativePath)
+            if (fileDirectory.isDirectory(path)) {
+                FDInfo info = fileDirectory.getDetailsInfo(path, false)
+                path = FDUtil.concatPath(path, info.name) + (processRequest.docFileExtension ? ".${processRequest.docFileExtension}" : "")
+                if (fileDirectory.isExist(path)) {
+                    response.relativePath = TomTom.concatWithSeparator(relativePath, info.name, "/")
+                    response.isSubContent = true
+                }
+            }
+        } catch (Exception ignore) {
+        }
+        return response
+    }
 
     private UrlEligibleForExport urlEligibleForExport(String url) {
         UrlEligibleForExport urlEligibleForExport = new UrlEligibleForExport()
         String relativePath = TwFileUtil.trimAndUrlToPath(url)
+        Map subContentIndex = subContentIndex(relativePath)
+        relativePath = subContentIndex.relativePath
         String sourceRelativePath = "${relativePath}.${processRequest.docFileExtension}".toString()
         String sourceDoc = FDUtil.concatPath(config.source, sourceRelativePath)
 
-        if (!fileDirectory.isExist(sourceDoc) || isUpdateAllHtml) {
-            return urlEligibleForExport.setIsEligible(true)
+        if (!fileDirectory.isExist(sourceDoc)) {
+            return urlEligibleForExport
         }
 
         FDInfo fdInfo = fileDirectory.getDetailsInfo(sourceDoc, true)
-        if (fdInfo.isDirectory) {
+        if (fdInfo.isDirectory || subContentIndex.isSubContent) {
             urlEligibleForExport.name = getBismillahFileName()
+        }
+
+        if (isUpdateAllHtml) {
+            return urlEligibleForExport.setIsEligible(true)
         }
 
         String outputDoc = FDUtil.concatPath(config.out, "${relativePath}.${processRequest.getExportFileExtensionByNullCheck()}".toString())
@@ -476,19 +504,23 @@ class TextToWebProcessor implements CommandProcessor {
         }
     }
 
+    private exportTopicToHtml(Topic topic){
+        UrlEligibleForExport urlEligibleForExport = urlEligibleForExport(topic.url)
+        if (topic.url && !topic.url.equals("#") && urlEligibleForExport.isEligible) {
+            if (!exportUrlToHtml(topic.url, urlEligibleForExport.name)) {
+                println("Unable to export file for url: ${topic.url}")
+            }
+        }
+    }
 
     private void processTopicToHtml(List<Topic> topics) {
         if (topics) {
             topics.each { Topic topic ->
                 if (topic.childs) {
+                    exportTopicToHtml(topic)
                     processTopicToHtml(topic.childs)
                 } else {
-                    UrlEligibleForExport urlEligibleForExport = urlEligibleForExport(topic.url)
-                    if (topic.url && !topic.url.equals("#") && urlEligibleForExport.isEligible) {
-                        if (!exportUrlToHtml(topic.url, urlEligibleForExport.name)) {
-                            println("Unable to export file for url: ${topic.url}")
-                        }
-                    }
+                    exportTopicToHtml(topic)
                 }
             }
         }

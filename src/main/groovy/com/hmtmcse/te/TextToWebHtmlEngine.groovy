@@ -272,6 +272,8 @@ class TextToWebHtmlEngine {
             }
             if (path && fileDirectory.isExist(path)) {
                 content = parseDocFileToHtml(path, config)
+            } else {
+                content = readSubDirectoryContent(content, textToWebEngineData, config)
             }
         } else {
             content = readSubDirectoryContent(content, textToWebEngineData, config)
