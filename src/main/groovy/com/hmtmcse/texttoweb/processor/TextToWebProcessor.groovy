@@ -153,6 +153,18 @@ class TextToWebProcessor implements CommandProcessor {
         return allowedByUser(key)
     }
 
+    private void removeTopic(Topic topic) {
+        String relativePath = topic.url
+        if (!topic.childs) {
+            relativePath += processRequest.exportFileExtension ?: ""
+        }
+        String source = FDUtil.concatPath(config.out, relativePath)
+        if (fileDirectory.isExist(source)) {
+            resourceProcessor.copyToTrash(source, topic.url)
+            fileDirectory.removeAllIfExist(source)
+        }
+    }
+
     private List<Topic> margeTopicDescriptor(Map currentTopicMap, List<Topic> previousTopic) {
         previousTopic = new CopyOnWriteArrayList<>(previousTopic)
         previousTopic.eachWithIndex { Topic topic, Integer index ->
@@ -167,6 +179,7 @@ class TextToWebProcessor implements CommandProcessor {
                     TopicMergeReport topicMergeReport = getTopicReport(previousTopic.get(index))
                     if (topicMergeReport && topicMergeReport.isMerge) {
                         isDescriptorUpdated = true
+                        removeTopic(previousTopic.get(index))
                         previousTopic.remove(index)
                         return
                     }
@@ -301,14 +314,27 @@ class TextToWebProcessor implements CommandProcessor {
         return preprocessAndMargeDescriptorTopics(newDescriptor, currentDescriptor)
     }
 
+    Boolean isChildIndex(FDInfo topicDir) {
+        if (!topicDir.isDirectory) {
+            String topicName = removeAdocExtension(topicDir.name)
+            String parent = fileDirectory.getParentPath(topicDir.absolutePath)
+            if (topicName && parent && parent.endsWith(topicName)) {
+                return true
+            }
+        }
+        return false
+    }
+
     OutlineAndDescriptor prepareOutlineAndDescriptor(List<FileDirectoryListing> subDirectories, OutlineAndDescriptor outlineAndDescriptor, Map index = [outline: 0, details: null]) {
         String url, humReadableName
+        Boolean isIncludeTopic
         subDirectories.each { FileDirectoryListing fileDirectoryListing ->
             FDInfo topicDir = fileDirectoryListing.fileDirectoryInfo
             if (isSkipFile(topicDir)) {
                 return
             }
             url = getURL(topicDir.absolutePath)
+            isIncludeTopic = !isChildIndex(topicDir)
             humReadableName = makeHumReadableWithoutExt(topicDir.name)
             if (topicDir.isDirectory && fileDirectoryListing.subDirectories) {
                 OutlineAndDescriptor _outlineAndDescriptor = new OutlineAndDescriptor(humReadableName, "#", "##" + url)
@@ -325,7 +351,7 @@ class TextToWebProcessor implements CommandProcessor {
                     outlineAndDescriptor.addToOutlineByIndex(index.outline, it)
                 }
 
-            } else {
+            } else if (isIncludeTopic) {
                 outlineAndDescriptor.addToOutlineByIndex(index.outline, new Topic(humReadableName, url))
                 outlineAndDescriptor.addToDetailsByIndex(index.details, new Topic(humReadableName, url))
             }

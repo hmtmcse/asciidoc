@@ -114,10 +114,10 @@ class ResourceProcessor {
         }
     }
 
-    private void copyToTrash(String source, String relativePath){
+    public void copyToTrash(String source, String relativePath){
         String trash, parent
         trash = FDUtil.concatPath(trashDir(), relativePath)
-        parent = fileDirectory.createParentDir(trash)
+        fileDirectory.createParentDir(trash)
         fileDirectory.removeAllIfExist(trash)
         fileDirectory.copyAll(source, trash)
         println("Deleting ${trash}")
