@@ -234,12 +234,19 @@ class TextToWebProcessor implements CommandProcessor {
         return previousTopic
     }
 
-    public void addDocExportReport(String status, String path, String message = "") {
+    public void addDocExportReport(String status, String path, String message = "", String url = "") {
         TopicMergeReport topicMergeReport = new TopicMergeReport()
         topicMergeReport.setStatus(status)
         topicMergeReport.setPath(path)
         topicMergeReport.setMessage(message)
+        topicMergeReport.setUrl(url)
         docExportReports.add(topicMergeReport)
+    }
+
+    public Boolean isAlreadyExported(String url) {
+        return docExportReports.collect {
+            item -> item.url.equals(url)
+        }
     }
 
     private Map topicDescriptorListToMap(List<Topic> topics) {
@@ -424,6 +431,7 @@ class TextToWebProcessor implements CommandProcessor {
     private Map subContentIndex(relativePath) {
         Map response = [
                 relativePath: relativePath,
+                originalRelativePath: relativePath,
                 isSubContent: false,
         ]
         try {
@@ -432,7 +440,7 @@ class TextToWebProcessor implements CommandProcessor {
                 FDInfo info = fileDirectory.getDetailsInfo(path, false)
                 path = FDUtil.concatPath(path, info.name) + (processRequest.docFileExtension ? ".${processRequest.docFileExtension}" : "")
                 if (fileDirectory.isExist(path)) {
-                    response.relativePath = TomTom.concatWithSeparator(relativePath, info.name, "/")
+                    response.relativePath = TomTom.concatWithSeparator(relativePath, info.name, File.separator)
                     response.isSubContent = true
                 }
             }
@@ -462,9 +470,11 @@ class TextToWebProcessor implements CommandProcessor {
             return urlEligibleForExport.setIsEligible(true)
         }
 
-        String outputDoc = FDUtil.concatPath(config.out, "${relativePath}.${processRequest.getExportFileExtensionByNullCheck()}".toString())
+        String outputDoc = FDUtil.concatPath(config.out, "${relativePath}${processRequest.getExportFileExtensionByNullCheck()}".toString())
         if (resourceProcessor.isModifiedDocFile(sourceRelativePath, fdInfo)) {
             return urlEligibleForExport.setIsEligible(true)
+        } else if (subContentIndex.isSubContent && FDUtil.concatPath(config.out, subContentIndex.originalRelativePath, urlEligibleForExport.name)) {
+            return urlEligibleForExport
         } else if (!fileDirectory.isExist(outputDoc)) {
             return urlEligibleForExport.setIsEligible(true)
         }
@@ -480,9 +490,12 @@ class TextToWebProcessor implements CommandProcessor {
         String errorFrom = "Export Url to Html Error:"
         String status = "Doc Exported"
         try {
+            if (isAlreadyExported(url)) {
+                return true
+            }
             SearchProcessor searchIndexProcessor = new SearchProcessor()
             String outputDoc = urlToOutputDocFile(url, name)
-            if (fileDirectory.isExist(outputDoc)){
+            if (fileDirectory.isExist(outputDoc)) {
                 status = "Doc Updated"
             }
             if (!fileDirectory.removeIfExist(outputDoc)) {
@@ -624,7 +637,8 @@ class TextToWebProcessor implements CommandProcessor {
         iterateDescriptor(topics)
         exportStaticPage()
         resourceProcessor.exportStaticContent()
-        return resourceProcessor.reports + docExportReports
+        docExportReports.addAll(resourceProcessor.reports)
+        return docExportReports
     }
 
     public void test() {

@@ -88,6 +88,8 @@ class ResourceProcessor {
     private String pathToKey(String path) {
         String key = TStringUtil.findReplace(path, File.separator, "_")
         key = TStringUtil.findReplace(key, ".", "_")
+        key = TStringUtil.findReplace(key, "/", "_")
+        key = TStringUtil.findReplace(key, "\\", "_")
         return TStringUtil.findReplace(key, "-", "_")
     }
 

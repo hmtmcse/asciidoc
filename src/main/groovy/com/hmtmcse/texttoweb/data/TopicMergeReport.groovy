@@ -5,6 +5,7 @@ class TopicMergeReport {
     public Boolean isEditable = true
     public Boolean isMerge = true
     public String name
+    public String url
     public String topicKey
     public String relativePath
     public String trashPath
@@ -62,6 +63,11 @@ class TopicMergeReport {
 
     TopicMergeReport setMessage(String message) {
         this.message = message
+        return this
+    }
+
+    TopicMergeReport setUrl(String url) {
+        this.url = url
         return this
     }
 }
