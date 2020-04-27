@@ -168,71 +168,117 @@ class TextToWebProcessor implements CommandProcessor {
         }
     }
 
-    private List<Topic> margeTopicDescriptor(Map currentTopicMap, List<Topic> previousTopic) {
-        previousTopic = new CopyOnWriteArrayList<>(previousTopic)
-        previousTopic.eachWithIndex { Topic topic, Integer index ->
-            if (topic.childs && currentTopicMap.get(topic.tracker)) {
-                Map topicMap = currentTopicMap.get(topic.tracker).topicMap
-                topic.childs = margeTopicDescriptor(topicMap, topic.childs)
-                currentTopicMap.remove(topic.tracker)
-            } else if (currentTopicMap.get(topic.url)) {
-                currentTopicMap.remove(topic.url)
+    private TopicMergeData margeTopicDescriptor(TopicMergeData topicMergeData) {
+
+        TopicMergeData temp
+        TopicListToMapData tempTopicListMap
+        List<Topic> tempChild
+        topicMergeData.previousTopic.eachWithIndex { Topic topic, Integer index ->
+            tempTopicListMap = topicMergeData.currentTopicMap.get(topic.url)
+            tempChild = topic.childs
+
+            if (tempChild && tempTopicListMap) { // Content has been updated
+                temp = new TopicMergeData(tempTopicListMap.child, tempChild)
+                temp = margeTopicDescriptor(temp)
+                topicMergeData.currentTopicMap.remove(topic.url)
+                topicMergeData.previousTopic.get(index).childs = temp.previousTopic
+            } else if (tempChild) { // Previous Content Deleted
+                temp = new TopicMergeData(tempChild)
+                temp = margeTopicDescriptor(temp)
+                topicMergeData.previousTopic.get(index).name += " - Deleted With Child"
+                topicMergeData.previousTopic.get(index).childs = temp.previousTopic
+
+            } else if (tempTopicListMap) { // Content exist both side
+                topicMergeData.currentTopicMap.remove(topic.url)
+
             } else {
-                if (processRequest.task.equals(ProcessTask.MERGE)) {
-                    TopicMergeReport topicMergeReport = getTopicReport(previousTopic.get(index))
-                    if (topicMergeReport && topicMergeReport.isMerge) {
-                        isDescriptorUpdated = true
-                        removeTopic(previousTopic.get(index))
-                        previousTopic.remove(index)
-                        return
-                    }
-                }
-                if (topic.childs) {
-                    isDescriptorUpdated = true
-                    previousTopic.get(index).name += " - Deleted With Child"
-                } else {
-                    isDescriptorUpdated = true
-                    previousTopic.get(index).name += " - Deleted"
-                }
-                addTopicReport(previousTopic.get(index))
+                topicMergeData.previousTopic.get(index).name += " - Deleted"
+                addTopicReport(topicMergeData.previousTopic.get(index))
             }
         }
 
-        Topic temp
-        String name
-        currentTopicMap.each { key, newTopic ->
-            name = null
-            if (processRequest.task.equals(ProcessTask.MERGE)) {
-                TopicMergeReport topicMergeReport
-                if (newTopic instanceof Topic) {
-                    topicMergeReport = getTopicReport(newTopic)
-                } else if (newTopic instanceof Map) {
-                    topicMergeReport = getTopicReport(newTopic.topic)
-                }
-                if (topicMergeReport && !topicMergeReport.isMerge) {
-                    return
-                } else if (topicMergeReport && topicMergeReport.name) {
-                    name = topicMergeReport.name
-                }
+        topicMergeData.currentTopicMap.each { String key, TopicListToMapData newTopic ->
+            if (newTopic.child) {
+                temp = new TopicMergeData(newTopic.child)
+                temp = margeTopicDescriptor(temp)
+                newTopic.topic.childs = temp.previousTopic
             }
-
-            if (newTopic instanceof Topic) {
-                newTopic.name = newTopic.name + " - Added"
-                newTopic.name = name ?: newTopic.name
-                previousTopic.add(newTopic)
-                addTopicReport(newTopic)
-                isDescriptorUpdated = true
-            } else if (newTopic instanceof Map) {
-                temp = newTopic.topic
-                temp.name += " - Added with Child"
-                temp.name = name ?: temp.name
-                previousTopic.add(temp)
-                addTopicReport(temp)
-                isDescriptorUpdated = true
-            }
+            topicMergeData.previousTopic.add(newTopic.topic)
+            addTopicReport(newTopic.topic)
         }
-        return previousTopic
+
+        return topicMergeData
     }
+
+    private List<Topic> margeTopicDescriptor(Map<String, TopicListToMapData> currentTopicMap, List<Topic> previousTopic) {
+        return margeTopicDescriptor(new TopicMergeData(currentTopicMap, previousTopic)).previousTopic
+    }
+
+//    private List<Topic> margeTopicDescriptor(Map currentTopicMap, List<Topic> previousTopic) {
+//        previousTopic = new CopyOnWriteArrayList<>(previousTopic)
+//        previousTopic.eachWithIndex { Topic topic, Integer index ->
+//            if (topic.childs && currentTopicMap.get(topic.tracker)) {
+//                Map topicMap = currentTopicMap.get(topic.tracker).topicMap
+//                topic.childs = margeTopicDescriptor(topicMap, topic.childs)
+//                currentTopicMap.remove(topic.tracker)
+//            } else if (currentTopicMap.get(topic.url)) {
+//                currentTopicMap.remove(topic.url)
+//            } else {
+//                if (processRequest.task.equals(ProcessTask.MERGE)) {
+//                    TopicMergeReport topicMergeReport = getTopicReport(previousTopic.get(index))
+//                    if (topicMergeReport && topicMergeReport.isMerge) {
+//                        isDescriptorUpdated = true
+//                        removeTopic(previousTopic.get(index))
+//                        previousTopic.remove(index)
+//                        return
+//                    }
+//                }
+//                if (topic.childs) {
+//                    isDescriptorUpdated = true
+//                    previousTopic.get(index).name += " - Deleted With Child"
+//                } else {
+//                    isDescriptorUpdated = true
+//                    previousTopic.get(index).name += " - Deleted"
+//                }
+//                addTopicReport(previousTopic.get(index))
+//            }
+//        }
+//
+//        Topic temp
+//        String name
+//        currentTopicMap.each { key, newTopic ->
+//            name = null
+//            if (processRequest.task.equals(ProcessTask.MERGE)) {
+//                TopicMergeReport topicMergeReport
+//                if (newTopic instanceof Topic) {
+//                    topicMergeReport = getTopicReport(newTopic)
+//                } else if (newTopic instanceof Map) {
+//                    topicMergeReport = getTopicReport(newTopic.topic)
+//                }
+//                if (topicMergeReport && !topicMergeReport.isMerge) {
+//                    return
+//                } else if (topicMergeReport && topicMergeReport.name) {
+//                    name = topicMergeReport.name
+//                }
+//            }
+//
+//            if (newTopic instanceof Topic) {
+//                newTopic.name = newTopic.name + " - Added"
+//                newTopic.name = name ?: newTopic.name
+//                previousTopic.add(newTopic)
+//                addTopicReport(newTopic)
+//                isDescriptorUpdated = true
+//            } else if (newTopic instanceof Map) {
+//                temp = newTopic.topic
+//                temp.name += " - Added with Child"
+//                temp.name = name ?: temp.name
+//                previousTopic.add(temp)
+//                addTopicReport(temp)
+//                isDescriptorUpdated = true
+//            }
+//        }
+//        return previousTopic
+//    }
 
     public void addDocExportReport(String status, String path, String message = "", String url = "") {
         TopicMergeReport topicMergeReport = new TopicMergeReport()
@@ -264,13 +310,34 @@ class TextToWebProcessor implements CommandProcessor {
         return topicMap
     }
 
+    private Map<String, TopicListToMapData> topicListToMap(List<Topic> topics) {
+        Map<String, TopicListToMapData> topicMap = [:]
+        TopicListToMapData temp
+        if (!topics) {
+            return topicMap
+        }
+        topics.each { Topic topic ->
+            if (topic.childs) {
+                temp = new TopicListToMapData(topic)
+                temp.child = topicListToMap(topic.childs)
+                topicMap.put(topic.url, temp)
+            } else {
+                topicMap.put(topic.url, new TopicListToMapData(topic))
+            }
+        }
+        return topicMap
+    }
+
+
     private Descriptor preprocessAndMargeDescriptorTopics(Descriptor currentDescriptor, Descriptor previousDescriptor) {
         Map currentTopicMap = topicDescriptorListToMap(currentDescriptor.topics)
         isDescriptorUpdated = false
         if (!previousDescriptor.topics) {
             previousDescriptor.topics = new ArrayList<>()
         }
-        previousDescriptor.topics = margeTopicDescriptor(currentTopicMap, previousDescriptor.topics)
+        previousDescriptor.topics = margeTopicDescriptor(topicListToMap(currentDescriptor.topics), previousDescriptor.topics)
+
+//        previousDescriptor.topics = margeTopicDescriptor(currentTopicMap, previousDescriptor.topics)
         previousDescriptor.updateStatus(isDescriptorUpdated)
         return previousDescriptor
     }
