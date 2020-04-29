@@ -60,13 +60,12 @@ trait CommandProcessor {
         return "${TextToWebConst.DESCRIPTOR}.${TextToWebConst.YML}"
     }
 
-    Boolean backupFile(String newFile, String oldFile = null) {
-        if (FileDirectory.instance().isExist(newFile)) {
-            backupFile(newFile + ".${TextToWebConst.BACK}", newFile)
-        } else {
-            if (oldFile) {
-                return FileDirectory.instance().move(oldFile, newFile)
-            }
+    Boolean backupFile(String saveTo, String backupTo = null, Integer index = 0) {
+        backupTo = backupTo ?: saveTo
+        if (FileDirectory.instance().isExist(backupTo)) {
+            backupFile(saveTo, saveTo + "-${index}.${TextToWebConst.BACK}", index + 1)
+        } else if (FileDirectory.instance().isExist(saveTo)) {
+            return FileDirectory.instance().move(saveTo, backupTo)
         }
         return true
     }
