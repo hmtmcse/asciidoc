@@ -216,6 +216,7 @@ class TextToWebProcessor implements CommandProcessor {
                         isDescriptorUpdated = true
                         removeTopic(topicMergeData.previousTopic.get(index))
                         topicMergeData.previousTopic.remove(index)
+                        adjustIndex++
                         return
                     }
                 }
