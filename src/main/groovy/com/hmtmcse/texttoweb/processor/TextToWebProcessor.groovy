@@ -326,6 +326,9 @@ class TextToWebProcessor implements CommandProcessor {
                 if (topicMergeReport && !topicMergeReport.isMerge) {
                     topics.remove(topic)
                 } else {
+                    if (topicMergeReport && topicMergeReport.name) {
+                        topic.name = topicMergeReport.name
+                    }
                     if (topic.childs) {
                         topic.childs = newDescriptorTopicProcessAndReport(topic.childs)
                     }
