@@ -1,6 +1,6 @@
-source: 'H:\hmtmcse_com_site\projects\hmtmcse_com_adoc'
-out: '/Desktop/codes/html-out'
-template: "W:\\text-to-web-engine\\engine\\templates\\freemarker-java"
+source: 'libraries/asciidoc/example/root'
+out: 'libraries/asciidoc/example/root/out'
+template: "templates/freemarker-java"
 
 ignore:
   - '.git'
