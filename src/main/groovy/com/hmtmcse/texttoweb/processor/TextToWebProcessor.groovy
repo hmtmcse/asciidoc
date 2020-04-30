@@ -168,41 +168,39 @@ class TextToWebProcessor implements CommandProcessor {
         }
     }
 
-
-
     private TopicMergeData margeTopicDescriptor(TopicMergeData topicMergeData) {
-
+        Topic topic
+        List<Topic> tempChild
         TopicMergeData temp
         TopicListToMapData tempTopicListMap
-        List<Topic> tempChild
-        topicMergeData.previousTopic = new CopyOnWriteArrayList<>(topicMergeData.previousTopic)
-        Integer adjustIndex = 0
-        topicMergeData.previousTopic.eachWithIndex { Topic topic, Integer index ->
+        Iterator previousTopic = topicMergeData.previousTopic.iterator()
+        while (previousTopic.hasNext()){
+            topic = previousTopic.next()
             tempTopicListMap = topicMergeData.currentTopicMap.get(topic.url)
             tempChild = topic.childs
-            index = index - adjustIndex
             if (tempChild && tempTopicListMap) { // Content has been updated
                 temp = new TopicMergeData(tempTopicListMap.child, tempChild)
                 temp = margeTopicDescriptor(temp)
                 topicMergeData.currentTopicMap.remove(topic.url)
-                topicMergeData.previousTopic.get(index).childs = temp.previousTopic
+                if (temp && temp.previousTopic){
+                    topic.childs = temp.previousTopic
+                }
             } else if (tempChild) { // Previous Content Deleted
                 if (processRequest.task.equals(ProcessTask.MERGE)) {
-                    TopicMergeReport topicMergeReport = getTopicReport(topicMergeData.previousTopic.get(index))
+                    TopicMergeReport topicMergeReport = getTopicReport(topic)
                     if (topicMergeReport && topicMergeReport.isMerge) {
                         isDescriptorUpdated = true
-                        removeTopic(topicMergeData.previousTopic.get(index))
-                        topicMergeData.previousTopic.remove(index)
-                        adjustIndex++
+                        removeTopic(topic)
+                        previousTopic.remove()
                         return
                     }
                 }
 
                 temp = new TopicMergeData(tempChild)
                 temp = margeTopicDescriptor(temp)
-                topicMergeData.previousTopic.get(index).name += " - Deleted With Child"
-                topicMergeData.previousTopic.get(index).childs = temp.previousTopic
-                addTopicReport(topicMergeData.previousTopic.get(index))
+                topic.name += " - Deleted With Child"
+                topic.childs = temp.previousTopic
+                addTopicReport(topic)
                 isDescriptorUpdated = true
             } else if (tempTopicListMap) { // Content exist both side
                 if (!topicMergeData.currentTopicMap.get(topic.url)?.child){
@@ -211,18 +209,17 @@ class TextToWebProcessor implements CommandProcessor {
             } else {
 
                 if (processRequest.task.equals(ProcessTask.MERGE)) {
-                    TopicMergeReport topicMergeReport = getTopicReport(topicMergeData.previousTopic.get(index))
+                    TopicMergeReport topicMergeReport = getTopicReport(topic)
                     if (topicMergeReport && topicMergeReport.isMerge) {
                         isDescriptorUpdated = true
-                        removeTopic(topicMergeData.previousTopic.get(index))
-                        topicMergeData.previousTopic.remove(index)
-                        adjustIndex++
+                        removeTopic(topic)
+                        previousTopic.remove()
                         return
                     }
                 }
                 isDescriptorUpdated = true
-                topicMergeData.previousTopic.get(index).name += " - Deleted"
-                addTopicReport(topicMergeData.previousTopic.get(index))
+                topic.name += " - Deleted"
+                addTopicReport(topic)
             }
         }
 
@@ -249,8 +246,13 @@ class TextToWebProcessor implements CommandProcessor {
         return topicMergeData
     }
 
+
     private List<Topic> margeTopicDescriptor(Map<String, TopicListToMapData> currentTopicMap, List<Topic> previousTopic) {
-        return margeTopicDescriptor(new TopicMergeData(currentTopicMap, previousTopic)).previousTopic
+        TopicMergeData topicMergeData = margeTopicDescriptor(new TopicMergeData(currentTopicMap, previousTopic))
+        if (topicMergeData && topicMergeData.previousTopic) {
+            return topicMergeData.previousTopic
+        }
+        return []
     }
 
 
