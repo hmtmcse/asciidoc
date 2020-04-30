@@ -37,6 +37,7 @@ class TextToWebProcessor implements CommandProcessor {
     private TextToWebHtmlEngine textToWebHtmlEngine
     private TextFile textFile
     private Map<String, Boolean> trackDescriptorPage = [:]
+    private Map<String, Boolean> trackOutlinePage = [:]
     private ResourceProcessor resourceProcessor
 
 
@@ -615,19 +616,34 @@ class TextToWebProcessor implements CommandProcessor {
     private void exportDescriptorPage(String descriptorPath) {
         String path
         isUpdateAllHtml = false
+        Boolean isOutline = false
+        Boolean trackUrl = false
         if (descriptorPath && descriptorPath.endsWith(ymlDescriptorFileName())) {
             path = descriptorPath.replace(ymlDescriptorFileName(), "")
         } else if (descriptorPath && descriptorPath.endsWith(ymltOutlineFileName())) {
             path = descriptorPath.replace(ymltOutlineFileName(), "")
+            isOutline = true
         }
         if (path) {
             String url = getURL(path)
-            if (!url || url.equals("") || trackDescriptorPage.get(url)) {
+
+            if (isOutline) {
+                trackUrl = trackOutlinePage.get(url)
+            } else {
+                trackUrl = trackDescriptorPage.get(url)
+            }
+
+            if (!url || url.equals("") || trackUrl) {
                 return
             }
             String name = ""
             String nameWithExtension = getBismillahFileName()
-            trackDescriptorPage.put(url, true)
+            if (isOutline) {
+                trackOutlinePage.put(url, true)
+            } else {
+                trackDescriptorPage.put(url, true)
+            }
+
             if (url && url.equals("/")) {
                 name = AsciiDocConstant.bismillahFile
             } else if (url && !url.startsWith("/")) {
