@@ -659,7 +659,9 @@ class TextToWebProcessor implements CommandProcessor {
                 return
             }
             exportUrlToHtml(url, outputName)
-            isUpdateAllHtml = true
+            if (!isOutline){
+                isUpdateAllHtml = true
+            }
         }
     }
 
