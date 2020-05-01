@@ -21,20 +21,32 @@ class SeoProcessor implements CommandProcessor {
         return ""
     }
 
+    private Boolean loopSeoSettings(List<Topic> topics, String url, SeoEditData seoEditData){
+        for (Topic topic : topics) {
+            if (topic.url.equals(url)) {
+                topic.seo = seoEditData.getSeo()
+                topic.name = seoEditData.navName
+                return true
+            }
+            if (topic.childs){
+                if (loopSeoSettings(topic.childs, url, seoEditData)){
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     private Descriptor mergeSeoSettings(SeoEditData seoEditData, Descriptor descriptor) {
         String url = seoEditData.url
         if (url && url.startsWith("/")) {
             url = url.substring(1)
         }
+
         Integer index = 0
         if (descriptor.topics && url) {
-            for (Topic topic : descriptor.topics) {
-                if (topic.url.equals(url)) {
-                    descriptor.topics.get(index).seo = seoEditData.getSeo()
-                    descriptor.topics.get(index).name = seoEditData.navName
-                    return descriptor
-                }
-                index++
+            if (loopSeoSettings(descriptor.topics, url, seoEditData)){
+                return descriptor
             }
         }
         descriptor.seo = seoEditData.getSeo()
@@ -45,8 +57,6 @@ class SeoProcessor implements CommandProcessor {
         TextToWebEngineConfig config = new TextToWebEngineConfig()
         TextToWebHtmlEngine textToWebHtmlEngine = new TextToWebHtmlEngine()
         TextToWebEngineData textToWebEngineData = textToWebHtmlEngine.processTextToWebEngineData(seoEditData.url, config)
-        println(textToWebEngineData.absolutePath)
-        println(textToWebEngineData.descriptorAbsolutePath)
         Descriptor descriptor = mergeSeoSettings(seoEditData, textToWebEngineData.descriptor)
         exportToYmlFileFromAbsolutePath(textToWebEngineData.descriptorAbsolutePath, descriptor)
         return jsonStatus("Success");

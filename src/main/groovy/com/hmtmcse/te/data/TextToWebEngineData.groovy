@@ -17,10 +17,27 @@ class TextToWebEngineData {
     public TopicNav relatedTopicNav;
 
     Seo getSeoData(Seo seo = null) {
-        if (topicNav && topicNav.meta && topicNav.meta.get(urlKey)?.seo) {
-            return topicNav.meta.get(urlKey).seo
+        if (topicNav && topicNav.meta) {
+            Seo seoFromLoop = processMeta(topicNav.meta)
+            if (seoFromLoop) {
+                return seoFromLoop
+            }
         }
         return descriptor?.seo ?: seo
+    }
+
+    private Seo processMeta(Map<String, TopicNavItem> meta) {
+        Seo seo = null
+        meta.find { key, item ->
+            if (urlKey.equals(key)) {
+                seo = item.seo
+                return true
+            }
+            if (item.childs) {
+                seo = processMeta(item.childs)
+            }
+        }
+        return seo
     }
 
 }
