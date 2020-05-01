@@ -27,6 +27,7 @@ class ResourceProcessor {
     public List<TopicMergeReport> reports = []
     private static final String copied = "copied"
     private static final String deleted = "deleted"
+    public Boolean forceAllExport = false
 
     ResourceProcessor(Config config) {
         this.config = config
@@ -230,6 +231,9 @@ class ResourceProcessor {
     }
 
     public Boolean isModifiedDocFile(String relativePath, FDInfo fdInfo) {
+        if (forceAllExport) {
+            return true
+        }
         if (docFileLogIndex == null) {
             loadDocumentIndex()
         }
@@ -294,6 +298,22 @@ class ResourceProcessor {
         content += "\n" + "AddOutputFilterByType DEFLATE text/html"
         content += "\n" + "AddOutputFilterByType DEFLATE text/javascript"
         content += "\n" + "AddOutputFilterByType DEFLATE text/plain"
+
+        content += "\n" + "ExpiresActive On"
+        content += "\n" + "ExpiresByType image/jpeg \"access plus 1 month\""
+        content += "\n" + "ExpiresByType image/gif \"access plus 1 month\""
+        content += "\n" + "ExpiresByType image/png \"access plus 1 month\""
+        content += "\n" + "ExpiresByType image/webp \"access plus 1 month\""
+        content += "\n" + "ExpiresByType image/svg+xml \"access plus 1 month\""
+        content += "\n" + "ExpiresByType image/x-icon \"access plus 1 month\""
+        content += "\n" + "ExpiresByType video/mp4 \"access plus 1 month\""
+        content += "\n" + "ExpiresByType video/mpeg \"access plus 1 month\""
+        content += "\n" + "ExpiresByType text/css \"access plus 1 month\""
+        content += "\n" + "ExpiresByType text/javascript \"access plus 1 month\""
+        content += "\n" + "ExpiresByType application/javascript \"access plus 1 month\""
+        content += "\n" + "ExpiresByType application/pdf \"access plus 1 month\""
+        content += "\n" + "ExpiresByType application/x-shockwave-flash \"access plus 1 month\""
+
         content += "\n" + "</IfModule>"
         try {
             String path = FDUtil.concatPath(config.out, ".htaccess")

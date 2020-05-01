@@ -695,8 +695,9 @@ class TextToWebProcessor implements CommandProcessor {
         }
     }
 
-    public List<TopicMergeReport> exportToHtml() throws AsciiDocException {
+    public List<TopicMergeReport> exportToHtml(Boolean force = false) throws AsciiDocException {
         List<FileDirectoryListing> topics = getTopicList()
+        resourceProcessor.forceAllExport = force
         processRequest.isFromWebsite = false
         resourceProcessor.loadDocumentIndex()
         iterateDescriptor(topics)
