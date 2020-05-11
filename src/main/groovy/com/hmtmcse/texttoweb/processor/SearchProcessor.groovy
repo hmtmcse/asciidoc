@@ -12,8 +12,8 @@ class SearchProcessor {
     private String minify(Document document, String html) {
         if (document) {
             document.outputSettings().indentAmount(0).prettyPrint(false)
-            html = document.toString()
-            return html.toString().replaceAll(">\\s+", ">").replaceAll("\\s+<", "<")
+            return html = document.toString()
+//            return html.toString().replaceAll(">\\s+", ">").replaceAll("\\s+<", "<")
         }
         return html
     }
