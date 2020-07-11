@@ -317,8 +317,10 @@ class ResourceProcessor {
         content += "\n" + "</IfModule>"
         try {
             String path = FDUtil.concatPath(config.out, ".htaccess")
-            fileDirectory.removeIfExist(path)
-            textFile.stringToFile(path, content)
+            if (!fileDirectory.isExist(path)) {
+                fileDirectory.removeIfExist(path)
+                textFile.stringToFile(path, content)
+            }
         } catch (Exception e) {
             println("Error from Export .htaccess: ${e.getMessage()}")
         }
