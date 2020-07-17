@@ -2,6 +2,7 @@ package com.hmtmcse.texttoweb.processor
 
 import com.hmtmcse.common.AsciiDocConstant
 import com.hmtmcse.common.AsciiDocUtil
+import com.hmtmcse.csv.CsvToJsonProcessor
 import com.hmtmcse.fileutil.data.FDInfo
 import com.hmtmcse.fileutil.data.FileDirectoryListing
 import com.hmtmcse.fileutil.fd.FDUtil
@@ -345,6 +346,8 @@ class ResourceProcessor {
         exportGithubConfig()
         updateDocumentResourceIndex()
         updateTemplateAssetIndex()
+        CsvToJsonProcessor csvToJsonProcessor = new CsvToJsonProcessor()
+        csvToJsonProcessor.exportToOut()
         return reports
     }
 

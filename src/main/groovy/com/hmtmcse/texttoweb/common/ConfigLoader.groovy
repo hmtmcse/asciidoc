@@ -47,7 +47,7 @@ class ConfigLoader {
             config.ignore.add(".git")
             config.ignore.add(".gitignore")
             config.ignore.add("static-files")
-            config.ignore.add("data-files")
+            config.ignore.add("data-file")
             config.ignore.add(".back")
             config.ignore.add(".idea")
             config.ignore.add(".gitignore")

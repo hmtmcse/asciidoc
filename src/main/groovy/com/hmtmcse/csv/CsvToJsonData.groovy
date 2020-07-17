@@ -6,5 +6,6 @@ public class CsvToJsonData {
     public String bangla;
     public String synonymous;
     public String example;
+    public String englishMeaning;
 
 }
