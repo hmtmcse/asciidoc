@@ -10,6 +10,9 @@ import com.hmtmcse.fileutil.fd.FDUtil
 import com.hmtmcse.fileutil.fd.FileDirectory
 import com.hmtmcse.fileutil.text.TextFile
 import com.hmtmcse.fm.TwFileUtil
+import com.hmtmcse.shellutil.base.CommandRequest
+import com.hmtmcse.shellutil.base.CommandResponse
+import com.hmtmcse.shellutil.base.OSCommandExec
 import com.hmtmcse.shellutil.console.menu.OptionValues
 import com.hmtmcse.te.TextToWebHtmlEngine
 import com.hmtmcse.te.data.TextToWebEngineConfig
@@ -556,12 +559,27 @@ class TextToWebProcessor implements CommandProcessor {
                 fileDirectory.createDirectoriesIfNotExist(outputDocFile.getParentFile().absolutePath)
                 html = searchIndexProcessor.process(url, html)
                 addDocExportReport(status, outputDoc, "Exported")
-                return textFile.stringToFile(outputDoc, html)
+                Boolean response = textFile.stringToFile(outputDoc, html)
+                this.minifyHtml(outputDoc)
+                return response
             } else {
                 println("${errorFrom} HTML Not found.")
             }
         } catch (Exception e) {
             println("${errorFrom} ${e.getMessage()}")
+        }
+    }
+
+    void minifyHtml(String file) {
+        try {
+            OSCommandExec osCommandExec = new OSCommandExec();
+            CommandResponse commandResponse = osCommandExec.execute(
+                    CommandRequest.withCommand("C:\\Users\\hmtmc\\AppData\\Roaming\\npm\\html-minifier.cmd", "--collapse-whitespace", "\"${file}\"", "-o", "\"${file}\"").setPrintInConsole(true).setWaitUntilFinish(true).setIncludeSystemEnvironment(true)
+            );
+            if (!commandResponse.isExecuted) {
+                System.out.println(commandResponse.exceptionMessage);
+            }
+        } catch (Exception ignore) {
         }
     }
 

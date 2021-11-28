@@ -21,7 +21,7 @@ class AdocConverter {
 
     public String getHtmlFromText(String text){
         Attributes attributes = new Attributes()
-        attributes.setSourceHighlighter("coderay")
+//        attributes.setSourceHighlighter("coderay")
         Options options = new Options()
         options.setAttributes(attributes)
 

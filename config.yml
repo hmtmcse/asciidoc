@@ -1,6 +1,6 @@
-source: 'libraries/asciidoc/example/root'
-out: 'libraries/asciidoc/example/root/out'
-template: "templates/freemarker-java"
+source: "D:\\hmtmcse.com\\adoc.hmtmcse.com"
+out: "D:\\hmtmcse.com\\html.hmtmcse.com"
+template: "D:\\hmtmcse.com\\templates\\freemarker-java"
 
 ignore:
   - '.git'

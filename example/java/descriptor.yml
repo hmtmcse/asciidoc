@@ -1,0 +1,11 @@
+---
+layout:
+  type: "details"
+defaultTitle: "Java"
+topics:
+- name: "Spring boot"
+  url: "D:/engine/libraries/asciidoc/./example/java/spring-boot"
+  tracker: "##D:/engine/libraries/asciidoc/./example/java/spring-boot"
+  childs:
+  - name: "Bismillah"
+    url: "D:/engine/libraries/asciidoc/./example/java/spring-boot/bismillah"
